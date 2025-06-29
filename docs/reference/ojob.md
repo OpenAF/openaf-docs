@@ -138,10 +138,10 @@ ojob:
     logErr("Dependency failed: " + job.name)
   
   # Templates and arguments
-  templateArgs: true           # Process {{}} handlebars in args
+  templateArgs: true           # Process {% raw %}{{}}{% endraw %} handlebars in args
   argsFromEnvs: true           # Load environment variables as args
-  initTemplateEscape: false    # Escape {{ in init values
-  
+  initTemplateEscape: false    # Escape {% raw %}{{{% endraw %} in init values
+
   # Timing
   cronInLocalTime: false       # Use local time for cron expressions
 ```
@@ -302,7 +302,7 @@ ojob:
   langs:
   - lang: mylang
     shell: "mylang -"
-    pre: "var args = JSON.parse('{{args}}');\n"
+    pre: "var args = JSON.parse('{% raw %}{{args}}{% endraw %}');\n"
     pos: "\nconsole.log(JSON.stringify(args));\n"
     returnRE: "\\s*#\\s+return (.+)[\\s\\n]*$"
     returnFn: |
@@ -485,7 +485,7 @@ jobs:
 - name: "Templated Job"
   args:
     defaultValue: "hello"
-    templateValue: "{{args.input}}-processed"
+    templateValue: "{% raw %}{{args.input}}{% endraw %}-processed"
   exec: |
     log("Default: " + args.defaultValue)
     log("Template result: " + args.templateValue)
@@ -779,7 +779,7 @@ todo:
   ((format)): "json"
   
 # Template processing
-- (template): "Hello {{name}}!"
+- (template): "Hello {% raw %}{{name}}{% endraw %}!"
   ((data)): { name: "World" }
   
 # Ask for input
@@ -839,9 +839,9 @@ todo:
 # Print markdown
 - (printmd): |
     # Status Report
-    Current status: {{status}}
-  
-# Function execution  
+    Current status: {% raw %}{{status}}{% endraw %}
+
+# Function execution
 - (fn): "myFunction"
   ((args)): { param: "value" }
   
@@ -859,9 +859,9 @@ todo:
   
 # Environment variable setting
 - (setenvs):
-    DATABASE_URL: "{{config.db.url}}"
-    API_KEY: "{{secrets.apikey}}"
-    
+    DATABASE_URL: "{% raw %}{{config.db.url}}{% endraw %}"
+    API_KEY: "{% raw %}{{secrets.apikey}}{% endraw %}"
+
 # Job planning and checking
 - (check): "Validation Job"
   ((actions)):
@@ -975,7 +975,7 @@ jobs:
 jobs:
 - name: "Template Job"
   exec: |
-    var template = "Hello {{name}}, welcome to {{app}}!"
+    var template = "Hello {% raw %}{{name}}{% endraw %}, welcome to {% raw %}{{app}}{% endraw %}!"
     var data = { name: args.userName, app: "oJob" }
     args.message = templify(template, data)
 ```
@@ -1028,12 +1028,12 @@ todo:
 - (printmd): |
     # My Report
     
-    Processing completed with {{results.count}} items.
-    
+    Processing completed with {% raw %}{{results.count}}{% endraw %} items.
+
     ## Results:
-    {{#each results.items}}
-    - **{{name}}**: {{status}}
-    {{/each}}
+    {% raw %}{{#each results.items}}{% endraw %}
+    - **{% raw %}{{name}}{% endraw %}**: {% raw %}{{status}}{% endraw %}
+    {% raw %}{{/each}}{% endraw %}
   ((outputMD)): false  # Parse as markdown (default)
 ```
 
@@ -1086,9 +1086,9 @@ todo:
 # Print markdown
 - (printmd): |
     # Status Report
-    Current status: {{status}}
-  
-# Function execution  
+    Current status: {% raw %}{{status}}{% endraw %}
+
+# Function execution
 - (fn): "myFunction"
   ((args)): { param: "value" }
   
@@ -1106,9 +1106,9 @@ todo:
   
 # Environment variable setting
 - (setenvs):
-    DATABASE_URL: "{{config.db.url}}"
-    API_KEY: "{{secrets.apikey}}"
-    
+    DATABASE_URL: "{% raw %}{{config.db.url}}{% endraw %}"
+    API_KEY: "{% raw %}{{secrets.apikey}}{% endraw %}"
+
 # Job planning and checking
 - (check): "Validation Job"
   ((actions)):
