@@ -64,6 +64,13 @@ __Threads.addThread(aFunction) : String__
 ````
 Add a thread to call aFunction as callback. Returns an UUID associated with the thread. The aFunction will receive the corresponding UUID as the first parameter.
 ````
+### Threads.addVirtualThread
+
+__Threads.addVirtualThread(aFunction) : String__
+
+````
+Adds to the virtual thread executor aFunction to be executed. Returns an UUID associated with the thread.
+````
 ### Threads.getNumberOfCores
 
 __Threads.getNumberOfCores() : number__
@@ -98,6 +105,13 @@ __Threads.initSingleThreadPool(numberOfThreads)__
 
 ````
 Uses a thread pool situable for single threads where you can specify the numberOfThreads to use (by default the number of cores). Note: it ignores any previous thread added using addThread; It won't work if any of the other start* or init* methods has been used.
+````
+### Threads.initVirtualThreadPerTaskExecutor
+
+__Threads.initVirtualThreadPerTaskExecutor()__
+
+````
+Uses a virtual thread per task executor (Java 21).
 ````
 ### Threads.start
 

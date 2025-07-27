@@ -20,7 +20,12 @@ Returns a function to be used with ow.ch.subscribe for REST communication to the
 __ow.ch.create(aName, shouldCompress, type, options) : ow.ch__
 
 ````
-Creates a channel of key/values with aName. Optionally you can specify if keys should also  be compressed in memory (shouldCompress = true), a channels implementation type and corresponding options in a map.
+Creates a channel of key/values with aName. Optionally you can specify if keys should also be compressed in memory (shouldCompress = true), a channels implementation type and corresponding options in a map.
+
+Example:
+
+ow.ch.create("myChan", false, "db", { db: myDB, from: "TABLE" });
+
 ````
 ### ow.ch.destroy
 
@@ -282,7 +287,7 @@ __ow.ch.types.db__
 ````
 This OpenAF channel implementation wraps access to a db table. The creation options are:
 
-   - db   (Database) The database object to access the database table.
+   - db   (Database) The database object to access the database table (or a JSON/SLON string with 'url', 'user', 'pass', 'timeout', 'driver').
    - from (String)   The name of the database table or object (don't use double quotes).
    - keys (Array)    An array of fields keys to use (don't use double quotes).
    - cs   (Boolean)  Determines if the database is case sensitive for table and field names (defaults to false).
@@ -327,6 +332,7 @@ This OpenAF implementation implements a simple channel on a single JSON or YAML 
    - multipath (Boolean) Supports string keys with paths (e.g. ow.obj.setPath) (defaults to false)
    - lock      (String)  If defined the filepath to a dummy file for filesystem lock while accessing the file
    - gzip      (Boolean) If true the output file will be gzip (defaults to false)
+   - lz4       (Boolean) If true the output file will be lz4 (defaults to false)
    - tmp       (Boolean) If true "file" will be temporary and destroyed upon execution/process end
 
 (*) - Be aware that althought there is a very small probability of collision between the unique id (sha-512) for filenames it still exists
@@ -365,7 +371,12 @@ The map will be created if it doesn't exist. Operations getKeys/getAll can be pa
 __ow.ch.types.ops__
 
 ````
-This OpenAF channel implementation encapsulates access based on functions. The creation options a map of keys where each value is a function.
+This OpenAF channel implementation encapsulates access based on functions. The creation options are a map of keys where each value is a function.
+
+Example:
+
+ow.ch.create("logic", false, "ops", { hello: name => "hi " + name });
+
 ````
 ### ow.ch.types.prometheus
 

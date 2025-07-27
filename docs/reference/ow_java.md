@@ -588,6 +588,48 @@ __ow.java.parseHSPerf(aByteArrayOrFile, retFlat) : Map__
 ````
 Given aByteArray or a file path for a java (hotspot jvm) hsperf file (using ow.java.getLocalJavaPIDs or similar) will return the java performance information parsed into a map. If retFlat = true the returned map will be a flat map with each java performance metric and correspondent value plus additional calculations with the prefix "__"
 ````
+### ow.java.parseJFR
+
+__ow.java.parseJFR(aFile, aFnRec, includeDesc) : Array__
+
+````
+Given aFile (a Java Flight Recorder file) will parse it and call aFnRec for each event found, if defined. Optionally you can provide aFnRec to receive each event as a map with the following fields: startTime, endTime, duration, name, thread and fields. If includeDesc is true it will include a field (__desc_) for each field added with the description of the field.
+````
+### ow.java.pidCheckJFR
+
+__ow.java.pidCheckJFR(aPid) : String__
+
+````
+Tries to attach to local JVM with aPid and check the current Java Flight Recorder recording status.
+````
+### ow.java.pidDumpJFR
+
+__ow.java.pidDumpJFR(aPid, aName, aFile) : String__
+
+````
+Tries to attach to local JVM with aPid and dump a Java Flight Recorder returning the output.
+````
+### ow.java.pidStartJFR
+
+__ow.java.pidStartJFR(aPid, aDuration, aName, aMaxSize) : String__
+
+````
+Tries to attach to local JVM with aPid and start a Java Flight Recorder returning the output.
+````
+### ow.java.pidStopJFR
+
+__ow.java.pidStopJFR(aPid, aName) : String__
+
+````
+Tries to attach to local JVM with aPid and stop a Java Flight Recorder returning the output.
+````
+### ow.java.pidSystemProperties
+
+__ow.java.pidSystemProperties(aPid) : Map__
+
+````
+Tries to attach to local JVM with aPid and retrieve the system properties.
+````
 ### ow.java.pidThreadDump
 
 __ow.java.pidThreadDump(aPid) : String__

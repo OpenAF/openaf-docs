@@ -121,6 +121,13 @@ __$bottleneck.maxWait(aMs) : Object__
 ````
 Creates a bottleneck holding the function execution for a max period of aMs.
 ````
+### $cache.byDefault
+
+__$cache.byDefault(useDefault, aDefault) : Object__
+
+````
+Changes the behaviour of the cache to either use the default value (aDefault) if useDefault is true (launching the cache function in background) or try to use the previous value in the cache if useDefault  is false (if a previous value is not available the cache function will be called and the .get will wait for it).
+````
 ### $cache.byPopularity
 
 __$cache.byPopularity() : Object__
@@ -290,10 +297,10 @@ Instantiates and returns a oPromise. If you provide aFunction, this aFunction wi
 ````
 ### $doA2B
 
-__$doA2B(aAFunction, aBFunction, numberOfDoPromises, defaultTimeout, aErrorFunction)__
+__$doA2B(aAFunction, aBFunction, numberOfDoPromises, defaultTimeout, aErrorFunction, useVirtualThreads)__
 
 ````
-Will call aAFunction with a function as argument that should be used to "send" values to aBFunction. aBFunction will be call asynchronously in individual $do up to the numberOfDoPromises limit. The defaultTimeout it 2500ms. If aErrorFunction is defined it will received any exceptions thrown from aBFunction with the corresponding arguments array.
+Will call aAFunction with a function as argument that should be used to "send" values to aBFunction. aBFunction will be call asynchronously in individual $do up to the numberOfDoPromises limit. The defaultTimeout it 2500ms. If aErrorFunction is defined it will received any exceptions thrown from aBFunction with the corresponding arguments array. If useVirtualThreads is true it will use virtual threads to execute aBFunction. If useVirtualThreads is false (default) it will use the thread pool. Use virtual threads if you want to execute aBFunction without blocking the current thread (IO bound operations / high concurrency).
 ````
 ### $doAll
 
@@ -309,12 +316,26 @@ __$doFirst(anArray) : oPromise__
 ````
 Returns an oPromise that will be resolved when any oPromise part of the anArray is fullfiled. If any of the oPromises fails/rejects the returned oPromise will also be rejected/fail.
 ````
+### $doV
+
+__$doV(aFunction, aRejFunction) : oPromise__
+
+````
+Equivalent to $do but using virtual threads (if available) to execute the aFunction. This will allow the aFunction to be executed without blocking the current thread. If aFunction is not provided it will return a new oPromise that will be resolved when the first executor is added to it. If aRejFunction is provided it will be used as a "catch" method for the oPromise.
+````
 ### $doWait
 
 __$doWait(aPromise, aWaitTimeout) : oPromise__
 
 ````
 Blocks until aPromise is fullfilled or rejected. Optionally you can specify aWaitTimeout between checks. Returns aPromise.
+````
+### $err
+
+__$err(exception, rethrow, returnStr, code)__
+
+````
+Prints the exception stack trace and the code where it was thrown. If rethrow is true it will throw the exception again. If returnStr is true it will return the string instead of printing it.
 ````
 ### $f
 
@@ -486,6 +507,28 @@ __$job(aJob, args, aId, isolate) : Object__
 
 ````
 Shortcut to oJobRunJob and ow.oJob.runJob to execute aJob with args and returned the changed arguments. Optionally aId can be also provided. If isolate=true it will also clean the key 'res' and try to return the result of ow.oJob.output.
+````
+### $jsonrpc
+
+__$jsonrpc(aOptions) : Map__
+
+````
+Creates a JSON-RPC client that can be used to communicate with a JSON-RPC server or a local process using stdio. The aOptions parameter is a map with the following possible keys: type (string, default "stdio" for local process or "remote" for remote server), url (string, required for remote server), timeout (number, default 60000 ms for remote server), cmd (string, required for local process), and options (map, optional additional options for remote server). The returned map has the following methods: type (to set the type), url (to set the URL for remote server), sh (to set the command for local process), exec (to execute a method with parameters), and destroy (to stop the client). The exec method returns a promise that resolves to the result of the method call or an error if the call fails. Example usage:
+
+var client = $jsonrpc({type: "remote", url: "http://example.com/api", timeout: 5000});
+client.exec("methodName", {param1: "value1", param2: "value2"}).then(result => {
+    log("Result:", result);
+}).catch(error => {
+    logErr("Error:", error);
+});
+
+var localClient = $jsonrpc({type: "stdio", cmd: "myLocalProcess"});
+localClient.exec("localMethod", {param1: "value1"}).then(result => {
+    log("Local Result:", result);
+}).catch(error => {
+    logErr("Local Error:", error);
+});
+
 ````
 ### $llm
 
@@ -673,6 +716,24 @@ __$pyStop()__
 
 ````
 Stops the background python process started by $pyStart.
+````
+### $queue
+
+__$queue(anArray) : Object__
+
+````
+Returns an object with the following methods:
+- add(aItem) : adds aItem to the queue and returns true if successful
+- remove(aItem) : removes aItem from the queue and returns true if successful
+- addAll(aItems) : adds all aItems to the queue and returns true if successful
+- has(aItem) : returns true if aItem is in the queue
+- isEmpty() : returns true if the queue is empty
+- size() : returns the size of the queue
+- toArray() : returns the queue as an array
+- peek() : returns the first item in the queue without removing it
+- poll() : returns the first item in the queue and removes it
+ The queue is implemented using a java.util.concurrent.ConcurrentLinkedQueue, which is thread-safe and allows concurrent access.
+If anArray is provided, it will be added to the queue using addAll.
 ````
 ### $rest.delete
 
@@ -1166,6 +1227,20 @@ __$stream__
 ````
 Shortcut for the streamjs library for easy query and access to streams of data. To see all the available options please refer to https://github.com/winterbe/streamjs/blob/master/APIDOC.md.
 ````
+### $sync
+
+__$sync() : Object__
+
+````
+Returns an object with a 'run(aFn)' function that will execute the provided aFn in a synchronized way. The run function will lock the execution until the aFn is finished. This is useful to ensure that only one thread is executing the aFn at a time.
+
+Example:
+
+var s = $sync()
+s.run(() => {
+    // Your code here, only one thread will execute this at a time
+})
+````
 ### $tb
 
 __$tb(aFunction) : Result__
@@ -1297,6 +1372,13 @@ __AF.getEncoding(anArrayOfBytesORString) : String__
 ````
 Given anArrayOfBytesORString will try to detect which encode is used and returns a string with the identified charset encoding.
 ````
+### af.nvl
+
+__af.nvl(aValue, aDefault) : Object__
+
+````
+Returns aValue if it is defined or aDefault otherwise.
+````
 ### AF.printStackTrace
 
 __AF.printStackTrace(aFunction) : Object__
@@ -1331,6 +1413,13 @@ __AF.setInteractiveTerminal()__
 
 ````
 Sets the current terminal to be interactive (no echo, no buffering).
+````
+### AF.swap
+
+__AF.swap(anArray, anIndex1, anIndex2) : Array__
+
+````
+Swaps the elements at anIndex1 and anIndex2 in anArray. Returns the new array with the elements swapped.
 ````
 ### AF.toCSLON
 
@@ -1889,6 +1978,13 @@ __io.listFilesTAR(aTARfile, isGzip) : Array__
 ````
 Given aTARfile (or output stream (with isGzip = true/false)) will return an array with the TAR file entries. Each entry will have: isDirectory (boolean), isFile (boolean), canonicalPath (string), filepath (string), filename (string), size (number), lastModified (date), groupId (string), group (string), userId (string) and user (string).
 ````
+### io.lz4
+
+__io.lz4(anInput) : bytes__
+
+````
+Compresses anInput using LZ4 compression and returns the compressed bytes.
+````
 ### io.onDirEvent
 
 __io.onDirEvent(aPath, aFn, aFnErr) : Promise__
@@ -1933,6 +2029,13 @@ __io.readFileJSON(aJSONFile) : Object__
 
 ````
 Tries to read aJSONFile into a javascript object.
+````
+### io.readFileLZ4Stream
+
+__io.readFileLZ4Stream(aFile) : InputStream__
+
+````
+Reads aFile as a LZ4 compressed stream and returns the InputStream to read from. This is useful to read large files that are compressed with LZ4 without decompressing them into memory.
 ````
 ### io.readFileTAR2Stream
 
@@ -1989,6 +2092,13 @@ Example:
                                 path => (/^\$\.log\.entries\[\d+\]\.request/).test(path))
 
 
+````
+### io.unlz4
+
+__io.unlz4(anInput) : Map/String__
+
+````
+Decompresses anInput using LZ4 compression and returns the decompressed map or string.
 ````
 ### io.unzip
 
@@ -2653,10 +2763,10 @@ Tries to open anURL on the current OS desktop browser. Returns false if it's una
 ````
 ### oPromise
 
-__oPromise(aFunction, aRejFunction) : oPromise__
+__oPromise(aFunction, aRejFunction, useVirtualThreads) : oPromise__
 
 ````
-Custom Promise-like implementation. If you provide aFunction, this aFunction will be executed async in a thread and oPromise object will be immediatelly returned. Optionally this aFunction can receive a resolve and reject functions for to you use inside aFunction to provide a result with resolve(aResult) or an exception with reject(aReason). If you don't call theses functions the returned value will be used for resolve or any exception thrown will be use for reject. You can use the "then" method to add more aFunction that will execute once the previous as executed successfully (in a stack fashion). The return/resolve value from the  previous function will be passed as the value for the second. You can use the "catch" method to add aFunction that will receive a string or exception for any exception thrown with the reject functions. You can also provide a aRejFunction that works like a "catch" method as previously described.
+Custom Promise-like implementation. If you provide aFunction, this aFunction will be executed async in a thread and oPromise object will be immediatelly returned. Optionally this aFunction can receive a resolve and reject functions for to you use inside aFunction to provide a result with resolve(aResult) or an exception with reject(aReason). If you don't call theses functions the returned value will be used for resolve or any exception thrown will be use for reject. You can use the "then" method to add more aFunction that will execute once the previous as executed successfully (in a stack fashion). The return/resolve value from the  previous function will be passed as the value for the second. You can use the "catch" method to add aFunction that will receive a string or exception for any exception thrown with the reject functions. You can also provide a aRejFunction that works like a "catch" method as previously described.  Optionally if useVirtualThreads is true, the aFunction will be executed in a virtual thread, otherwise it will be executed in a normal thread.
 ````
 ### oPromise.all
 
