@@ -108,3 +108,37 @@ io.readLinesNDJSON("abc123.json", (line) => { sprint(line); });
 var logline = { date: now(), level: "INFO", message: "a log message" };
 io.writeLineNDJSON("abc123.json", logline);
 ````
+
+## Work with LZ4 compressed files
+
+OpenAF v20250721 adds native helpers for LZ4 compression, making it easy to exchange compressed payloads without external tools:
+
+* `io.lz4(data)` compresses a map, array, string, byte array or stream using the LZ4 frame format and returns the compressed bytes.
+* `io.unlz4(bytes)` performs the inverse operation, returning the original map/string when the input was compressed with `io.lz4`.
+* `io.writeFileLZ4Stream(path)` opens an output stream that writes LZ4-compressed data directly to disk. It is ideal when you want to compress large files on the fly.
+* `io.readFileLZ4Stream(path)` yields an input stream that decompresses LZ4 content while you read it, avoiding the need to load the entire file in memory.
+
+Example usage:
+
+````javascript
+// Compress an object and persist the bytes
+var payload = { id: 1, values: [1, 2, 3] };
+var compressed = io.lz4(payload);
+io.writeFileBytes("payload.lz4", compressed);
+
+// Later, decompress it back
+var restored = io.unlz4(io.readFileBytes("payload.lz4"));
+
+// Write compressed content incrementally
+var outStream = io.writeFileLZ4Stream("huge.log.lz4");
+try {
+   logs.forEach(line => outStream.write((line + "\n").getBytes("UTF-8")));
+} finally {
+   outStream.close();
+}
+
+// Read compressed content as a stream
+var inStream = io.readFileLZ4Stream("huge.log.lz4");
+// ...use the Java InputStream as needed...
+inStream.close();
+````

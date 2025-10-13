@@ -81,5 +81,57 @@ var allPromises = $doAll(arrayOfPromises)
 $doWait(allPromises);
 ````
 
-Ok. But won't that just lunch a ton of threads "burning" down my machine? No. You don't need to worry about that. Underneath it will create a set of threads giving the number of identified compute cores and reuse them. So some promises will actually be waiting for others to finish and to have a thread available for them to execute. 
-In OpenAF there is also the function parallel4array and others to make it easy (and smarter) to asynchronously process an array since a promise for each might not actually give the best performance. But that will be the topic of another post. 
+Ok. But won't that just lunch a ton of threads "burning" down my machine? No. You don't need to worry about that. Underneath it will create a set of threads giving the number of identified compute cores and reuse them. So some promises will actually be waiting for others to finish and to have a thread available for them to execute.
+In OpenAF there is also the function parallel4array and others to make it easy (and smarter) to asynchronously process an array since a promise for each might not actually give the best performance. But that will be the topic of another post.
+
+## Virtual threads with `$doV`
+
+OpenAF v20250721 introduces `$doV`, a drop-in replacement for `$do` that runs promise executors on Java virtual threads whenever they are available. Virtual threads are extremely lightweight and are ideal when you need to spawn hundreds or thousands of concurrent IO tasks without overwhelming the classic worker pools. Using `$doV` is as simple as swapping the function call:
+
+````javascript
+var promise = $doV(() => {
+   var body = io.readUrl("https://example.org/service");
+   return process(body);
+}).then(saveResult)
+  .catch($err);
+
+$doWait(promise);
+````
+
+From an API perspective `$do` and `$doV` share the same chaining semantics, so you can pick the appropriate implementation per workload without refactoring your orchestration.
+
+## Coordinating concurrent work with `$sync` and `$queue`
+
+More helpers were added to simplify coordination between asynchronous tasks:
+
+* `$sync()` creates a small wrapper that serialises access to a critical section. It is perfect to guard code that updates shared state from multiple promises.
+* `$queue(initialItems)` yields a thread-safe queue that supports `add`, `poll`, `peek`, `has`, and other utility methods backed by `ConcurrentLinkedQueue`.
+
+Combining both helpers allows you to build producer/consumer flows without leaving JavaScript:
+
+````javascript
+var work = $queue();
+var syncStats = $sync();
+var stats = [];
+
+// Producer
+$doV(() => {
+   files.forEach(file => work.add(file));
+});
+
+// Consumers
+var workers = [];
+for (var i = 0; i < 4; i++) {
+   workers.push($doV(() => {
+      var next;
+      while ((next = work.poll()) !== null) {
+         var report = analyse(next);
+         syncStats.run(() => stats.push(report));
+      }
+   }));
+}
+
+$doWait($doAll(workers));
+````
+
+In the previous snippet producers and consumers use virtual threads to keep latency low, while the `$sync` block ensures the shared `stats` collection stays consistent.

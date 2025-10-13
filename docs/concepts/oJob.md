@@ -38,6 +38,15 @@ To run it you would just execute:
 ojob myrecipe.yaml
 ````
 
+## Generating documentation for an oJob
+
+Starting with OpenAF v20250721 the `ojob` CLI can render structured documentation directly from your job files. Two new options are available:
+
+* `ojob -reference myrecipe.yaml` renders a human-friendly overview of jobs, arguments and dependencies using the standard console output (with colours when supported).
+* `ojob -mdreference myrecipe.yaml` emits the same reference in Markdown, allowing you to publish it in repositories or knowledge bases without manual rewriting.
+
+Both switches honour includes and compiled views, which means you can use them to audit large orchestrations and ensure that internal help is always up to date.
+
 In the next chapters will go through how you can add arguments to each job (e.g. how many eggs, how much sugar, …), how you can have jobs chains (e.g. job “Get ingredients” → “Make cake” → “Serve cake” for just a to do “Make cake”), how you can make a production line of cakes with array arguments and more.
 
 # Jobs

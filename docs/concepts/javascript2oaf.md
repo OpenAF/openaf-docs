@@ -173,7 +173,7 @@ For function-based type checking there are a set of functions prefixed with "is"
 | tprintErr  | Outputs a string based on a provided template using data from an object to stderr with a new-line |
 | tprintErrnl| Outputs a string based on a provided template using data from an object to stderr without a new-line |
 
-## Logging 
+## Logging
 
 | Function | Description |
 |----------|-------------|
@@ -189,6 +189,10 @@ For function-based type checking there are a set of functions prefixed with "is"
 | startLog | Starts logging to a default or specified [OpenAF channel](OpenAF-Channels.md) with automatic housekeeping |
 | stopLog | Stops logging to a default of specified [OpenAF channel](OpenAF-Channels.md) after a startLog function has been previously executed. |
 
+## Error handling helpers
+
+OpenAF provides utility helpers to improve diagnostics and recoverability when exceptions are raised. The most notable helper added for the v20250721 release is `$err(exception, rethrow, returnStr, code)`. It formats JavaScript and Java exceptions consistently, prints the stack trace (respecting the `OAF_ERRSTACK` flag) and, when source information is available, highlights the code lines around the failure so troubleshooting is easier. By default `$err` writes the formatted message to the console, but you can set `returnStr=true` to obtain the formatted text programmatically or `rethrow=true` to propagate the original exception after logging it.
+
 ## Navigating arrays and maps
 
 There are a set of libraries includes to help to "navigate" through javascript arrays and maps:
@@ -201,11 +205,23 @@ There are a set of libraries includes to help to "navigate" through javascript a
 
 ## Utility
 
-_tbc_
+The `af` namespace continues to aggregate convenience helpers for day-to-day scripting. Two recent additions are:
+
+| Function | Description |
+|----------|-------------|
+| `af.nvl(value, default)` | Returns `value` when it is defined and non-null, or `default` otherwise. It is a concise alternative to common null/undefined coalescing patterns when working with optional data sources. |
+| `af.swap(array, index1, index2)` | Returns a new array where the elements at `index1` and `index2` have been exchanged. The original array is validated and left untouched, making it safer to reorganise data that is being shared between functions or promises. |
 
 ## Parallel execution
 
-_tbc_
+Asynchronous utilities received multiple improvements that embrace Java virtual threads while keeping the familiar OpenAF APIs:
+
+* `$do(fn)` continues to run `fn` on the managed worker pool and immediately returns an `oPromise` chain.
+* `$doV(fn)` mirrors `$do`, but executes the promise callbacks on Java virtual threads when they are available. This is ideal for IO-bound workloads that benefit from lightweight concurrency without exhausting classic thread pools.
+* `$sync()` returns an object exposing `run(fn)` which serialises access to the provided function by using a `ReentrantLock`. It is a simple way to protect shared resources that are updated from multiple promises or channel callbacks without manually instantiating locks.
+* `$queue(initialItems)` creates a thread-safe FIFO queue backed by `ConcurrentLinkedQueue`, exposing helpers such as `add`, `poll`, `peek`, `has`, and `size`. Passing an initial array enqueues it immediately, offering an easy coordination primitive for producer/consumer flows.
+
+These utilities can be combined: for example, producers can push work with `$queue().add(...)`, consumers can fetch it with `$doV` to process in virtual threads, and any critical sections can be guarded with `$sync().run(...)`.
 
 ## OPack specific
 
