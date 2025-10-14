@@ -34,7 +34,13 @@ Closes the corresponding prepared statement. If an error occurs during this proc
 __DB.commit()__
 
 ````
-Commits to the database the current database session on the current DB object instance. In case of error an exception will be thrown.
+Commits the current transaction associated with this DB object. An exception will be thrown if any database error occurs.
+
+Example:
+
+db.u("INSERT INTO A VALUES (1)");
+db.commit();
+
 ````
 ### DB.convertDates
 
@@ -96,14 +102,14 @@ Stops a H2 server started for this DB instance.
 __DB.q(aQuery) : Map__
 
 ````
-Performs aQuery (SQL) on the current DB object instance. It returns a Map with a results array that will have an element per result set line. In case of error an exception will be  thrown.
+Executes the SQL query provided in aQuery on the current DB connection. It returns a Map with a results array where each element corresponds to one row. In case of error an exception will be thrown.
 ````
 ### DB.qLob
 
 __DB.qLob(aSQL) : Object__
 
 ````
-Performs aSQL query on the current DB object instance. It tries to return only the first result set row and the first object that can be either a CLOB (returns a string) or a BLOB (byte array). In case of error an exception will be thrown.
+Executes aSQL on the current DB object returning only the first row and column. If that column is a CLOB a string is returned; if it is a BLOB a byte array is provided. Errors will raise an exception.
 ````
 ### DB.qs
 

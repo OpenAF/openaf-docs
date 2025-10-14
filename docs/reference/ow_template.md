@@ -98,11 +98,13 @@ Adds custom helpers:
   - $a4m             -- shortcut to the OpenAF's $a4m function
   - $m2a             -- shortcut to the OpenAF's $m2a function
   - $m4a             -- shortcut to the OpenAF's $m4a function
+  - $nvl             -- shortcut to the OpenAF's nvl function
   - $pass            -- returns an empty string
   - $p               -- returns the provided literal
   - $sline           -- shortcut to the OpenAF's format withSideLine
   - $set             -- block set of a provided key
   - $concat          -- concatenates all arguments as a single value
+  - $nl              -- returns a new line character
 ````
 ### ow.template.addPartial
 

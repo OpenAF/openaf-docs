@@ -493,9 +493,9 @@ __ow.format.int2IP(aIPInt) : String__
 ````
 Converts the decimal IP address representation aIPInt into an IP address.
 ````
-### ow.format.IP2Int
+### ow.format.IP2int
 
-__ow.format.IP2Int(aIP) : String__
+__ow.format.IP2int(aIP) : String__
 
 ````
 Converts an IP address into it's decimal IP address representation.
@@ -1362,15 +1362,15 @@ Creates a cell styler object, for the aXLS object (XLS plugin object instance), 
   - align ("center", "centerSelection", "fill", "general", "justify", "left", "right")
 
 Color names:\  
-aqua,auto,black,blue,blue_grey,bright_green,brown,coral,cornflower_blue,dark_blue,dark_green,dark_red,dark_teal, dark_yellow,gold,green,grey25,grey40,grey50,grey80,indigo,lavender,lemon_chiffon,light_blue,light_cornflower_blue, light_green,light_orange,light_turquoise,light_yellow,lime,maroon,olive_green,orange,orchid,pale_blue,pink,plum, red,rose,royal_blue,sea_green,sky_blue,tan,teal,turquoise,violet,white,yellow
+  aqua,auto,black,blue,blue_grey,bright_green,brown,coral,cornflower_blue,dark_blue,dark_green,dark_red,dark_teal, dark_yellow,gold,green,grey25,grey40,grey50,grey80,indigo,lavender,lemon_chiffon,light_blue,light_cornflower_blue, light_green,light_orange,light_turquoise,light_yellow,lime,maroon,olive_green,orange,orchid,pale_blue,pink,plum, red,rose,royal_blue,sea_green,sky_blue,tan,teal,turquoise,violet,white,yellow
 
 Border names:
 
-dash_dot,dash_dot_dot,dashed,dotted,double,hair,medium,medium_dash_dot,medium_dash_dot_dot,medium_dashed,none, slanted_dash_dot,thick,thin
+  dash_dot,dash_dot_dot,dashed,dotted,double,hair,medium,medium_dash_dot,medium_dash_dot_dot,medium_dashed,none, slanted_dash_dot,thick,thin
 
 Fill patterns:
 
-solid_foreground
+  solid_foreground
 
 
 ````
