@@ -14,6 +14,19 @@ __$gpt(aModel) : $gpt__
 
 ````
 Creates a GPT AI model of aType (e.g. "openai" or "ollama") with aOptions.
+
+aModel can be a map with the following properties:
+- type: the type of the model (e.g. "openai", "ollama", "anthropic")
+- options: a map with the options for the model (e.g. { key: "your-api-key", model: "gpt-3.5-turbo", temperature: 0.7, url: "https://api.openai.com/" })
+- conversation: an array of messages to start the conversation (e.g. [{ role: "system", content: "You are a helpful assistant." }, { role: "user", content: "Hello!" }])
+- tools: a map with the tools to use in the conversation (e.g. { "tool1": { type: "function", function: { name: "tool1", description: "A tool that does something", parameters: { type: "object", properties: { param1: { type: "string" } } } }, fn: function(args) { return args.param1; } } })
+- timeout: the timeout for the requests in milliseconds (defaults to 15 minutes)
+- noSystem: if true, it will not output the system messages (defaults to true)
+- instructions: a string or an array of strings with the instructions for the model (e.g. "json", "boolean", "sql", "js", "path")
+- headers: a map with the headers to use in the requests (e.g. { "Content-Type": "application/json" })
+- params: a map with the parameters to use in the requests (e.g. { "max_tokens": 1000, "top_p": 1, "frequency_penalty": 0, "presence_penalty": 0 })
+
+If aModel is not provided, it will try to get the model from the environment variable "OAF_MODEL" with the map in JSON or SLON format.
 ````
 ### $gpt.close
 

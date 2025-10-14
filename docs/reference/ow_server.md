@@ -384,6 +384,52 @@ aMapOptions:
    oauthClientSecret (mandatory) The OAuth configured client secret\  
 
 ````
+### ow.server.httpd.browse.files
+
+__ow.server.httpd.browse.files(aURI, aOptions) : Map__
+
+````
+Provides a simple file browser for the provided aURI. The aOptions map can contain the following keys:
+
+  path     (string)   The path to use as root (defaults to ".")
+  browse   (boolean)  If true the file browser will be shown (defaults to true)
+  showURI  (boolean)  If true the URI will be shown in the file browser (defaults to false)
+  sortTab  (boolean)  If true the table will be sorted (defaults to false)
+  default  (string)   The default file to show (defaults to undefined)
+  logo  	  (string)   The logo to show in the file browser (defaults to undefined)
+  footer   (string)   The footer to show in the file browser (defaults to undefined)
+
+````
+### ow.server.httpd.browse.odoc
+
+__ow.server.httpd.browse.odoc(aURI, aOptions) : Map__
+
+````
+Provides a simple oDoc browser. The aOptions map can contain the following keys:
+
+  browse   (boolean)  If true the file browser will be shown (defaults to true)
+  showURI  (boolean)  If true the URI will be shown in the file browser (defaults to false)
+  sortTab  (boolean)  If true the table will be sorted (defaults to false)
+  logo  	  (string)   The logo to show in the file browser (defaults to undefined)
+  footer   (string)   The footer to show in the file browser (defaults to undefined)
+  ttl	  (number)   The time to live for the cache (defaults to 5 minutes)
+
+````
+### ow.server.httpd.browse.opacks
+
+__ow.server.httpd.browse.opacks(aURI, aOptions) : Map__
+
+````
+Provides a simple oPack browser. The aOptions map can contain the following keys:
+
+  browse   (boolean)  If true the file browser will be shown (defaults to true)
+  showURI  (boolean)  If true the URI will be shown in the file browser (defaults to false)
+  sortTab  (boolean)  If true the table will be sorted (defaults to false)
+  logo  	  (string)   The logo to show in the file browser (defaults to undefined)
+  footer   (string)   The footer to show in the file browser (defaults to undefined)
+  ttl	  (number)   The time to live for the cache (defaults to 5 minutes)
+
+````
 ### ow.server.httpd.getFromOpenAF
 
 __ow.server.httpd.getFromOpenAF(aResource, inBytes, anEncoding) : anArrayOfBytes__
@@ -432,6 +478,20 @@ __ow.server.httpd.reply(aObject, aStatus, aMimeType, aHeadersMap) : Map__
 
 ````
 Builds the map response for a HTTP server request using aObject (map, array, string or bytearray), aStatus (default to 200), aMimeType (defaults to application/octet-stream if not recognized) and aHeadersMap.
+````
+### ow.server.httpd.replyBrowse
+
+__ow.server.httpd.replyBrowse(server, request, _options) : Map__
+
+````
+Provides a helper function to reply with a list of files or a file content. The _options map is used to provide the following functions:
+
+  getList(request, _options)   : Function to get the list of files or directories
+  getObj(request, _options)    : Function to get the object requested
+  renderList(list, server, request, _options) : Function to render the list of files
+  renderObj(obj, server, request, _options)   : Function to render the object requested
+  renderEmpty(request, _options) : Function to render an empty list
+
 ````
 ### ow.server.httpd.replyFile
 
@@ -486,6 +546,39 @@ r => hs.replyOKText("nothing here...")
 
 
 ````
+### ow.server.httpd.replyJSONRPC
+
+__ow.server.httpd.replyJSONRPC(server, request, mapOfFunctions, logFn, debugFn) : Map__
+
+````
+Implements a JSON-RPC 2.0 endpoint using the provided mapOfFunctions. The request must be a POST with a JSON-RPC body.
+Optionally you can provide logFn and debugFn functions to log errors and debug information respectively.
+
+Example usage:
+  ow.server.httpd.route(hs, {
+    "/rpc": (req) => ow.server.httpd.replyJSONRPC(hs, req, { sum: (a, b) => a + b }, logErr, log) 
+  })
+
+````
+### ow.server.httpd.replyMCP
+
+__ow.server.httpd.replyMCP(server, request, mapOfFunctions, logFn, debugFn) : Map__
+
+````
+Implements a Model Context Protocol (MCP) endpoint using the provided mapOfFunctions. The request must be a POST with a MCP body.
+Optionally you can provide logFn and debugFn functions to log errors and debug information respectively.
+\  Example usage:
+ow.server.httpd.route(hs, {
+   "/mcp": req => ow.server.httpd.replyMCP(hs, req, {
+	initialize                 : params => ({ serverInfo: { name: "OpenAF", title: "OpenAF test ", version: "1.0.0" }, capabilities: { prompts: { listChanged: true }, tools: { listChanged: true } } }),
+	"notifications/initialized": params => ({}),
+	"tools/call"               : () => ({content:[{type:"text",text:"PONG!"}],isError: false}),
+	"tools/list"               : params => { cprint(params); return { tools: [{name:"ping",description:"pings",title:"ping"}] } },
+	"prompts/list"             : params => ({})
+  }, logErr, log),
+  "/echo": req => ow.server.httpd.reply(stringify(req))
+ })      *
+````
 ### ow.server.httpd.replyRedirect
 
 __ow.server.httpd.replyRedirect(aHTTPd, newLocation, mapOfHeaders) : Map__
@@ -532,10 +625,12 @@ Using aHTTPd sets aURI to act as a websocket server.
 ````
 ### ow.server.httpd.start
 
-__ow.server.httpd.start(aPort, aHost, keyStorePath, password, errorFunction, aWebSockets, aTimeout) : Object__
+__ow.server.httpd.start(aPort, aHost, keyStorePath, password, errorFunction, aWebSockets, aTimeout, aImpl) : Object__
 
 ````
-Will prepare a HTTP server to be used returning a HTTPServer object. Optionally you can provide  aPort where you want the HTTP server to run. Otherwise a free port will be assigned. (available after ow.loadServer()).
+Will prepare a HTTP server to be used returning a HTTPServer object. Optionally you can provide  aPort where you want the HTTP server to run. Otherwise a free port will be assigned. Optionally you can provide a different aImpl (implementation) for the HTTP server. If aHost is provided it will be used as the host to bind the server to. If keyStorePath and password are provided the server will be started as a secure HTTPS server. If errorFunction is provided it will be called whenever an error occurs in the server. This function will receive the error as a parameter. If aWebSockets is provided it will be used to handle WebSockets connections. If aTimeout is provided it will be used as the timeout for the server to wait for a request before closing the connection.
+
+(available after ow.loadServer()).
 
 aWebSockets, if used, should be a map with the following functions:
 
@@ -607,6 +702,13 @@ __ow.server.jmx.set(aJMXObject, objName, aProperty, aNewValue)__
 
 ````
 Sets aProperty with the value aNewValue on the object objName using aJMXObject connected to a JMX server.
+````
+### ow.server.jsonRPC
+
+__ow.server.jsonRPC(data, mapOfFns) : Map__
+
+````
+Processes a JSON-RPC request (data) using the provided mapOfFns where each key is the method name and the value is the function to be executed. The data should be a map with the following entries: jsonrpc (should be "2.0"), method (the method name to be executed), params (optional, the parameters to be passed to the method) and id (optional, the request id). Returns a map with the following entries: jsonrpc (should be "2.0"), id (the request id), result (the result of the method execution) or error (if the method is unknown or if the request is invalid).
 ````
 ### ow.server.jwt.decode
 
@@ -754,6 +856,17 @@ __ow.server.locks.whenUnLocked(aLockName, aFunction, aTryTimeout, aNumRetries) :
 
 ````
 A wrapper for ow.server.locks.lock that will try to lock aLockName, execute the provide function and then unlock it even in case an exception is raised. Returns if the lock was successfull (true) or not (false).
+````
+### ow.server.mcpStdio
+
+__ow.server.mcpStdio(initData, fnsMeta, fns, lgF)__
+
+````
+Processes a MCP (Model Context Protocol) request using standard input/output. The initData is a map with initial data to be sent to the client, fnsMeta is an array of function metadata and fns is a map of functions to be executed. The lgF is a function that will be used to log messages. If not provided, it will default to a function that writes logs to a file named "log.ndjson". The initData should contain the server information and capabilities. The fnsMeta should contain metadata about the functions available, such as their names and descriptions. The fns should contain the actual functions that can be called by the client. The function will listen for incoming MCP requests on standard input and respond accordingly.
+
+Example usage:
+
+     ow.server.mcpStdio({ 			serverInfo: { 				name: "MyServer", 				title: "My Server", 				version: "1.0.0" 			}, 			capabilities: { 				prompts: { 					listChanged: true 				}, 				tools: { 					listChanged: true 				} 			} 		}, [{ 		name: "ping", 		description: "Ping the server" 	}, { 		name: "get_user", 		description: "Get user information", 		input_schema: { 			type: "object", 			properties: { 				userId: { 					type: "string", 					description: "The ID of the user to retrieve" 				} 			}, 			required: ["userId"] 		} 	}], { 		ping: params => { 			return "Pong! Server is running." 		}, 		get_user: params => { 			return { 				name: "Alice", 				userId: params.userId 			} 		} 	})
 ````
 ### ow.server.openafServer.exec
 

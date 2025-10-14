@@ -84,6 +84,13 @@ __HTTPd.delSession(aSessionID)__
 ````
 Removes the provided session ID data from memory.
 ````
+### HTTPd.getImpl
+
+__HTTPd.getImpl() : string__
+
+````
+Returns the implementation used by the HTTP server instance. Possible values are "java" for Java built-in HttpServer, "nwu2" for NWU2 HTTP server, and "nwu" for legacy NWU HTTP server.
+````
 ### HTTPd.getPort
 
 __HTTPd.getPort() : number__
@@ -107,10 +114,10 @@ Returns true if the provided session ID was add to memory. False otherwise.
 ````
 ### HTTPd.HTTPd
 
-__HTTPd.HTTPd(aPort, aLocalInteface, keyStorePath, keyStorePassword, logFunction, webSockets, aTimeout)__
+__HTTPd.HTTPd(aPort, aLocalInteface, keyStorePath, keyStorePassword, logFunction, webSockets, aTimeout, aImpl)__
 
 ````
-Creates a HTTP server instance on the provided port and optionally on the identified local interface. If the port provided is 0 or negative a random port will be assigned. To determine what this port is  you can use the function HTTPServer.getPort(). If keyStorePath is defined, the corresponding SSL Key Store will be used (connections will be https) with the provided keyStorePassword. Do note that the keyStorePath should be included in the OpenAF classpath. The logFunction, if defined, will be called by the server whenever there is any logging to be performed  by the HTTPServer. This function will receive 3 arguments. Example:
+Creates a HTTP server instance on the provided port and optionally on the identified local interface. If the port provided is 0 or negative a random port will be assigned. To determine what this port is  you can use the function HTTPServer.getPort(). If aImpl = "java" is provided the Java built-in HttpServer implementation will be used. If keyStorePath is defined, the corresponding SSL Key Store will be used (connections will be https) with the provided keyStorePassword. Do note that the keyStorePath should be included in the OpenAF classpath. The logFunction, if defined, will be called by the server whenever there is any logging to be performed  by the HTTPServer. This function will receive 3 arguments. Example:
 
 plugin("HTTPServer");
 var s = new HTTPd(8091, void 0, void 0, void 0, function(aType, aMsg, anException) {
@@ -131,7 +138,7 @@ And then add keystore.jks to the openaf.jar and have keyStorePath = "/keystore.j
 To support websockets you need to build IWebSock object and provide a timeout. For example:
 
 plugin("HTTPServer");
-var webSock = new Packages.com.nwu.httpd.IWebSock({
+var webSock = new Packages.com.nwu2.httpd.IWebSock({
    // onOpen callback
    oOpen: _ws => { log("Connection open") },
    // onClose callback

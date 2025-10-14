@@ -971,17 +971,17 @@ Creates an instance of a thread-safe array/list. Optionally it can be initialize
 ````
 ### ow.obj.syncArray.add
 
-__ow.obj.syncArray.add(aObject) : boolean__
+__ow.obj.syncArray.add(aObject, aPosition) : boolean__
 
 ````
-Adds aObject to the internal array/list.
+Adds aObject to the internal array/list. If aPosition is provided it will be added at that position, otherwise it will be added at the end.
 ````
 ### ow.obj.syncArray.addAll
 
-__ow.obj.syncArray.addAll(anArray)__
+__ow.obj.syncArray.addAll(anArray, aPosition)__
 
 ````
-Concatenates anArray with the internal array/list.
+Concatenates anArray with the internal array/list. If aPosition is provided it will be added at that position, otherwise it will be added at the end.
 ````
 ### ow.obj.syncArray.clear
 
@@ -1011,12 +1011,26 @@ __ow.obj.syncArray.getJavaObject() : Object__
 ````
 Returns the internal java object.
 ````
+### ow.obj.syncArray.getUnsafeJavaObject
+
+__ow.obj.syncArray.getUnsafeJavaObject() : Object__
+
+````
+Returns the internal java object without synchronization. Use with care! This is useful when you want to use the internal java object directly without the overhead of synchronization.
+````
 ### ow.obj.syncArray.indexOf
 
 __ow.obj.syncArray.indexOf(aObject) : Number__
 
 ````
 Returns the position of aObject in the internal array/list.
+````
+### ow.obj.syncArray.isEmpty
+
+__ow.obj.syncArray.isEmpty() : boolean__
+
+````
+Returns true if the internal array/list is empty.
 ````
 ### ow.obj.syncArray.length
 
@@ -1039,12 +1053,26 @@ __ow.obj.syncArray.set(aIndex, aObject) : Object__
 ````
 Sets aObject overwriting the previous value at aIndex on the internal array/list.
 ````
+### ow.obj.syncArray.subList
+
+__ow.obj.syncArray.subList(aStart, aEnd) : Array__
+
+````
+Returns a sublist of the internal array/list from aStart to aEnd (exclusive). If aStart or aEnd are out of bounds it will throw an exception. The returned array will be a new array with the elements from aStart to aEnd.
+````
 ### ow.obj.syncArray.toArray
 
 __ow.obj.syncArray.toArray() : Array__
 
 ````
 Returns the internal array/list as a javascript array.
+````
+### ow.obj.syncArray.trimToSize
+
+__ow.obj.syncArray.trimToSize()__
+
+````
+Trims the internal array/list to its current size.
 ````
 ### ow.obj.syncMap
 
