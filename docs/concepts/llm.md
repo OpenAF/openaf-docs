@@ -1,3 +1,10 @@
+---
+layout: default
+title: Large Language Model (LLM) Configuration
+parent: Concepts
+grand_parent: OpenAF docs
+---
+
 # Large Language Model (LLM) Configuration
 
 OpenAF provides first-class support for Local Language Model (LLM) prompts via the `$llm` function in JavaScript jobs and the `oafp` CLI. You can configure which model to use by setting environment variables at runtime.
