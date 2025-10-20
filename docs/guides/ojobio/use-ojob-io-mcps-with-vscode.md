@@ -32,118 +32,160 @@ docker run -i --pull always \
 
 ## Docker one-liners for every ojob.io MCP
 
-- **mcp-ch** – expose OpenAF data channels.
-  ```bash
-  docker run -i --pull always \
-    -v /mydata:/data \
-    -e OJOB=ojob.io/ai/mcps/mcp-ch \
-    -e chs="(_name: mydata, _type: file, _rw: true, file: /data/data.json)" \
-    openaf/ojobc:edge-t8
-  ```
-  Use SLON syntax in `chs` to describe the channels you need (file, simple, mvs, ...).
+All MCPs ship as oJobs and honour `onport` whenever you want an HTTP `/mcp` endpoint alongside STDIO. Move long-lived secrets into the VS Code `env` block rather than keeping them inline.
 
-- **mcp-db** – connect to JDBC databases (read-only by default).
-  ```bash
-  docker run -i --pull always \
-    -e OJOB=ojob.io/ai/mcps/mcp-db \
-    -e jdbc=jdbc:postgresql://hh-pgsql-public.ebi.ac.uk:5432/pfmegrnargs \
-    -e user=reader \
-    -e pass=NWDMCE5xdipIjRrp \
-    openaf/ojobc:edge-t8
-  ```
-  Add `-e rw=true` to allow data-changing statements.
+### mcp-ch — data channels over STDIO/HTTP
+```bash
+docker run -i --pull always \
+  -v /mydata:/data \
+  -e OJOB=ojob.io/ai/mcps/mcp-ch \
+  -e chs="(_name: mydata, _type: file, _rw: true, file: /data/data.json)" \
+  openaf/ojobc:edge-t8
+```
+- `chs`: describe one or more channels (file, simple, mvs, …) with SLON/JSON.
+- `libs`: preload comma-separated libraries or `@oPack/library.js`.
+- `onport`: expose an HTTP `/mcp` endpoint while keeping STDIO available.
 
-- **mcp-email** – send email through SMTP.
-  ```bash
-  docker run -i --pull always \
-    -e OJOB=ojob.io/ai/mcps/mcp-email \
-    -e smtpserver=smtp.gmail.com \
-    -e from=sender@example.com \
-    -e user=sender@example.com \
-    -e pass=yourAppPassword \
-    -e tls=true \
-    openaf/ojobc:edge-t8
-  ```
+### mcp-db — JDBC access (read-only by default)
+```bash
+docker run -i --pull always \
+  -e OJOB=ojob.io/ai/mcps/mcp-db \
+  -e jdbc=jdbc:postgresql://hh-pgsql-public.ebi.ac.uk:5432/pfmegrnargs \
+  -e user=reader \
+  -e pass=NWDMCE5xdipIjRrp \
+  openaf/ojobc:edge-t8
+```
+- `jdbc`: connection string (mandatory).
+- `user` / `pass`: credentials when the driver requires them.
+- `rw`: set to `true` to allow DML/DDL statements.
+- `libs`: load helper libraries or vendor drivers already on disk.
+- `onport`: expose an HTTP `/mcp` endpoint alongside STDIO.
 
-- **mcp-kube** – explore Kubernetes clusters (read-only unless `readwrite=true`).
-  ```bash
-  docker run -i --pull always \
-    -e OJOB=ojob.io/ai/mcps/mcp-kube \
-    -e url=https://my-k8s.example.com:6443 \
-    -e token=$K8S_TOKEN \
-    -e namespace=default \
-    openaf/ojobc:edge-t8
-  ```
-  You can swap `token` for `user`/`pass` credentials depending on your cluster.
+### mcp-email — SMTP delivery
+```bash
+docker run -i --pull always \
+  -e OJOB=ojob.io/ai/mcps/mcp-email \
+  -e smtpserver=smtp.gmail.com \
+  -e from=sender@example.com \
+  -e user=sender@example.com \
+  -e pass=yourAppPassword \
+  -e tls=true \
+  openaf/ojobc:edge-t8
+```
+- `smtpserver` and `from` are mandatory.
+- `user` / `pass`: SMTP authentication (omit `pass` for anonymous relays).
+- `ssl` / `tls`: choose SSL or STARTTLS handshakes.
+- `html`: send HTML bodies; defaults to plain text.
+- `port`, `debug`, `forcebcc`, `onport`: optional tuning knobs.
 
-- **mcp-net** – DNS lookups and TCP checks.
-  ```bash
-  docker run -i --pull always \
-    -e OJOB=ojob.io/ai/mcps/mcp-net \
-    openaf/ojobc:edge-t8
-  ```
+### mcp-kube — Kubernetes management
+```bash
+docker run -i --pull always \
+  -e OJOB=ojob.io/ai/mcps/mcp-kube \
+  -e url=https://my-k8s.example.com:6443 \
+  -e token=$K8S_TOKEN \
+  -e namespace=default \
+  openaf/ojobc:edge-t8
+```
+- Authenticate with `token` or `user` / `pass` plus `url`.
+- `namespace`, `wstimeout`: customise defaults for repeated calls.
+- `readwrite`: enable mutating operations (defaults to read-only).
+- `kubelib`: point to an alternate `kube.js`.
+- `onport`: expose the HTTP `/mcp` endpoint.
 
-- **mcp-oaf** – query OpenAF, oJob and oAFp documentation.
-  ```bash
-  docker run -i --pull always \
-    -e OJOB=ojob.io/ai/mcps/mcp-oaf \
-    openaf/ojobc:edge-t8
-  ```
+### mcp-net — network probes
+```bash
+docker run -i --pull always \
+  -e OJOB=ojob.io/ai/mcps/mcp-net \
+  openaf/ojobc:edge-t8
+```
+- `onport`: publish the HTTP `/mcp` endpoint if you need remote access.
 
-- **mcp-oafp** – execute oafp pipelines or inspect their docs.
-  ```bash
-  docker run -i --pull always \
-    -e OJOB=ojob.io/ai/mcps/mcp-oafp \
-    -e libs=minia \
-    openaf/ojobc:edge-t8
-  ```
-  Use `params` (SLON map) to provide default parameters for repeated runs.
+### mcp-oaf — OpenAF, oJob and oAFp documentation
+```bash
+docker run -i --pull always \
+  -e OJOB=ojob.io/ai/mcps/mcp-oaf \
+  openaf/ojobc:edge-t8
+```
+- `onport`: publish the HTTP `/mcp` endpoint if you prefer remote calls.
 
-- **mcp-s3** – browse S3-compatible object storage.
-  ```bash
-  docker run -i --pull always \
-    -e OJOB=ojob.io/ai/mcps/mcp-s3 \
-    -e accessKey=AKIA... \
-    -e secret=superSecretKey \
-    -e region=eu-west-1 \
-    -e bucket=my-bucket \
-    openaf/ojobc:edge-t8
-  ```
-  Add `-e readwrite=true` only when you want to create, upload or delete objects.
+### mcp-oafp — oafp runner and docs
+```bash
+docker run -i --pull always \
+  -e OJOB=ojob.io/ai/mcps/mcp-oafp \
+  -e libs=minia \
+  openaf/ojobc:edge-t8
+```
+- `libs`: preload comma-separated oPacks (`minia`, `ojob`, …).
+- `params`: SLON map with default arguments for repeated runs.
+- `onport`: publish the HTTP `/mcp` endpoint.
 
-- **mcp-shell** – carefully expose a local shell.
-  ```bash
-  docker run -i --pull always \
-    -e OJOB=ojob.io/ai/mcps/mcp-shell \
-    -e readwrite=false \
-    -e shellallow=ls,cat \
-    openaf/ojobc:edge-t8
-  ```
-  Tighten `shellallow`/`shellbanextra`, set `cwd`, and use `timeout` to avoid surprises.
+### mcp-random — deterministic-friendly random data helpers
+```bash
+docker run -i --pull always \
+  -e OJOB=ojob.io/ai/mcps/mcp-random \
+  openaf/ojobc:edge-t8
+```
+- Seed support lives in the tool inputs; define `onport` when you need HTTP.
 
-- **mcp-ssh** – run shell commands on remote hosts through OpenAF SSH URLs.
-  ```bash
-  docker run -i --pull always \
-    -e OJOB=ojob.io/ai/mcps/mcp-ssh \
-    -e "ssh=ssh://user:pass@host:22/?timeout=5000" \
-    openaf/ojobc:edge-t8
-  ```
-  As with `mcp-shell`, keep `readwrite` off unless you truly need to push changes.
+### mcp-s3 — S3-compatible object storage
+```bash
+docker run -i --pull always \
+  -e OJOB=ojob.io/ai/mcps/mcp-s3 \
+  -e accessKey=AKIA... \
+  -e secret=superSecretKey \
+  -e region=eu-west-1 \
+  -e bucket=my-bucket \
+  openaf/ojobc:edge-t8
+```
+- `url`: override the S3 endpoint (defaults to AWS public).
+- `accessKey` / `secret`: credentials; combine with `region` and `bucket`.
+- `readwrite`: set to `true` when you need writes or deletes.
+- `useversion1`, `ignorecertcheck`: endpoint-specific toggles.
+- `onport`: expose the HTTP `/mcp` endpoint.
 
-- **mcp-time** – date and timezone utilities.
-  ```bash
-  docker run -i --pull always \
-    -e OJOB=ojob.io/ai/mcps/mcp-time \
-    openaf/ojobc:edge-t8
-  ```
+### mcp-shell — controlled local shell
+```bash
+docker run -i --pull always \
+  -e OJOB=ojob.io/ai/mcps/mcp-shell \
+  -e readwrite=false \
+  -e shellallow=ls,cat \
+  openaf/ojobc:edge-t8
+```
+- `readwrite`: allow state-changing commands sparingly.
+- `shellallow`, `shellbanextra`, `shellallowpipes`: tune the allow/deny lists.
+- `cwd`, `timeout`, `env`: set working directory, default timeout and env map.
+- `onport`: publish the HTTP `/mcp` endpoint.
 
-- **mcp-weather** – wttr.in-backed weather summaries.
-  ```bash
-  docker run -i --pull always \
-    -e OJOB=ojob.io/ai/mcps/mcp-weather \
-    openaf/ojobc:edge-t8
-  ```
-  Optional knobs: `ansi=true`, `oneline=true`, or custom `format`/`options`.
+### mcp-ssh — remote shell via OpenAF SSH URLs
+```bash
+docker run -i --pull always \
+  -e OJOB=ojob.io/ai/mcps/mcp-ssh \
+  -e "ssh=ssh://user:pass@host:22/?timeout=5000" \
+  openaf/ojobc:edge-t8
+```
+- `ssh`: OpenAF SSH URL (required).
+- `readwrite`: allow mutating commands when needed.
+- `shellallow`, `shellbanextra`, `shellallowpipes`: adjust command filtering.
+- `onport`: expose the HTTP `/mcp` endpoint.
+
+### mcp-time — timezone utilities
+```bash
+docker run -i --pull always \
+  -e OJOB=ojob.io/ai/mcps/mcp-time \
+  openaf/ojobc:edge-t8
+```
+- `onport`: publish the HTTP `/mcp` endpoint.
+
+### mcp-weather — wttr.in-backed weather summaries
+```bash
+docker run -i --pull always \
+  -e OJOB=ojob.io/ai/mcps/mcp-weather \
+  openaf/ojobc:edge-t8
+```
+- `ansi` / `oneline`: switch to ANSI or single-line output.
+- `format`, `options`: fine-tune the wttr.in response.
+- `onport`: publish the HTTP `/mcp` endpoint.
 
 ## Wire everything into GitHub Copilot Agent mode
 
@@ -192,6 +234,15 @@ docker run -i --pull always \
         "secret": "PUT_SECRET_HERE",
         "region": "eu-west-1"
       }
+    },
+    "openaf-random": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--pull", "always",
+        "-e", "OJOB=ojob.io/ai/mcps/mcp-random",
+        "openaf/ojobc:edge-t8"
+      ],
+      "transport": "stdio"
     }
   },
   "groups": {
@@ -203,6 +254,7 @@ docker run -i --pull always \
         "openaf-weather",
         "openaf-db",
         "openaf-s3",
+        "openaf-random",
         "openaf-shell",
         "openaf-time",
         "openaf-net",
@@ -220,7 +272,7 @@ docker run -i --pull always \
 ```
 
 - The `icon` value is optional; VS Code accepts any codicon name.
-- Add the remaining `openaf-*` entries (`openaf-shell`, `openaf-email`, etc.) to `mcpServers` following the same pattern before referencing them in the group.
+- Add the remaining `openaf-*` entries (`openaf-email`, `openaf-shell`, `openaf-time`, `openaf-net`, `openaf-kube`, `openaf-random`, etc.) to `mcpServers` following the same pattern before referencing them in the group.
 - Store secrets safely — for example, use a local `.env` file with `docker run --env-file` and replace the inline placeholders above.
 - VS Code surfaces the group inside the Copilot Agents panel — select it once and the agent keeps those MCP tools handy for subsequent conversations.
 - If you are on an older Copilot Agent build that only accepts server lists, swap `defaultGroups` for `defaultServers` and list the entries manually.
