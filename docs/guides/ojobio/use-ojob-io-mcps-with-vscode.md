@@ -42,7 +42,7 @@ docker run -i --pull always \
   -e chs="(_name: mydata, _type: file, _rw: true, file: /data/data.json)" \
   openaf/ojobc:edge-t8
 ```
-- `chs`: describe one or more channels (file, simple, mvs, …) with SLON/JSON.
+- `chs`: describe one or more channels (file, simple, mvs, …) with [SLON](https://github.com/nmaguiar/slon)/JSON.
 - `libs`: preload comma-separated libraries or `@oPack/library.js`.
 - `onport`: expose an HTTP `/mcp` endpoint while keeping STDIO available.
 
@@ -117,7 +117,7 @@ docker run -i --pull always \
   openaf/ojobc:edge-t8
 ```
 - `libs`: preload comma-separated oPacks (`minia`, `ojob`, …).
-- `params`: SLON map with default arguments for repeated runs.
+- `params`: [SLON](https://github.com/nmaguiar/slon) map with default arguments for repeated runs.
 - `onport`: publish the HTTP `/mcp` endpoint.
 
 ### mcp-random — deterministic-friendly random data helpers

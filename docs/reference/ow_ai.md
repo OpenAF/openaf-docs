@@ -26,7 +26,7 @@ aModel can be a map with the following properties:
 - headers: a map with the headers to use in the requests (e.g. { "Content-Type": "application/json" })
 - params: a map with the parameters to use in the requests (e.g. { "max_tokens": 1000, "top_p": 1, "frequency_penalty": 0, "presence_penalty": 0 })
 
-If aModel is not provided, it will try to get the model from the environment variable "OAF_MODEL" with the map in JSON or SLON format.
+If aModel is not provided, it will try to get the model from the environment variable "OAF_MODEL" with the map in JSON or [SLON](https://github.com/nmaguiar/slon) format.
 ````
 ### $gpt.close
 

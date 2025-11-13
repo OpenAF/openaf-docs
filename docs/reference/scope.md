@@ -1307,7 +1307,7 @@ Tries to convert aJavaArray into a native an array.
 __AF.fromJSSLON(aString) : Object__
 
 ````
-Tries to convert the provided aString into an object. The string might be JSON or SLON.
+Tries to convert the provided aString into an object. The string might be JSON or [SLON](https://github.com/nmaguiar/slon).
 ````
 ### AF.fromNLinq
 
@@ -1328,7 +1328,7 @@ Tries to convert aMap into a similiar XML strucuture returned as string. Note th
 __AF.fromSLON(aString) : Map__
 
 ````
-Converts a SLON (https://github.com/nmaguiar/slon) string representation into the original map.
+Converts a [SLON](https://github.com/nmaguiar/slon) string representation into the original map.
 ````
 ### AF.fromSQL
 
@@ -1426,14 +1426,14 @@ Swaps the elements at anIndex1 and anIndex2 in anArray. Returns the new array wi
 __AF.toCSLON(aObject, aTheme) : String__
 
 ````
-Converts aObject map/array into SLON representation with ansi colors (see more in help for ow.format.toCSLON)
+Converts aObject map/array into [SLON](https://github.com/nmaguiar/slon) representation with ansi colors (see more in help for ow.format.toCSLON)
 ````
 ### AF.toSLON
 
 __AF.toSLON(aObject, aTheme) : String__
 
 ````
-Converts aObject map/array into SLON representation (see more in help for ow.format.toSLON)
+Converts aObject map/array into [SLON](https://github.com/nmaguiar/slon) representation (see more in help for ow.format.toSLON)
 ````
 ### af.toTOML
 
@@ -1843,7 +1843,7 @@ Returns a map of key and values with the operating system environment variables.
 __getEnvsDef(aEnv, aVar, aDefault, isJson) : Object__
 
 ````
-Given an environment variable aEnv name will check if a value is provided and return it if so. Otherwise it will check the value of aVar and return it if defined. If aVar is also not defined it will return aDefault. Optionally if isJson=true the value of the provided aEnv will be parsed from JSON or SLON.
+Given an environment variable aEnv name will check if a value is provided and return it if so. Otherwise it will check the value of aVar and return it if defined. If aVar is also not defined it will return aDefault. Optionally if isJson=true the value of the provided aEnv will be parsed from JSON or [SLON](https://github.com/nmaguiar/slon).
 ````
 ### getFromZip
 
