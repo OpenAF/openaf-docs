@@ -9,7 +9,7 @@ grand_parent: Guides
 
 Using the oJob's oafp shortcut it's possible to build oJobs that use oafp functionality to process input data into output data.
 
-In this example a SLON string is parsed by oafp and set to the 'test' key. Then the data is retrieved from the 'test' key and each element is incremented setting the result back to the 'test' key. Then, finally, it outputs the 'test' key in a _ctree_ format:
+In this example a [SLON](https://github.com/nmaguiar/slon) string is parsed by oafp and set to the 'test' key. Then the data is retrieved from the 'test' key and each element is incremented setting the result back to the 'test' key. Then, finally, it outputs the 'test' key in a _ctree_ format:
 
 ```yaml
 todo:

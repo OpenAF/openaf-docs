@@ -13,15 +13,15 @@ OpenAF provides first-class support for Local Language Model (LLM) prompts via t
 
 ### OAF_MODEL
 
-Used by the `$llm` function and OpenAF JavaScript APIs to select and configure a GPT model. If no explicit model is passed to `$llm()`, OpenAF will look at `OAF_MODEL` as a JSON or SLON string.
+Used by the `$llm` function and OpenAF JavaScript APIs to select and configure a GPT model. If no explicit model is passed to `$llm()`, OpenAF will look at `OAF_MODEL` as a JSON or [SLON](https://github.com/nmaguiar/slon) string.
 
-- Type: string (JSON/SLON) or simple `<type>` name
+- Type: string (JSON/[SLON](https://github.com/nmaguiar/slon)) or simple `<type>` name
 - Default key: `OAF_MODEL`
 
 Examples:
 
 ```bash
-# Full JSON configuration (SLON is also supported)
+# Full JSON configuration ([SLON](https://github.com/nmaguiar/slon) is also supported)
 export OAF_MODEL='{ \
   type: "openai", \
   key: "YOUR_OPENAI_API_KEY", 
@@ -76,7 +76,7 @@ TOPIC=love && printf "Write a poem about ${TOPIC}" | oafp in=llm
 ## Tips
 
 - **Environment isolation**: Set these variables in your CI/CD or container environment to avoid hard-coding secrets.
-- **SLON support**: OpenAF will parse SLON (Single Line Object Notation) if you prefer a more compact syntax.
+- **[SLON](https://github.com/nmaguiar/slon) support**: OpenAF will parse [SLON](https://github.com/nmaguiar/slon) (Single Line Object Notation) if you prefer a more compact syntax.
 - **Multiple providers**: You can switch providers by changing `type` (e.g. `openai`, `gemini`, `ollama`, `anthropic`).
 
 ## Reference Table: OAF_MODEL / OAFP_MODEL Fields
