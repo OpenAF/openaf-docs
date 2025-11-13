@@ -63,7 +63,7 @@ Adds custom helpers:
   - $ft              -- uses the $ft format function
   - $path            -- uses the $path function to query objects
   - $from            -- uses the $from & fromNLinq to query objects
-  - $oafp            -- uses the oafp function to parse the provided JSON/SLON string and return the results
+  - $oafp            -- uses the oafp function to parse the provided JSON/[SLON](https://github.com/nmaguiar/slon) string and return the results
   - $toSLON          -- returns the ow.format.toSLON version of an object
   - $get             -- returns the corresponding value for a key on $get
   - $getObj          -- equivalent to $get with the extra parameter for $$.get path
@@ -78,7 +78,7 @@ Adds custom helpers:
   - $pbars           -- returns an ansi ascii tree of progress bars with a format string: "unit path:color:legend... [-min:0] [-max:100] [-hsize:40]"
   - $output          -- returns an $output representation of an object (aObj as 1st arg and options in slon as 2nd arg)
   - $cjson           -- returns an ansi ascii colority representation fo an object
-  - $cslon           -- returns an ansi ascii colored SLON representation of an object
+  - $cslon           -- returns an ansi ascii colored [SLON](https://github.com/nmaguiar/slon) representation of an object
   - $pmap            -- returns an ansi ascii printMap representation of an object
   - $jsmap           -- returns a HTML representation of an object
   - $t               -- given a template and an object instance, as arguments, will process and return the template
