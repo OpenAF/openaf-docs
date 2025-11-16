@@ -10,13 +10,13 @@ init:
 jobs:
 # ----------
 - name: Init
-  exec: |
+  exec: | #js
     _$(args.pre, "pre").$_();
     global.pre = args.pre;
 
 # ----------------
-- name: Add header
-  exec: |
+- name: Add h eader
+  exec: | #js
     _$(args.file, "file").$_();
     _$(args.pre, "pre").$_();
 
@@ -36,5 +36,5 @@ jobs:
 todo:
 - name: Init
 - name: Add header
-  args: |
+  args: | #js
     io.listFiles(".").files.map(f => ({ file: f.canonicalPath, pre: global.pre }));
