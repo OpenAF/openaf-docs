@@ -9,6 +9,75 @@ grand_parent: Guides
 
 Most of the functionalities of OpenAF can be configured through the global variable "__flags". This global variable has multiple keys and sub-keys witn values. If a particular key or sub-key might not exist in an old OpenAF version and this should noticeable by the absence of value.
 
+## Runtime flags overview
+
+Use the following knobs to control baseline oJob behavior without editing every YAML file:
+
+| Name | Default | Purpose |
+|------|---------|---------|
+| OJOB_SEQUENTIAL | true | Force sequential todo execution unless jobs specify async |
+| OJOB_SHAREARGS | true | Share mutated `args` maps between sequential jobs |
+| OJOB_INIT_ARRAY_ARGS_LIST | true | Wrap root array args into `{ _list: [...] }` |
+| OJOB_CHECK_JOB_CHANGES | false | Warn when a job with the same name is redefined |
+| OJOB_CHECK_JOB_REMOVAL | false | Warn when jobs are removed at runtime |
+| OJOB_JSONLOG | unset | Emit JSON console logs |
+| OJOB_AUTHORIZEDDOMAINS | ojob.io | Allowlist for remote includes |
+| OJOB_LOCALPATH | unset | Local base path for resolving includes |
+
+Set them with environment variables (`export OJOB_SEQUENTIAL=false`) or directly on the YAML as `ojob.flags.<NAME>`.
+
+## AI and LLM configuration
+
+| Environment | Default | Purpose |
+|-------------|---------|---------|
+| OAF_MODEL | unset | Default `$llm()` / `$gpt()` provider definition (JSON or SLON) |
+| OPENAI_API_KEY | unset | Credential for ow.ai OpenAI wrappers |
+| ANTHROPIC_API_KEY | unset | Credential for Anthropic wrappers |
+| GEMINI_API_KEY | unset | Google Gemini credential |
+| OLLAMA_HOST | http://localhost:11434 | URL for local Ollama deployments |
+
+The same map format can be assigned to `OAFP_MODEL` to drive the `oafp` CLI prompts.
+
+## Integrity, validation, and security
+
+| Environment | Default | Notes |
+|-------------|---------|-------|
+| OAF_INTEGRITY | {} | Map of script integrity hashes |
+| OAF_INTEGRITY_WARN | true | Warn instead of abort on mismatch |
+| OAF_INTEGRITY_STRICT | false | Require all entries to be present |
+| OAF_SIGNATURE_STRICT | false | Require signed scripts |
+| OAF_SIGNATURE_KEY | unset | Public key material for signature validation |
+| OAF_VALIDATION_STRICT | false | Enforce both integrity and signatures |
+
+Combine these with `ojob.integrity` blocks (see the oJob Security guide) for layered protection.
+
+## Misc performance levers
+
+Common tuning flags when you need to squeeze more throughput or change behavior:
+
+- `OAF_PRECOMPILE_LEVEL` controls the aggressive JavaScript to bytecode compile level (0..2).
+- `PFOREACH.seq_thrs_ms`, `PFOREACH.threads_thrs`, `PFOREACH.waitms`, `PFOREACH.seq_ratio`, `PFOREACH.forceSeq` influence when `pForEach` switches between sequential and parallel processing.
+- `PRINT_BUFFER_STREAM` (bytes) adjusts buffered output for `print` calls.
+- `HTTP_TIMEOUT`, `HTTP_CON_TIMEOUT`, `HTTPD_THREADS` override HTTP client/server defaults.
+- `HTTP_DEFAULT_HEADERS`, `HTTP_USE_MEDIA_TYPE` control ow.obj.http header handling.
+
+### Adjusting via YAML
+
+```yaml
+ojob:
+  flags:
+    OJOB_CHECK_JOB_CHANGES: true
+    HTTP_TIMEOUT: 45000
+```
+
+### Inspecting runtime flags
+
+```javascript
+print(stringify(__flags, void 0, '  '))
+```
+
+---
+
 | __flags | Type | Description |
 |---------|------|-------------|
 | OJOB_SEQUENTIAL | Boolean | If true an oJob will be execute the 'todo' component sequentially by default. |

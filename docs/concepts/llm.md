@@ -79,6 +79,63 @@ TOPIC=love && printf "Write a poem about ${TOPIC}" | oafp in=llm
 - **[SLON](https://github.com/nmaguiar/slon) support**: OpenAF will parse [SLON](https://github.com/nmaguiar/slon) (Single Line Object Notation) if you prefer a more compact syntax.
 - **Multiple providers**: You can switch providers by changing `type` (e.g. `openai`, `gemini`, `ollama`, `anthropic`).
 
+## GPT type wrappers for ow.ai
+
+For lower-level control, OpenAF exposes `OpenWrap.ai.prototype.__gpttypes`, a registry describing each provider wrapper so `$gpt()` and `$llm()` know how to talk to the underlying API. Every entry must implement the same interface (conversation helpers, prompt functions, optional image generation), which makes it easy to add a new provider without changing user code.
+
+### Capability matrix
+
+| Provider  | Chat | Tooling | Image input | Model list | Image generation |
+|-----------|------|---------|-------------|------------|------------------|
+| openai    | Yes  | Yes     | Yes         | Yes        | Yes              |
+| gemini    | Yes  | Yes     | Yes         | Yes        | No               |
+| ollama    | Yes  | Yes     | Yes         | Yes        | No               |
+| anthropic | Yes  | Yes     | No          | Yes        | No               |
+
+### Wrapper shape
+
+```javascript
+OpenWrap.ai.prototype.__gpttypes = {
+  providerName: {
+    create: (options) => ({
+      conversation: [],
+      tools: {},
+      getConversation() {},
+      setConversation(conv) {},
+      setTool(name, desc, params, fn) {},
+      addPrompt(role, content) {},
+      prompt(prompt, model, temperature, jsonFlag, tools) {},
+      rawPrompt(...) {},
+      promptImage(...) {},
+      promptImgGen(...) {},
+      getModels() {},
+      _request(uri, data, verb) {}
+    })
+  }
+}
+```
+
+Options are validated (`type`, `key`, `model`, `timeout`, headers, provider specific params) and sensitive data should go through `Packages.openaf.AFCmdBase.afc.dIP()` before being sent over the wire.
+
+### Implementation notes
+
+- Normalize conversation formats (OpenAI-style `{ role, content }`) even if the provider prefers a different shape.
+- Register tools with JSON Schema metadata (`{ type: 'function', function: { name, description, parameters }, fn }`) and execute them when the response indicates a tool call.
+- Honor JSON-mode flags for providers that enforce it (OpenAI/Anthropic) so `promptJSON` stays reliable.
+- Provide helper methods for system/developer prompts, context injection, and cleanup (`cleanPrompt()`).
+- Reuse `_request()` helpers for HTTP (different auth patterns: Bearer header, querystring keys, unauthenticated local servers).
+
+Testing checklist for a new provider:
+
+1. Basic chat round-trip.
+2. Conversation history replay (`setConversation` / `getConversation`).
+3. System or developer message handling.
+4. JSON-only responses.
+5. Image input (if supported).
+6. Tool calling path.
+7. Model enumeration.
+8. Error handling for invalid credentials and malformed payloads.
+
 ## Reference Table: OAF_MODEL / OAFP_MODEL Fields
 
 | Field         | Type     | Required | Description                                                                 | Provider Notes                                  |
