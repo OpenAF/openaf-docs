@@ -73,7 +73,7 @@ Using the same unix “pipe” mechanism it’s possible to apply different cate
 | avg(arrayNumber) | base | The average value of an array of numeric fields | avg([].y) |
 | at(idx) | 20241205 | Returns the array index entry | [].at(5) |
 | ceil(number) | base | Returns the smallest integer that is equal or less than a specific numeric field value | [].ceil(y) |
-| ch(name, op, arg1, args2) | 20240801 | Wrapper for OpenAF's channel functions over a 'name' channel, an 'op' operation between get, set, unset, size, getAll, getKeys, unsetAll; depending on the 'op', 'arg1' and 'arg2' can be provided with values as objects or JSON/[SLON](https://github.com/nmaguiar/slon) | ch('a', 'set', 'a', 'abc').ch('a', 'get', 'a', __) |
+| ch(name, op, arg1, args2) | 20240801 | Wrapper for OpenAF's channel functions over a 'name' channel, an 'op' operation between get, set, unset, size, getAll, getKeys, unsetAll; depending on the 'op', 'arg1' and 'arg2' can be provided with values as objects or JSON/SLON | ch('a', 'set', 'a', 'abc').ch('a', 'get', 'a', __) |
 | concat(x, y) | 20240209 | Concats arrays or strings | concat('abc', '123') |
 | contains(string/array, any) | base | Returns true of false if a string field contains a specific value | files[?contains(filename, 'openaf.jar') == `true` |
 | count_by(arr, 'field') | all | Returns a count by array with the '_count' per value of the provided 'field' | count_by([], 'isFile') |
@@ -88,16 +88,20 @@ Using the same unix “pipe” mechanism it’s possible to apply different cate
 | floor(number) | base | Returns the greatest integer that is equal or greater than a specific numeric field value | [].floor(y) |
 | format(x, 'format') | 20240209 | OpenAF's function $f (similar to printf) with type conversion | format(to_number(`123.12`), '%05.0f') |
 | formatn(x, 'format') | 20240209 | OpenAF's function $ft (similar to printf) without type conversion | format(string, '%10s')  |
+| from_base64(str) | 20251115 | Given a base64 encoded string will decode it | from_base64('SGVsbG8gV29ybGQh') |
 | from_bytesAbbr(x) | 20240209 | Given a string with a byte abbreviation will convert to bytes | from_bytesAbbr('12GB') |
 | from_csv(str, options) | 20240801 | Given a string CSV representation tries to parse to an array | from_csv(@, '(withDelimiter:\"|\",withHeader:false)') |
 | from_datef(date, 'format') | 20240228 | Converts a date type into a string given a 'format' (equivalent to OpenAF's ow.format.fromDate) | from_datef(to_datef('20240202', 'yyyyMMdd'), 'yyyy') |
+| from_kyaml(str) | 20251115 | Converts a KYAML string representation into an object | from_kyaml(@) |
 | from_json(str) | 20240215 | Converts a json string representation into an object | from_json('{a:123}')" |
-| from_ms(x, 'format') | 20240209 | Shortcut for OpenAF's ow.format.elapsedTime4ms function. The format is represented as a [SLON](https://github.com/nmaguiar/slon)/JSON string | from_ms(`12000`,'(abrev:true)') |
+| from_ms(x, 'format') | 20240209 | Shortcut for OpenAF's ow.format.elapsedTime4ms function. The format is represented as a SLON/JSON string | from_ms(`12000`,'(abrev:true)') |
 | from_numSpace(str, sep) | 20241207 | Tries to convert a string number with thousands separators back to a number | from_numSpace('123 456', ' ') |
 | from_siAbbr(x) | 20240209 | Given a string with SI numeric abbreviation will convert it to the absolute value | from_siAbbr('100m') |
 | from_slon(obj) | 20240215 | Converts a slon string representation into an object | from_slon('(abc: 123)') |
 | from_timeAbbr(x) | 20240209 | Converts a time abbreviation into ms | from_timeAbbr('12s') |
 | from_toml(str) | 20240502 | Given a TOML format string tries to convert it to an object | from_toml(@) |
+| from_xml(str) | 20251115 | Given an XML format string tries to convert it to an object | from_xml(@) |
+| from_yaml(str) | 20240215 | Converts a YAML string representation into an object | from_yaml(@) |
 | get(nameOrPath) | 20240305 | Given a path to the original object or a name set by 'set' or 'setp' returns the corresponding value | packages[].{name: name, version: version, parentVersion: get('version') } |
 | geta(nameOrPath, arrayIndex) | 20240415 | Given a path to the original object or name set by 'set' or 'setp' returns the arrayIndex element of the corresponding returning array | ranges(length(get('arr')),`0`,`1`).map(&{ elem: geta('arr',@).elem }, @) |
 | getc(name) | 20240428 | Returns the current value of a counter name user with inc/dec | [].{ idx: inc('my_counter'), code: concat('c', get('my_counter')), name: name} |
@@ -127,7 +131,8 @@ Using the same unix “pipe” mechanism it’s possible to apply different cate
 | not_null(any) | base | Returns the non-null value between the provided fields | [].not_null(a,b) |
 | now(diff) | 20240302 | Returns the current unix timestamp number with a negative diff (or positive for dates in the future) |
 | nvl(field, value) | 20240216 | Returns the provided value in case a field value is undefined or null | nvl(nullField, 'n/a') |
-| oafp(str) | 20240812 | Executes an oafp (inception) with the provided map in JSON or [SLON](https://github.com/nmaguiar/slon) string format | oafp('(file:data.json)') |
+| oafp(str) | 20240812 | Executes an oafp (inception) with the provided map in JSON or SLON string format | oafp('(file:data.json)') |
+| oafpd(data, str) | 20240812 | Executes an oafp (inception) with the provided data and options map in JSON or SLON string format | oafpd(data, '(path:"name")') |
 | ojob(file, jsslon) | 20241116 | Executes a 'file' oJob, with 'jsslon' as args, returning the output (if ow.ojob.output is used) | ojob('ojob.io/echo', obj) |
 | opath(str) | 20240801 | Inception function to go over other path filters in 'str' applied over the original object before current transformations | files[].{ name: filename, path: opath('originalPath') } | 
 | path(obj, str) | 20240801 | Inception function to have other path filters in 'str' applied over 'obj' | path(@, 'filename') |
@@ -141,6 +146,7 @@ Using the same unix “pipe” mechanism it’s possible to apply different cate
 | search_values(arr, 'text') | all | Returns an array of entries where 'text' was found as part of an object property value. | search_values(files, '.git') |
 | set(obj, path) | 20240305 | Given an object will set the value to a name that it's equal to it's path | set(@, 'version').packages[].{ name: name, parentVersion: get('version') } |
 | setp(obj, path, name) | 20240305 | Given an object will set the value to a name given the provided path | set(@, 'version', 'ver').packages[].{ name: name, parentVersion: get('ver') } |
+| semver(version, operation, arg) | 20240605 | Performs semantic version operations (e.g. 'isGreaterThan', 'isLessThan') on a version string | semver('1.2.3', 'isGreaterThan', '1.2.0') |
 | sh(cmd, stdin) | 20241116 | Executes a shell command with a stdin. Returns stdout, stderr, exitcode, cmd and in. | sh('cat', '123').stdout |
 | sh_json(cmd, stdin) | 20241116 | Executes a shell command with a stdin. Parses json returning stdout, stderr, exitcode, cmd and in. | sh('cmd', out).stdout |
 | sh_jsslon(cmd, stdin) | 20241116 | Executes a shell command with a stdin. Parses jsslon returning stdout, stderr, exitcode, cmd and in. | sh('cmd', out).stdout |
@@ -165,20 +171,24 @@ Using the same unix “pipe” mechanism it’s possible to apply different cate
 | timeago(num) | 20240209 | Given a ms timestamp will return a human readable string of how log ago that timestamp occurred. | files[].{path:filepath,howLongAgo:timeago(lastModified)} |
 | timeagoAbbr(num) | 20240810 | Given a ms timestamp will return an abbreviated human readable string of how long ago that timestemp occurred. | files[].{path:filepath,howLongAgo:timeagoAbbr(lastModified)} |
 | to_array(any) | base | Transforms any input into an array | to_array(`true`) |
+| to_base64(str) | 20251115 | Given a string will return the base64 encoded version of it | to_base64('Hello World!') |
 | to_bytesAbbr(x) | 20240209 | Given an absolute number of bytes will return a string with unit abbreviation. | to_bytesAbbr(`12345678`) |
 | to_csv(obj, options) | 20240801 | Given an object will try to convert it to CSV with $csv options | to_csv(@, '(withDelimiter:\"|\",withHeader:false)') |
 | to_date(x) | 20240209 | Tries to convert a value to a date | to_date(createDate) |
 | to_datef(str, 'pattern') | 20240228 | Uses a Java date format to convert a string into a date | to_datef(createDate, 'yyyyMMdd') |
 | to_isoDate(x) | 20240209 | Tries to convert a string into an ISO date format string | to_isoDate( to_datef(createDate, 'yyyyMMdd') ) |
 | to_json(obj, 'space') | 20240215 | Given an object will return the JSON string representation of it with the provided spacing | to_json(@, '') |
+| to_kyaml(obj) | 20251115 | Given an object will return the KYAML representation of it. | to_kyaml(@) |
 | to_map(arr, 'field') | all | Given an array it will return a map where each entry is a property using the provided field with a map as value. | to_map(files, 'filename') |
 | to_ms(date) | 20240810 | Converts a date field into a number of ms | to_ms(createDate) |
 | to_numAbbr(num) | 20240209 | Given an absolute number will return a string with SI abbreviation | to_numAbbr(`12345678`) |
 | to_number(any) | base | Transforms any input into a number | to_number(`123`) |
 | to_numSpace(num, space) | 20241207 | Transforms a number input to a string with thousands separator 'space' | to_numSpace(123456, ',') |
-| to_slon(obj) | 20240215 | Given an object will return the [SLON](https://github.com/nmaguiar/slon) representation of it. | to_slon(@) |
+| to_slon(obj) | 20240215 | Given an object will return the SLON representation of it. | to_slon(@) |
 | to_string(any) | base | Transforms any input into a string | to_string(`123`) |
 | to_toml(obj) | 20240502 | Given an object outputs a TOML format string if possible | to_toml(@) |
+| to_xml(obj) | 20251115 | Given an object will return the XML representation of it. | to_xml(@) |
+| to_yaml(obj, inline) | 20240215 | Given an object will return the YAML representation of it with optional inline boolean flag | to_yaml(@, `true`) |
 | trim(str) | 20240209 | Given a string will return a trimmed version of it | trim(@) |
 | type(any) | base | Returns the type of any input | type(to_number(`123`)) |
 | unique(arr) | all | Given an array will return a new de-duplicated array. | unique([]) |

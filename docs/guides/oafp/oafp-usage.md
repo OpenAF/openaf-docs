@@ -13,6 +13,7 @@ Takes an input, usually a data structure such as json, and transforms it to an e
 
 > If a _file_ or _file=somefile_ or _file=zipfile::somefile_ is not provided the input will be expected to be provided through stdin/pipe.
 > Options are expected to be provided as _option=value_. Check the lists below for all the available options.
+> Use `-v` or `in="?"` and `out="?"` to discover supported inputs, transforms and outputs.
 
 ## Main options:
 
@@ -20,36 +21,42 @@ Takes an input, usually a data structure such as json, and transforms it to an e
 |--------|-------------|
 | -h     | Show this document |
 | help   | Alternative way to show this document or others (e.g. filters, template) |
-| file   | The file to parse (if not provide stdin is used) |
+| file   | The file to parse (if not provided stdin is used) |
 | cmd    | Alternative to file and stdin to execute a command (e.g. kubectl, docker) to get the file contents |
 | data   | Alternative to file, stdin and cmd to provide data input |
 | out    | The output format (default: ctree) |
 | in     | The input type (if not provided it will try to be auto-detected) |
+| ifrom | An OpenAF nLinq expression to filter input data |
+| isql | A SQL expression to filter input data |
 | from   | An OpenAF nLinq path expression to filter output |
 | sql    | A SQL expression to filter output |
+| opath | A JMESPath expression to filter output data |
 | sqlfilter | Enables the forcing of the sql filter parser (values: auto, simple, advanced) |
-| sqlfiltertables | A JSON/[SLON](https://github.com/nmaguiar/slon) array composed of 'table' name and 'path' to each table's data to be used with the sqlfilter |
+| sqlfiltertables | A JSON/SLON array composed of 'table' name and 'path' to each table's data to be used with the sqlfilter |
 | path   | A JMESPath expression to filter output |
 | csv    | If type=csv, the CSV options to use | 
-| outkey | If defined the map/list output will be prefix with the provided key |
+| outkey | If defined the map/list output will be prefixed with the provided key |
 | outfile | If defined all output will be written to the provided file |
 | outfileappend | If 'true' and outfile=true the output will be appended on the provided file |
+| parallel | If 'true' and input supports parallel processing it will try to process the input in parallel disregarding input order |
 | pause  | If 'true' will try to pause contents in alternative to _less -r_ |
 | color  | If 'true' will force colored output if available |
 | url    | Retrieves data from the provided URL |
 | urlmethod | If 'url' is provided defines the http method to use if different from GET | 
-| urlparams | If 'url' is provided extra parameters (equivalent to OpenAF's $rest) can be provided in JSON/[SLON](https://github.com/nmaguiar/slon) |
-| urldata | If 'url' is provided a JSON/[SLON](https://github.com/nmaguiar/slon)/text data can be provided | 
-| chs | A JSON/[SLON](https://github.com/nmaguiar/slon) map or array composed of an OpenAF channel 'name', 'type' and optional 'options' |
+| urlparams | If 'url' is provided extra parameters (equivalent to OpenAF's $rest) can be provided in JSON/SLON |
+| urldata | If 'url' is provided a JSON/SLON/text data can be provided | 
+| insecure | If true will ignore SSL/TLS certificate validation |
+| chs | A JSON/SLON map or array composed of an OpenAF channel 'name', 'type' and optional 'options' |
 | loop   | If defined will loop the processing by the number of seconds provided |
 | loopcls | If 'true' and loop is defined it will clear the screen (or file) on each loop cycle |
 | libs | Comma delimited list of installed OpenAF's oPacks to consider to extend oafp's inputs, transformations and outputs | 
-| pipe | A JSON/[SLON](https://github.com/nmaguiar/slon)/YAML map for recursive call of oafp similar to using unix pipes (useful with -f) |
-| -f | Enables to provide a JSON/[SLON](https://github.com/nmaguiar/slon)/YAML file with all the oafp parameters as a map |
+| pipe | A JSON/SLON/YAML map for recursive call of oafp similar to using unix pipes (useful with -f) |
+| -f | Enables to provide a JSON/SLON/YAML file with all the oafp parameters as a map |
 | -examples | Will access an internet based list of oafp examples and list them |
 | examples | Will search the provided keyword or 'category::subcategory' in the internet based list of oafp examples |
 | version | Alternative way to change the input to a map with the tool's version |
 | -v | Changes the input to a map with the tool's version info |
+| debug | If true prints debugging messages |
 
 > Filter options apply in the following order: _path_, _from_ and _sql_.
 
@@ -59,7 +66,7 @@ Takes an input, usually a data structure such as json, and transforms it to an e
 
 > _sqlfilterstable_ assumes and forces _sqlfilter=advanced_
 
-> Use 'OAFP_RESET=true' to forces to reset the terminal before waiting for input or displaying an output (use this if you experience terminal related issues)
+> Use 'OAFP_RESET=true' to force resetting the terminal before waiting for input or displaying an output (use this if you experience terminal related issues)
 
 > Use 'OAFP_CODESET=UTF-16' to force reading files in a different codeset (e.g. UTF-16) different from the default UTF-8.
 
@@ -67,11 +74,11 @@ Takes an input, usually a data structure such as json, and transforms it to an e
 
 ## ⬇️  Input types
 
-List of data input types that can be auto-detected (through the file extension or through it's contents). You can always override it be using the _input_ option:
+List of data input types that can be auto-detected (through the file extension or through its contents). You can always override it by using the _in_ option:
 
 | Input type | Description |
 |------------|-------------|
-| ask | Interactively asks questions to an user (using JSON/[SLON](https://github.com/nmaguiar/slon) for OpenAF's askStruct) |
+| ask | Interactively asks questions to an user (using JSON/SLON for OpenAF's askStruct) |
 | base64 | A base64 text format |
 | ch | An OpenAF channel format |
 | csv | A CSV format (auto-detected) |
@@ -93,16 +100,19 @@ List of data input types that can be auto-detected (through the file extension o
 | ls | Returns a list of files and folders for a given directory path or zip or tar or tgz file |
 | md | A Markdown format |
 | mdtable | A Markdown table format |
+| mdcode | A Markdown code blocks format |
+| mcp | A Model Context Protocol (MCP) input |
+| minia | Executes a mini-a interaction definition (requires the mini-a oPack) |
 | ndjson | A NDJSON (new-line delimited JSON) format |
-| ndslon | A NDSLON (new-line delimited [SLON](https://github.com/nmaguiar/slon)) format |
-| oaf | Takes an OpenAF scripting code to execute and use the result as input |
-| oafp | Takes a JSON/[SLON](https://github.com/nmaguiar/slon)/YAML map input as parameters for calling a sub oafp process (arrays will call multiple oafp processes; inoafpseq=true will process sequentially) |
-| ojob | Takes a JSON/[SLON](https://github.com/nmaguiar/slon)/YAML map input with a 'ojob' string and a 'args' map parameter |
+| ndslon | A NDSLON (new-line delimited SLON) format |
+| oaf | Takes an OpenAF scripting code or OpenAF scripting file to execute and use the result as input |
+| oafp | Takes a JSON/SLON/YAML map input as parameters for calling a sub oafp process (arrays will call multiple oafp processes; inoafpseq=true will process sequentially) |
+| ojob | Takes a JSON/SLON/YAML map input with a 'ojob' string and a 'args' map parameter |
 | openmetrics | An OpenMetrics/Prometheus compatible format |
 | raw | Passes the input directly to transforms and output |
 | rawhex | Tries to read the input char by char converting into lines with the hexadecimal representation |
 | sh | Executes a shell command returning stdout, stderr and exitcode as a map |
-| slon | A [SLON](https://github.com/nmaguiar/slon) format (auto-detected) |
+| slon | A SLON format (auto-detected) |
 | snmp | A SNMP device source |
 | sql | One or more SQLs statements to AST (Abstract Syntax Tree) or beautified SQL |
 | toml | TOML format |
@@ -121,17 +131,19 @@ These options will change the parsed input data included any filters provided.
 | arraytomap | Boolean | If true will try to convert the input array to a map (see arraytomapkey, arraytomapkeepkey) |
 | arraytomapkeepkey | Boolean | If true and arraytomap=true the defined arraytomapkey won't be removed from each map |
 | arraytomapkey | String | For arraytomap=true defines the name of the map property that will be each element key (see arraytomapkeepkey) |
+| allstrings | Boolean | If true will try to convert all values to strings |
 | cmlt | Boolean | If true will accumulate the input values into an output array (useful with loop) |
 | correcttypes | Boolean | If true will try to convert alpha-numeric field values with just numbers to number fields, string date fields to dates and boolean fields |
-| denormalize | String | Reverses 'normalize' given a JSON/[SLON](https://github.com/nmaguiar/slon) map with a normalize schema (see OpenAF's ow.ai.normalize.withSchema) |
-| diff | String | A JSON/[SLON](https://github.com/nmaguiar/slon) map with a 'a' path and a 'b' path to compare and provide diff data |
+| denormalize | String | Reverses 'normalize' given a JSON/SLON map with a normalize schema (see OpenAF's ow.ai.normalize.withSchema) |
+| diff | String | A JSON/SLON map with a 'a' path and a 'b' path to compare and provide diff data |
 | field2byte | String | A comma delimited list of fields whose value should be converted to a byte abbreviation |
 | field2date | String | A comma delimited list of fields whose value should be converted to date values |
 | field2si | String | A comma delimited list of fields whose value should be converted to a SI abbreviation |
-| field4map | Boolean | A comma delimited list of fields whose value should be converted from JSON/[SLON](https://github.com/nmaguiar/slon) string representation to a map |
+| field2str | String | A comma delimited list of fields whose value should be converted to a string representation |
+| field4map | Boolean | A comma delimited list of fields whose value should be converted from JSON/SLON string representation to a map |
 | flatmap | Boolean | If true a map structure will be flat to just one level (optionally flatmapsep=[char] to use a different separator that '.') |
 | getlist | Number | If true will try to find the first array on the input value (if number will stop only after the number of checks) |
-| forcearray | Boolean | If true and if the input is map it will force it to be an array with that map as the only element |
+| forcearray | Boolean | If true and if the input is a map it will force it to be an array with that map as the only element |
 | jsonschema | String | The JSON schema file to use for validation returning a map with a boolean valid and errors if exist |
 | jsonschemacmd | String | Alternative option to 'jsonschema' to retrieve the JSON schema data to use for validation returning a map with a boolean valid and errors if exist |
 | jsonschemagen | Boolean | If true will taken the provided input map as an example to generate an output json schema |
@@ -141,17 +153,18 @@ These options will change the parsed input data included any filters provided.
 | maptoarray | Boolean | If true will try to convert the input map to an array (see maptoarraykey) |
 | maptoarraykey | String | If maptoarray=true defines the name of the map property that will hold the key for each map in the new array |
 | merge | Boolean | If input is a list/array of maps will merge each element into one map |
-| normalize | String | A JSON/[SLON](https://github.com/nmaguiar/slon) map with a normalize schema (see OpenAF's ow.ai.normalize.withSchema) |
+| normalize | String | A JSON/SLON map with a normalize schema (see OpenAF's ow.ai.normalize.withSchema) |
 | numformat | String | For all number values applies a java.util.Formatter format (e.g. %,d) |
+| oaf | String | An OpenAF scripting code or OpenAF scripting file to execute taking input as 'data' and returning the transformed data |
 | regression | String | Performs a regression (linear, log, exp, poly or power) over a provided list/array of numeric values |
 | removedups | Boolean | If true will try to remove duplicates from an array |
 | removeempty | Boolean | If true will remove array/list entries that are either null or undefined |
 | removenulls | Boolean | If true will try to remove nulls and undefined values from a map or array |
 | searchkeys | String | Will return a map with only keys that match the provided string |
 | searchvalues | String | Will return am map with only values that match the provided string |
-| set | String | Performs set operations (intersection by default) over an 'a' and 'b' path to an array defined in a JSON/[SLON](https://github.com/nmaguiar/slon) map |
+| set | String | Performs set operations (intersection by default) over an 'a' and 'b' path to an array defined in a JSON/SLON map |
 | sortmapkeys | Boolean | If true the resulting map keys will be sorted |
-| spacekeys | String | Replaces spaces in keys with the provided string (for example, helpful to xml output) |
+| spacekeys | String | Replaces spaces in keys with the provided string (for example, helpful for XML output) |
 | trim | Boolean | If true all the strings of the result map/list will be trimmed |
 | val2icon | String | If defined will transform undefined, null and boolean values to emoticons (values can be 'default' or 'simple') |
 | xjs | String | A .js file with function code manipulating an input 'args'. Returns the transformed 'args' variable. |
@@ -171,23 +184,27 @@ List of available formats to use with the _output_ option:
 |---------------|-------------|
 | base64 | A base64 text format |
 | ch | An OpenAF channel format |
-| chart | A line-chart like chart (usefull together with 'loop') |
+| chart | A line-chart style chart (useful together with 'loop') |
 | cjson | A JSON forcely colored format |
 | cmd | Executes a command for each input data entry |
-| cslon | A [SLON](https://github.com/nmaguiar/slon) format forcely colored |
+| cslon | A SLON format forcely colored |
 | csv | A CSV format (only for list outputs) |
 | ctable | A table-like forcely colored format (only for list outputs) |
 | ctree | A tree-like forcely colored format |
+| clkyaml | A Kubernetes YAML without new-lines colored format |
+| ckyaml | A Kubernetes YAML colored format |
 | cyaml | An YAML colored format |
 | db | Output to a JDBC database |
 | envs | Tries to output the input data as OS environment variables setting commands |
 | gb64json | Equivalent to out=base64 and base64gzip=true |
-| grid | A multiple output ascii grid (usefull together with 'loop') |
+| grid | A multiple output ascii grid (useful together with 'loop') |
 | html | An HTML format |
 | ini | A INI/Properties format (arrays are not supported) |
 | json | A JSON format without spacing |
 | jwt | Signs map data into a JSON Web Token (JWT) |
 | key | Stores data into an OpenAF global (used inside OpenAF) |
+| kyaml | A Kubernetes YAML format |
+| lkyaml | A Kubernetes YAML format without new-lines |
 | lines | Given an array of strings prints each line |
 | log | If input has Logstash compatible fields outputs a human-readable log |
 | map | A rectangle map format |
@@ -195,15 +212,18 @@ List of available formats to use with the _output_ option:
 | mdtable | A Markdown table format (only for list outputs) |
 | mdyaml | A multi document YAML format (only for list outputs) |
 | ndjson | A NDJSON (new-line delimited JSON) format |
-| ndslon | A NDSLON (new-line delimited [SLON](https://github.com/nmaguiar/slon)) format |
+| ndslon | A NDSLON (new-line delimited SLON) format |
+| ndcslon | A NDSLON (new-line delimited SLON) format forcely colored |
 | openmetrics | Converts a map or list to OpenMetrics/Prometheus compatible format |
+| oaf | An OpenAF scripting code or OpenAF scripting file (together with 'outoaf') to execute taking input transformed as 'data' |
 | pjson | A JSON format with spacing (equivalent to prettyjson) |
 | prettyjson | A JSON format with spacing |
 | pxml | Tries to output the input data into pretty xml |
 | raw | Tries to output the internal representation (string or json) of the input transformed data |
+| rawascii | Outputs text data line by line with visual representation of non-visual characters |
 | res | Outputs data to an OpenAF global 'res' (used in oJobs) | 
 | schart | A static line-chart like chart (for a fixed list/array of values) |
-| slon | A [SLON](https://github.com/nmaguiar/slon) format |
+| slon | A SLON format |
 | sql | Outputs a series of SQL statements for an input list/array data |
 | stable | A table-like format with separation (only for list outputs) |
 | table | A table-like format without size constraints (only for list outputs) |
@@ -217,7 +237,7 @@ List of available formats to use with the _output_ option:
 
 > For 'template' check https://docs.openaf.io/docs/guides/oafp/oafp-template.html
 
-> For 'log' you can use 'logtheme' or the environment variable 'OAFP_LOGTHEME' with a JSON/[SLON](https://github.com/nmaguiar/slon) map with the colors to use '(errorLevel: red, warnLevel: yellow, timestamp: bold)'
+> For 'log' you can use 'logtheme' or the environment variable 'OAFP_LOGTHEME' with a JSON/SLON map with the colors to use '(errorLevel: red, warnLevel: yellow, timestamp: bold)'
 
 ---
 
@@ -231,13 +251,13 @@ List of options to use when _in=ch_:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| inch   | String | A JSON/[SLON](https://github.com/nmaguiar/slon) configuration string with type and options/url |
+| inch   | String | A JSON/SLON configuration string with type and options/url |
 | inchall | Boolean | A boolean flag to determine if the input map will be used for a getAll query |
 
 > Example of options provided in JSON: inch="{type:'mvs',options:{file:'data.db'}}"
-> Example of options provided in [SLON](https://github.com/nmaguiar/slon): inch="(type: remote, url: 'http://some.host:1234/chname')"
+> Example of options provided in SLON: inch="(type: remote, url: 'http://some.host:1234/chname')"
 
-The input data can be JSON/[SLON](https://github.com/nmaguiar/slon)/YAML and will be used for the 'get' or 'getAll' query.
+The input data can be JSON/SLON/YAML and will be used for the 'get' or 'getAll' query.
 
 > You can use sBuckets variables (e.g. secKey, secRepo, secBucket, secPass, secMainPass, secFile) on the 'options' map to fill it.
 
@@ -256,10 +276,32 @@ List of options to use when _in=db_ (SQL query):
 | indblib | String | Use a JDBC driver oPack generated by ojob.io/db/getDriver |
 | indbstream | Boolean | If true the output will be processed record by record |
 | indbexec | Boolean | If true the input SQL is not a query but a DML statement | 
+| indbautocommit | Boolean | If true the input SQL will be executed with autocommit enabled |
+| indbdesc | Boolean | If true the output will be a list of column names and types (use 'LIMIT 1' for faster results) |
 
 > JDBC oracle: jdbc:oracle:thin:@[host]:[port]:[database]
 > JDBC postgreSQL: jdbc:postgresql://[host]:[port]/[database]
 > JDBC H2: jdbc:h2:[file]   
+
+---
+
+### 🧾 DSV input options
+
+List of options to use when _in=dsv_:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| indsvsep | String | The separator to use (default is ',') |
+| indsvsepre | String | The regular expression to use as separator |
+| indsvquote | String | The quote character to use (default is '"') |
+| indsvescape | String | The escape character to use for double-quotes |
+| indsvcomment | String | The comment character to use (default is '#') |
+| indsvheader | Boolean | If true will try to use the first line as header (default is true) |
+| indsvtrim | Boolean | If true will trim all values (default is true) |
+| indsvjoin | Boolean | If true it will return an array with each processed line |
+| indsvfields | String | Comma separated list of fields to use as header (overrides indsvheader) |
+
+> Support parallel=true if indsvjoin=false or not defined
 
 ---
 
@@ -358,6 +400,8 @@ List of options to use when _in=lines_:
 | linesvisualsepre | String | Regular expression representing the separator between columns when linesvisual=true (defaults to ' \\s+') | 
 | linesvisualheadsep | Boolean | If true will try to process the second line as header separator aiding on column position determination (if linesvisualsepre is not defined it will default to '\\s+') |
 
+> Supports parallel=true if linesjoin=false or not defined
+
 ---
 
 ### 🧾 LS input options
@@ -382,6 +426,49 @@ List of options to use when _in=mdtable_:
 
 ---
 
+### 🧾 MCP input options
+
+List of options to use when _in=mcp_:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| inmcptoolslist | Boolean | If true will list all available MCP tools |
+| inmcplistprompts | Boolean | If true will list all available MCP prompts |
+
+> When not using the list options, the input data should be a JSON/SLON/YAML map with the following properties:
+
+**Required (if not listing):**
+* '__tool__' (string) - The name of the MCP tool to call
+* '__params__' (map) - Parameters/arguments to pass to the tool
+
+**MCP connection:**
+* '__type__' (string) - Connection type: "stdio" for local process or "remote" for HTTP server (default: "stdio")
+* '__url__' (string) - Required for remote servers - the MCP server endpoint URL
+* '__timeout__' (number) - Timeout in milliseconds for operations (default: 60000)
+* '__cmd__' (string) - Required for stdio type - the command to launch the MCP server
+* '__options__' (map) - Additional options passed to underlying JSON-RPC client
+* '__debug__' (boolean) - Enable debug output showing JSON-RPC messages (default: false)
+* '__strict__' (boolean) - Enable strict MCP protocol compliance (default: true)
+* '__clientInfo__' (map) - Client information sent during initialization (default: {name: "OpenAF MCP Client", version: "1.0.0"})
+
+> For stdio type connections, the 'cmd' field is required. For remote type connections, the 'url' field is required.
+
+---
+
+### 🧾 mini-a input options
+
+List of options to use when _in=minia_:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| minianolog | Boolean | If true hides mini-a interaction logs and shows a temporary progress message instead |
+| minialogfile | String | Path to append interaction log lines with timestamps |
+| miniametrics | String | Path to write the mini-a run metrics as JSON (placeholders can include the run id) |
+
+> Requires the 'mini-a' oPack (`opack install mini-a`). The input data must be a map or array understood by mini-a (for example the prompt, goal and options map).
+
+---
+
 ### 🧾 ndJSON input options
 
 List of options to use when _in=ndjson_:
@@ -390,6 +477,8 @@ List of options to use when _in=ndjson_:
 |--------|------|-------------|
 | ndjsonjoin | Boolean | If true will join the ndjson records to build an output array |
 | ndjsonfilter | Boolean | If true each line is interpreted as an array before filters execute (this allows to filter json records on a ndjson) |
+
+> Supports parallel=true if ndjsonjoin=false or not defined
 
 ---
 
@@ -401,6 +490,8 @@ List of options to use when _in=ndslon_:
 |--------|------|-------------|
 | ndslonjoin | Boolean | If true will join the ndslon records to build an output array |
 | ndslonfilter | Boolean | If true each line is interpreted as an array before filters execute (this allows to filter slon records on a ndslon) |
+
+> Supports parallel=true if ndslonjoin=false or not defined
 
 ---
 
@@ -422,7 +513,7 @@ List of options to use when _in=sh_:
 |--------|------|-------------|
 | inshformat | String | The format to parse stdout and stderr between raw, yaml or json (default) |
 
-The input data JSON/[SLON](https://github.com/nmaguiar/slon)/YAML map can be composed of:
+The input data JSON/SLON/YAML map can be composed of:
 
 * cmd (mandatory string/array) - the command to execute
 * envs (map) - a series of environment variables to use
@@ -443,16 +534,16 @@ List of options to use when _in=snmp_:
 | insnmptimeout | Number | The timeout to wait for a reply |
 | insnmpretries | Number | Number of retries in case of failure |
 | insnmpversion | Number | Version of the SNMP server (e.g. 2, 3) |
-| insnmpsec     | String | A JSON/[SLON](https://github.com/nmaguiar/slon) representation of security attributes (see below) |
+| insnmpsec     | String | A JSON/SLON representation of security attributes (see below) |
 
 The input data can be either:
 
   * A single string with an OID
   * Multiple lines each with just an OID
-  * A JSON/[SLON](https://github.com/nmaguiar/slon)/YAML array of OID strings
-  * A JSON/[SLON](https://github.com/nmaguiar/slon)/YAML map with OID string values
+  * A JSON/SLON/YAML array of OID strings
+  * A JSON/SLON/YAML map with OID string values
 
-The 'insnmpsec' (in case of version 3 or newer) entry should be a JSON/[SLON](https://github.com/nmaguiar/slon) map with:
+The 'insnmpsec' (in case of version 3 or newer) entry should be a JSON/SLON map with:
 
 | Entry | Description |
 |-------|-------------|
@@ -472,7 +563,7 @@ List of options to use when _in=sql_:
 | Option | Type | Description |
 |--------|------|-------------|
 | sqlparse | Boolean | If true instead of returning a SQL AST representation it will beautify the SQL statement(s) | 
-| sqloptions | String | A JSON/[SLON](https://github.com/nmaguiar/slon) map with options for sqlparse=true |
+| sqloptions | String | A JSON/SLON map with options for sqlparse=true |
 
 SQL options available:
 
@@ -525,7 +616,7 @@ List of options to use when _in=base64_ or _out=base64_:
 
 ### 🧾 CSV input/output options
 
-List of options to use with the _inputcsv_ input option (when input type=csv) and/or the _csv_ output option (when output=csv). Both expect the corresponding options to be provided in single JSON or [SLON](https://github.com/nmaguiar/slon) value (see below for example):
+List of options to use with the _inputcsv_ input option (when input type=csv) and/or the _csv_ output option (when output=csv). Both expect the corresponding options to be provided in single JSON or SLON value (see below for example):
 
 | Option | Type | Description |
 |--------|------|-------------|
@@ -538,7 +629,7 @@ List of options to use with the _inputcsv_ input option (when input type=csv) an
 | withNullString | String | String to use as representation of null values |
 
 > Example of options provided in JSON: csv="{withHeader:false,withDelimiter:'|'}"
-> Example of options provided in [SLON](https://github.com/nmaguiar/slon): inputcsv="(withHeader: false, quoteMode: ALL)"
+> Example of options provided in SLON: inputcsv="(withHeader: false, quoteMode: ALL)"
 
 > You can also use _incsv_ as a shortcut for _inputcsv_
 
@@ -554,7 +645,7 @@ List of options to use when _cmlt=true_:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| cmltch | String | A JSON/[SLON](https://github.com/nmaguiar/slon) OpenAF channel configuration string with type and options/url (defaults to simple) |
+| cmltch | String | A JSON/SLON OpenAF channel configuration string with type and options/url (defaults to simple) |
 | cmltsize | Number | The number of input data values to keep (default 100). If -1 it will keep without a limit |
 
 ---
@@ -565,19 +656,19 @@ List of options to use when _diff=..._:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| difftheme | String | A JSON/[SLON](https://github.com/nmaguiar/slon) map with the colors to use if color = true |
+| difftheme | String | A JSON/SLON map with the colors to use if color = true |
 | diffnlines | Boolean | If true will append each line with a line number of the final result of the differences between 'a' and 'b' (just for rough reference) |
 | diffwords | Boolean | If true and the input is text based will perform the diff at the word level | 
 | diffwordswithspace | Boolean | If true and the input is text based will perform the diff at the word + spaces level |
 | difflines | Boolean | If true and the input is text based will perform the diff at the lines level |
-| diffsentences | Boolean | If true and the input is text based will perfom the diff at the sentence level |
+| diffsentences | Boolean | If true and the input is text based will perform the diff at the sentence level |
 | diffchars | Boolean | If true and the input is text based will perform the diff at the char level |
 
 > 'difftheme' example: "(added: GREEN, removed: RED, common: FAINT, linenum: ITALIC, linediv: FAINT, linesep: ':')"
 
-> If color=true a visual colored diff will be output insted of an array of differences
+> If color=true a visual colored diff will be output instead of an array of differences
 
-> If both inputs are array based and color=false (or not provided) the comparition will be performed at the array elements level
+> If both inputs are array based and color=false (or not provided) the comparison will be performed at the array elements level
 
 > The contents of 'difftheme' can also be provided through the 'OAFP_DIFFTHEME' environment variable
 
@@ -590,13 +681,15 @@ List of options to use when _in=llm_ or _llmprompt=..._:
 | Option | Type | Description |
 |--------|------|-------------|
 | llmenv | String | The environment variable containing the value of 'llmoptions' (defaults to OAFP_MODEL) |
-| llmoptions | String | A JSON or [SLON](https://github.com/nmaguiar/slon) string with OpenAF's LLM 'type' (e.g. openai/ollama), 'model' name, 'timeout' in ms for answers, 'url' for the ollama type or 'key' for openai type | 
+| llmoptions | String | A JSON or SLON string with OpenAF's LLM 'type' (e.g. openai/ollama), 'model' name, 'timeout' in ms for answers, 'url' for the ollama type or 'key' for openai type | 
 | llmconversation | String | File to keep the LLM conversation |
 | llmimage | String | For visual models you can provide a base64 image or an image file path or an URL of an image |
 
-> OpenAF sBuckets are supported in llmoptions. You can set any of the enviroment variables OAFP_SECREPO, OAFP_SECBUCKET, OAFP_SECPASS, OAFP_SECMAINPASS and OAFP_SECFILE OR set the corresponding map values secRepo, secBucket, secPass, secMainPass and secFile.
+> OpenAF sBuckets are supported in llmoptions. You can set any of the environment variables OAFP_SECREPO, OAFP_SECBUCKET, OAFP_SECPASS, OAFP_SECMAINPASS and OAFP_SECFILE OR set the corresponding map values secRepo, secBucket, secPass, secMainPass and secFile.
 
 > Tip: Use the 'getlist=' optional transform to automatically filter list of data from LLMs prompt responses if relevant.
+> If `OAFP_MODEL` is not defined but `OAF_MODEL` is, the latter will be used automatically.
+> Example: `OAFP_MODEL="(type:ollama,model:llama3)" oafp llmprompt="hello world"`
 
 ---
 
@@ -608,7 +701,7 @@ List of options to use when _regression=..._:
 |--------|------|-------------|
 | regressionpath | String | The path to the array of y values for the regression formulas |
 | regressionx | String | Optional path to the array of x values for the regression formulas (defaults to 1, 2, 3, ...) |
-| regressionoptions | String | A JSON/[SLON](https://github.com/nmaguiar/slon) configuration with order (defaults to 2) and/or precision (defaults to 5) |
+| regressionoptions | String | A JSON/SLON configuration with order (defaults to 2) and/or precision (defaults to 5) |
 | regressionforecast | String | Optional path to an array of x values for which to forecast the corresponding y |
 
 > Example: ```oafp data="[1,2,3]" regression=linear regressionforecast="from_slon('[4|5]')" out=ctable```
@@ -621,7 +714,7 @@ List of options to use when _set=..._:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| setop | String | Allows to choose a different set operation between 'union', 'diffa', 'diffb', 'diffab' (symetric difference), 'diff' and 'intersect' (default) |
+| setop | String | Allows to choose a different set operation between 'union', 'diffa', 'diffb', 'diffab' (symmetric difference), 'diff' and 'intersect' (default) |
 
 > Example: ```set="(a: old, b: new)" setop=diffb```
 > 'setop=diff' will add an extra column '*' to identify if a line only exists in 'a' or in 'b'
@@ -638,12 +731,12 @@ List of options to use when _out=ch_:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| ch   | String | A JSON/[SLON](https://github.com/nmaguiar/slon) configuration string with type and options/url |
+| ch   | String | A JSON/SLON configuration string with type and options/url |
 | chkey | String | A comma delimited list of map keys to build a key from each array value |
 | chunset | Boolean | If true the input data will be used to unset data on the output channel instead of set |
 
 > Example of options provided in JSON: ch="{type:'mvs',options:{file:'data.db'}}"
-> Example of optiosn provided in [SLON](https://github.com/nmaguiar/slon): ch="(type: remote, url: 'http://some.host:1234/chname')"
+> Example of options provided in SLON: ch="(type: remote, url: 'http://some.host:1234/chname')"
 
 > You can use sBuckets variables (e.g. secKey, secRepo, secBucket, secPass, secMainPass, secFile) on the 'options' map to fill it.
 
@@ -704,6 +797,21 @@ List of options to use when _out=db_:
 
 ---
 
+### 🧾 DSV output options
+
+List of options to use when _out=dsv_:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| dsvsep | String | The separator to use (default is ',') |
+| dsvquote | String | The quote character to use (default is '"') |
+| dsvfields | String | Comma separated list of fields to use as header (overrides dsvheader) |
+| dsvuseslon | Boolean | If true the output of value objects will be in SLON format (default is false) |
+| dsvheader | Boolean | If true will try to output the first line as header (default is true) |
+| dsvnl | String | Newline sequence to use (default is '\n') |
+
+---
+
 ### 🧾 Envs output options
 
 List of options to use when _out=envs_:
@@ -757,7 +865,7 @@ List of options to use when _out=grid_:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| grid   | String | A JSON/[SLON](https://github.com/nmaguiar/slon) configuration composed of an array with another array per grid line. Each line array should have a map per column (see below for the map options) | 
+| grid   | String | A JSON/SLON configuration composed of an array with another array per grid line. Each line array should have a map per column (see below for the map options) | 
 
 Each map should be composed of a:
 
@@ -813,6 +921,20 @@ List of options to use when _out=pxml_:
 
 ---
 
+### 🧾 RAWASCII output options
+
+List of options to use when _out=rawascii_:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| rawasciistart | Number | Starting line number to display |
+| rawasciiend | Number | Ending line number to display |
+| rawasciitab | Number | Tab size for tab character visualization (defaults to 8) |
+| rawasciinovisual | Boolean | If true, non-visual characters won't be replaced by their visual representation |
+| rawasciinolinenum | Boolean | If true, line numbers won't be displayed |
+
+---
+
 ### 🧾 OpenMetrics output options
 
 List of options to use when _out=openmetrics_:
@@ -858,7 +980,7 @@ List of options to use when _out=template_:
 | template | String | A file path to a HandleBars' template or a string template definition if 'templatetmpl' is true |
 | templatepath | String | If 'template' is not provided a path to the template definition (pre-transformation) |
 | templatedata | String | If defined the template data will be retrieved from the provided path |
-| templatetmpl | String | If true the 'template' will be interpreted as the template defintion instead of a file path |
+| templatetmpl | String | If true the 'template' will be interpreted as the template definition instead of a file path |
 
 ---
 
@@ -870,7 +992,7 @@ List of options to use when _out=xls_:
 |--------|------|-------------|
 | xlsfile | String | The output filename (if not defined a temporary file will be used to open with the OS's Excel-compatible application) |
 | xlssheet | String | The name of sheet to use (default to 'data') |
-| xlsformat | String | A [SLON](https://github.com/nmaguiar/slon) or JSON string with the formatting of the output file (e.g. (bold: true, borderBottom: "medium", borderBottomColor: "red")) |
+| xlsformat | String | A SLON or JSON string with the formatting of the output file (e.g. (bold: true, borderBottom: "medium", borderBottomColor: "red")) |
 | xlsopen | Boolean | If false it won't try to open the OS's Excel-compatible application (defaults to true) |
 | xlsopenwait | Number | The amount of time, in ms, to keep the temporary file for the OS's Excel-compatible application to start and open the file |
 
@@ -923,6 +1045,9 @@ oafp file=someFile.md input=md
 
 # table with the latest news from Google
 curl -s -L https://blog.google/rss | oafp path="rss.channel.item" sql="select title, pubDate" output=ctable
+
+# ask an LLM model to summarise some text
+echo "A very long text to be summarized" | oafp llmprompt="summarize this" llmoptions="(type: ollama, model: llama3)"
 ```
 
 ```bash
@@ -940,6 +1065,21 @@ oafp examples=kubectl
 oafp examples=openaf::oafp
 # list examples for category 'kubernetes'
 oafp examples=kubernetes::
+
+# yaml options input to link to oafp executions
+echo '
+data:
+  set:
+  - 1
+  - 2
+  - 3
+path: "set[].{ x: @ }"
+out : json
+pipe:
+  isql : |
+    SELECT sum("x") "SUM"
+  opath: "[0].SUM"
+' | oafp -f -
 ```
 
 ---
