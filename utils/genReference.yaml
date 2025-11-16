@@ -14,7 +14,7 @@ todo:
 jobs:
 # --------------------
 - name: Generate index
-  exec: |
+  exec: | #js
     ow.loadObj();
 
     global.opacks = Object.keys(getOPackPaths()).map(r => r.toLowerCase())
@@ -29,7 +29,7 @@ jobs:
 # ------------------------
 - name: Generate reference
   each: Generate entry
-  exec: |
+  exec: | #js
     var rout = "---\nlayout: default\ntitle: Reference\nparent: OpenAF docs\nhas_children: true\nnav_order: 4\n---\n";
     rout += "# Reference\n_version: " + getVersion() + "_\n";
 
