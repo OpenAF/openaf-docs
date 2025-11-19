@@ -28,7 +28,7 @@ $doA2B(each => {
     // Ensures the entry received is actually a file and then counts the number of lines
     // and stores in the "files" map.
     if (filemap.isFile) {
-       tprint("Counting lines {{filename}}...", filemap)
+       tprint("{% raw %}Counting lines {{filename}}...{% endraw %}", filemap)
        files[filemap.filename] = io.readFileAsArray(filemap.filename).length
     }
 }, __, __, error => sprintErr(error))
@@ -68,7 +68,7 @@ jobs:
   catch: sprintErr(exception)
   exec : |
     if (args.isFile) {
-       tprint("Counting lines {{filepath}}", args)
+       tprint("{% raw %}Counting lines {{filepath}}{% endraw %}", args)
        $ch("files").set({
          file : args.filepath
        }, {

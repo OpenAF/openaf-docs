@@ -37,7 +37,7 @@ todo:
     usePull : false
     sortTab : true
     registry: "my.registry.com"
-    refLink : "/pull-instructions.md?image={{image}}&type={{type}}"
+    refLink : {% raw %}"/pull-instructions.md?image={{image}}&type={{type}}"{% endraw %}
     footer  : |
         <div class="footer">
             <p>Powered by <a href="https://openaf.io">OpenAF</a></p>

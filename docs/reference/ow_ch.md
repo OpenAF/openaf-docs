@@ -563,9 +563,9 @@ __ow.ch.utils.setLogToFile(aConfigMap)__
 Shortcut to set OpenAF's logging into a rotating per date set of log files. You can set any of these options:
 
 logFolder             (string)  Where the current log file should be written (defaults to '.')
-filenameTemplate      (string)  ow.template for the log filename (defaults to 'log-{{timedate}}.log')
+filenameTemplate      (string)  ow.template for the log filename (defaults to {% raw %}'log-{{timedate}}.log'{% endraw %})
 fileDateFormat        (string)  File date format to be used in filenameTemplate (defaults to 'yyyy-MM-dd')
-lineTemplate          (string)  ow.template for each log line (defaults to '{{timedate}} | {{type}} | {{message}}\n')
+lineTemplate          (string)  ow.template for each log line (defaults to {% raw %}'{{timedate}} | {{type}} | {{message}}\n'{% endraw %})
 lineDateFormat        (string)  Date format to be used in lineTemplate (defaults to 'yyyy-MM-dd HH:mm:ss.SSS')
 HKRegExPattern        (string)  Housekeeping regular expression pattern to find log files (defaults to 'log-\\d{4}-\\d{2}-\\d{2}\\.log')
 HKhowLongAgoInMinutes (number)  How many minutes of logs should be kept (if not defined won't delete files)

@@ -73,7 +73,7 @@ $ ojob ojob.io/template/apply data=data.yaml
 
 Let's take our previous example and generate a Windows and an Unix script (data.yaml):
 
-````yaml
+{% raw %}````yaml
 template: &TEMPLATE |
   {{#if windows}}
   @echo off
@@ -93,12 +93,12 @@ data:
   - Anne
   - John
   - Scott
-  
+
 - _template: *TEMPLATE
   _file    : script.bat
   windows  : true
   names    : *DATA
-````
+````{% endraw %}
 
 Execute again and you will get the two different scripts:
 
@@ -122,7 +122,7 @@ echo Scott
 
 In your previous example you tried to just use one template and using HandleBars produce two scripts using the same template. But, if needed, you can actually use different templates (data.yaml):
 
-````yaml
+{% raw %}````yaml
 templateWin: &TEMPLATE_WIN |
   @echo off
   {{#each names}}
@@ -146,7 +146,7 @@ data:
 - _template: *TEMPLATE_UNIX
   _file    : script.sh
   names    : *DATA
-````
+````{% endraw %}
 
 And executing in the same way as the previous example it will generate the same exact scripts.
 

@@ -315,7 +315,7 @@ __ow.template.saveCompiledHBS(aFilename, aSource, anOptionsMap)__
 ````
 Tries to precompile aSource and save the result into aFilename (tip: use the extension hbsc). This can later be loaded again using ow.template.loadCompiledHBS, for example.  Optionally you can provide anOptionsMap for the Handlebars precompiler (see more on the options for Handlebars.precompile). Example:
 
-var source = "My name is {{myname}}. I'm a\n{{#each role}}\t- {{this}}\n{{/each}}";
+var source = "My name is {% raw %}{{myname}}. I'm a\n{{#each role}}\t- {{this}}\n{{/each}}{% endraw %}";
 ow.template.saveCompiledHBS("myroles.hbsc", source, {
    { "knowHelpers": ["each"], "knowHelpersOnly": true }
 };

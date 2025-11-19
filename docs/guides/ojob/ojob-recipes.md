@@ -98,7 +98,7 @@ todo:
   ((secBucket)): prod
 - (run        ): Init DB
   ((args     )):
-    password: "{{$get 'db.password'}}"
+    password: "{% raw %}{{$get 'db.password'}}{% endraw %}"
 ```
 
 ## 5. Data Transformation Pipeline (No Custom JS)
@@ -167,7 +167,7 @@ ojob:
 ## 9. Template-driven File Generation
 ```yaml
 todo:
-- (template): "Hello {{name}}"  
+- (template): "Hello {% raw %}{{name}}{% endraw %}"
   ((data  )): { name: "World" }
   ((out   )): generated.txt
 ```

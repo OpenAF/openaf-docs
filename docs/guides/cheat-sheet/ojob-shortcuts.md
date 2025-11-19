@@ -56,13 +56,13 @@ _If the provided "condition" is evaluated as true it will execute the "then" job
 
 Expects:
 
-* **(if)**     : An OpenAF code condition with templating functionality (example: "{{abc}} == 123")
+* **(if)**     : An OpenAF code condition with templating functionality (example: "{% raw %}{{abc}}{% endraw %} == 123")
 * **((then))** : One job or a list of jobs to execute if the "condition" is true
 * **((else))** : One job or a list of jobs to execute if the "condition" is false
 * **((debug))**: Boolean to indicate if should log the original condition and the parsed condition for debug proposes
 
-```yaml 
-- (if     ): "'{{stuff}}' == 'something'"
+```yaml
+- (if     ): "'{% raw %}{{stuff}}{% endraw %}' == 'something'"
   ((then )):
   - Do something
   ((else )):
@@ -132,7 +132,7 @@ Expects:
   - name        : Second thing to do
     args        :
         priority: HIGH
-        level   : "\{{level}}"
+        level   : "{% raw %}\{{level}}{% endraw %}"
     isolateArgs : true
     isolateJob  : false
     templateArgs: true
@@ -169,7 +169,7 @@ Expects:
   - Do that
   - name: Also do the other thing
     args:
-        thing: "\{{stuff}}"
+        thing: "{% raw %}\{{stuff}}{% endraw %}"
     isolateArgs : true
     isolateJob  : false
     templateArgs: true
@@ -244,9 +244,9 @@ Expects:
 * **((debug       ))**: Boolean to indicate that args to be inject should be printed before.
 * **((templateArgs))**: Boolean, true by default, to indicate to apply template to each string in args (use only if typeArgs.noTemplateArgs = false OR job.templateArgs = true).
 
-```yaml 
+```yaml
 - (pass   ):
-    test: "{{value}}"
+    test: "{% raw %}{{value}}{% endraw %}"
   ((debug)): true
 
 ```
@@ -483,7 +483,7 @@ todo:
     |------|----|---|-------|
     | 1    | 2  | 3 | 4     |
 
-    You can also use *\{{$acolor 'red' 'OpenAF templates'}}*.
+    You can also use *{% raw %}\{{$acolor 'red' 'OpenAF templates'}}{% endraw %}*.
 
     ---
 
@@ -530,7 +530,7 @@ Expects:
 jobs:
 - name: Replace text
   from:
-  - (findReplace): 
+  - (findReplace):
         "|name|": Scott Tiger
     ((inputKey))): args
     ((inputPath)): text
@@ -539,7 +539,7 @@ jobs:
         Hello |name|, how are you doing?
 
         |name| is great!
-- (print      ): "{{output}}"
+- (print      ): "{% raw %}{{output}}{% endraw %}"
   ((key      )): args
 
 todo:
@@ -588,7 +588,7 @@ Expects:
 * **((outPath))**     : If defined the $set path where ((out)) will be set in the provided key.
 * **((out))**         : The output will be stored into the provided key (defaults to 'res')
 
-```yaml 
+{% raw %}```yaml
 todo:
 - (template): |
     {{#each lst}}
@@ -605,7 +605,7 @@ todo:
   ((path   )): output
   ((format )): tree
 
-```
+```{% endraw %}
 
 ### 🔖 (templateFolder)
 
@@ -778,8 +778,8 @@ jobs:
   to  :
   - (pass   ):
       clocks:
-      - host: "{{hostname}}"
-        date: "{{date}}"
+      - host: "{% raw %}{{hostname}}{% endraw %}"
+        date: "{% raw %}{{date}}{% endraw %}"
   - (output ): args
     ((path )): clocks
   lang: ssh

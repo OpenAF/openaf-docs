@@ -524,7 +524,7 @@ ow.server.processArguments(function(param) {
 ow.loadTemplate();
 
 // Basic templating
-var template = "Hello {{name}}, you are {{age}} years old!";
+var template = "Hello {% raw %}{{name}}, you are {{age}}{% endraw %} years old!";
 var data = { name: "John", age: 25 };
 var result = ow.template.execTemplate(template, data);
 // Result: "Hello John, you are 25 years old!"
@@ -536,7 +536,7 @@ ow.template.addHelpers("my", {
 });
 
 // Use custom helpers in templates
-var template2 = "Welcome {{my_upper name}} on {{my_formatDate today}};
+var template2 = "Welcome {% raw %}{{my_upper name}} on {{my_formatDate today}}{% endraw %}";
 var result2 = ow.template.execTemplate(template2, { 
   name: "john", 
   today: new Date() 
@@ -736,7 +736,7 @@ _$(user, "user").expr("v.age >= 18", "User must be an adult");
 
 ```javascript
 var someText = "World";
-var out = templify("Hello {{someText}}!"); // Hello World!
+var out = templify("Hello {% raw %}{{someText}}{% endraw %}!"); // Hello World!
 ```
 
 Registered helpers include OpenAF, format, conditional helpers added at startup.

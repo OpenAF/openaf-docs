@@ -73,20 +73,20 @@ The conditional helpers included mimic the ones provided by [Assemble for compar
 
 The format helpers are all the ow.format.* functions available. For example:
 
-````javascript
+{% raw %}````javascript
 templify("{{owFormat_toBytesAbbreviation 10240000 3}}")
 // 9.77 MB
 templify("{{owFormat_toBinary 123}}")
 // 1111011
-````
+````{% endraw %}
 
 ## Adding a helper
 
 Example of adding a simple template helper:
 
-````javascript
+{% raw %}````javascript
 ow.template.addHelper("publicip", (aIP, aElement) => $$(ow.loadNet().getPublicIP(aIP)).get(aElement) )
 
-templify("{% raw %}{{ip}} is in {{publicip ip 'country'}}{% endraw %}", { ip: "1.1.1.1" })
+templify("{{ip}} is in {{publicip ip 'country'}}", { ip: "1.1.1.1" })
 // 1.1.1.1 is in Australia
-````
+````{% endraw %}

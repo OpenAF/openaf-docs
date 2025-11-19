@@ -1,4 +1,4 @@
----
+{% raw %}---
 layout: default
 title: {{title}}
 {{#is title 'Guide'}}
@@ -32,4 +32,4 @@ nav_order: {{navOrder}}
 {{#if includeOJobIO}}## oJobIO
 {{#each ojobio}}
 * [{{{title}}}]({{{location}}})
-{{/each}}{{/if}}
+{{/each}}{{/if}}{% endraw %}

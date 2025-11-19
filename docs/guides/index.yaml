@@ -34,7 +34,7 @@ jobs:
     localFiles.includeOJobIO   = (args.title == 'Guide' || args.title == 'oJobIO');
     localFiles.navOrder = args.navOrder;
 
-    tlog("Generating {{file}} for ({{title}})", args);
+    tlog("Generating {% raw %}{{file}}{% endraw %} for ({% raw %}{{title}}{% endraw %})", args);
     io.writeFileString(args.file, templify( io.readFileString("index.hbs"), localFiles ) );
 
 todo:

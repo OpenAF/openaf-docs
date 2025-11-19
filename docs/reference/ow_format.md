@@ -639,7 +639,7 @@ __ow.format.printWithProgressFooter(aMessage, aTemplate, aPerc, aSize, aUnixBloc
 Prints aMessage (if defined) with a aTemplate (template compiled function or string) as a footer for percentage  progress information with the percentage value aPerc, for a given optional aSize (defaults to 50), an optional  aUnixBlock or aWindowsBlock (depending on the current operating system) and aSpace. Example:
 
    ow.loadTemplate();
-   var fn = ow.template.execCompiled(ow.template.compile("({{percFormat}}%) progress: |{{progress}}|"));
+   var fn = ow.template.execCompiled(ow.template.compile("{% raw %}({{percFormat}}%) progress: |{{progress}}|{% endraw %}"));
    ow.format.printWithProgressFooter("processing xyz...", fn, aPerc);
    ow.format.printWithFooter("Done.", "");
 

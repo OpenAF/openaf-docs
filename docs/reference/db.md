@@ -58,9 +58,9 @@ Creates a new instance of the object DB providing java class aDriver (e.g. oracl
 
 Examples of JDBC URLs:
 
-- Oracle Thin: jdbc:oracle:thin:@{{host}}:{{port}}:{{database}}
-- PostgreSQL : jdbc:postgresql://{{host}}:{{port}}/{{database}}
-- H2         : jdbc:h2:{{file}}
+- Oracle Thin: {% raw %}jdbc:oracle:thin:@{{host}}:{{port}}:{{database}}{% endraw %}
+- PostgreSQL : {% raw %}jdbc:postgresql://{{host}}:{{port}}/{{database}}{% endraw %}
+- H2         : {% raw %}jdbc:h2:{{file}}{% endraw %}
 ````
 ### DB.getAutoCommit
 

@@ -2461,7 +2461,7 @@ __loadHandlebars()__
 Loads the Handlebars javascript library into scope. Example:
 
 loadHandlebards();
-var source = "<m>{{#each lines}}\t<s name=\"{{key}}\">{{value}}</s>\n{{/each}}\n</m>";
+var source = "{% raw %}<m>{{#each lines}}\t<s name=\"{{key}}\">{{value}}</s>\n{{/each}}\n</m>{% endraw %}";
 var data = { "lines": [ { "name": "n1", "value": "v1" }, { "name": "n2", "value": "v2" } ] };
 var template = Handlebars.compile(source);
 print(template(data));
@@ -3406,7 +3406,7 @@ Using Handlebars and the functionality provided in ow.template, will use the aTe
 Example:
 
 var someText = "Hello World!";
-var retText = templify("Hi, {{someText}}"); // Hi, Hello World!
+var retText = templify("{% raw %}Hi, {{someText}}{% endraw %}"); // Hi, Hello World!
 ````
 ### threadBox
 
@@ -3482,7 +3482,7 @@ Using Handlebars and the functionality provided in ow.template, will use the aTe
 Example:
 
 var someText = "Hello World!";
-tprint("Hi, {{someText}}"); // Hi, Hello World!
+tprint("{% raw %}Hi, {{someText}}{% endraw %}"); // Hi, Hello World!
 ````
 ### tprintErr
 
@@ -3494,7 +3494,7 @@ Using Handlebars and the functionality provided in ow.template, will use the aTe
 Example:
 
 var someText = "Hello World!";
-tprintErr("Hi, {{someText}}"); // Hi, Hello World!
+tprintErr("{% raw %}Hi, {{someText}}{% endraw %}"); // Hi, Hello World!
 ````
 ### tprintErrnl
 
@@ -3506,7 +3506,7 @@ Using Handlebars and the functionality provided in ow.template, will use the aTe
 Example:
 
 var someText = "Hello World!";
-tprintErrnl("Hi, {{someText}}"); // Hi, Hello World!
+tprintErrnl("{% raw %}Hi, {{someText}}{% endraw %}"); // Hi, Hello World!
 ````
 ### tprintln
 
@@ -3518,7 +3518,7 @@ Using Handlebars and the functionality provided in ow.template, will use the aTe
 Example:
 
 var someText = "Hello World!";
-tprintln("Hi, {{someText}}"); // Hi, Hello World!
+tprintln("{% raw %}Hi, {{someText}}{% endraw %}"); // Hi, Hello World!
 ````
 ### traverse
 

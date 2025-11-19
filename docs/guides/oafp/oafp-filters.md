@@ -164,10 +164,10 @@ Using the same unix “pipe” mechanism it’s possible to apply different cate
 | sub(a, b) | 20240217 | Substracts two numbers | sub(`2`, `2`) |
 | substring(str, ini, end) | all | Given a string will return a sub-string starting on the initial index until the ending index | substring(@, index_of('test'), 5) |
 | sum(array) | base | Sums the numberic field of a provided array | sum(files[].size) |
-| t(obj, 'template') | 20240228 | Applies the Handlebars 'template' to the provided array or map | t(@, '{{filename}} ({{size}})') |
-| tF(obj, 'template') | 20240228 | Applies the Handlebars 'template', with all OpenAF helpers, to the provided array or map | tF(@, '{{\$env 'TITLE'}}: {{filename}}')  |
-| template(a, 'template') | 20240209 | Applies the Handlebars 'template' to the provided array or map | t(@, '{{filename}} ({{size}})') |
-| templateF(x, 'template') | 20240209 | Applies the Handlebars 'template', with all OpenAF helpers, to the provided array or map | tF(@, '{{\$env 'TITLE'}}: {{filename}}')  |
+| t(obj, 'template') | 20240228 | Applies the Handlebars 'template' to the provided array or map | {% raw %}t(@, '{{filename}} ({{size}})'){% endraw %} |
+| tF(obj, 'template') | 20240228 | Applies the Handlebars 'template', with all OpenAF helpers, to the provided array or map | {% raw %}tF(@, '{{\$env 'TITLE'}}: {{filename}}'){% endraw %}  |
+| template(a, 'template') | 20240209 | Applies the Handlebars 'template' to the provided array or map | {% raw %}t(@, '{{filename}} ({{size}})'){% endraw %} |
+| templateF(x, 'template') | 20240209 | Applies the Handlebars 'template', with all OpenAF helpers, to the provided array or map | {% raw %}tF(@, '{{\$env 'TITLE'}}: {{filename}}'){% endraw %}  |
 | timeago(num) | 20240209 | Given a ms timestamp will return a human readable string of how log ago that timestamp occurred. | files[].{path:filepath,howLongAgo:timeago(lastModified)} |
 | timeagoAbbr(num) | 20240810 | Given a ms timestamp will return an abbreviated human readable string of how long ago that timestemp occurred. | files[].{path:filepath,howLongAgo:timeagoAbbr(lastModified)} |
 | to_array(any) | base | Transforms any input into an array | to_array(`true`) |

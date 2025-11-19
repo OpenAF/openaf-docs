@@ -518,7 +518,7 @@ __ow.java.maven.getFile(artifactId, aFilenameTemplate, aOutputDir)__
 Given the artifactId (prefixed with the group id using ".") will try to download the latest version of the aFilenameTemplate (where version will translate to the latest version) on the provided aOutputDir.
 
 Example:
-   getFile("com.google.code.gson.gson", "gson-{{version}}.jar", ".")
+   getFile("com.google.code.gson.gson", "gson-{% raw %}{{version}}{% endraw %}.jar", ".")
 
 
 ````
@@ -530,7 +530,7 @@ __ow.java.maven.getFileVersion(artifactId, aFilenameTemplate, aVersion, aOutputD
 Given the artifactId (prefixed with the group id using ".") will try to download the specific version of the aFilenameTemplate (where version will translate to the latest version) on the provided aOutputDir.
 
 Example:
-   getFile("com.google.code.gson.gson", "gson-{{version}}.jar", "1.2.3", ".")
+   getFile("com.google.code.gson.gson", "gson-{% raw %}{{version}}{% endraw %}.jar", "1.2.3", ".")
 
 
 ````
@@ -556,7 +556,7 @@ __ow.java.maven.getLicenseByVersion(artifactId, aFilenameTemplate, aVersion, aOu
 Given the artifactId (prefixed with the group id using ".") will try to update a LICENSES.txt on the provided aOutputDir based on aFilenameTemplate (where version will translate to the latest version).
 
 Example:
-   getLicenseByVersion("com.google.code.gson.gson", "gson-{{version}}.jar", "1.2.3", ".")
+   getLicenseByVersion("com.google.code.gson.gson", "gson-{% raw %}{{version}}{% endraw %}.jar", "1.2.3", ".")
 
 
 ````

@@ -84,7 +84,7 @@ ojob:
       pass       : pass1
       permissions: rw
     permissions : r                # default permission
-    audit       : "AUDIT | User: {{request.user}} | Channel: {{name}} | Operation: {{op}} | Key: {{{key}}}"
+    audit       : "AUDIT | User: {% raw %}{{request.user}} | Channel: {{name}} | Operation: {{op}} | Key: {{{key}}}{% endraw %}"
 ```
 
 `audit: true` uses the default template. Providing a string overrides it.

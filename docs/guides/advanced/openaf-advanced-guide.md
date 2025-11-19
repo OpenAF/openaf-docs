@@ -86,11 +86,11 @@ var result = $tb(() => {
 
 ## 9. Template Customization
 Add namespaced helpers:
-```javascript
+{% raw %}```javascript
 ow.loadTemplate();
 ow.template.addHelpers('x', { upper: s => s.toUpperCase() });
 print(templify('Hi {{x_upper name}}', { name:'dev' }));
-```
+```{% endraw %}
 
 ## 10. Structured Logging Strategies
 Set `ojob.log.format: json` or env `OJOB_JSONLOG=true`. Combine with external log forwarder reading stderr. Include correlation IDs by inserting into `args` early and referencing in templates.

@@ -284,10 +284,10 @@ $tb(taskFn)
 ```javascript
 // Basic template
 var name = "World";
-var out = templify("Hello {{name}}!");  // "Hello World!"
+var out = templify("Hello {% raw %}{{name}}{% endraw %}!");  // "Hello World!"
 
 // With data object
-var template = "User: {{user.name}}, Age: {{user.age}}";
+var template = "User: {% raw %}{{user.name}}, Age: {{user.age}}{% endraw %}";
 var data = { user: { name: "John", age: 30 } };
 var result = templify(template, data);
 ```
@@ -456,7 +456,7 @@ var openMetrics = ow.metrics.fromObj2OpenMetrics(
 ow.loadTemplate();
 
 // Execute template
-var template = "Hello {{name}}!";
+var template = "Hello {% raw %}{{name}}{% endraw %}!";
 var result = ow.template.execTemplate(template, {name: "World"});
 
 // Register custom helpers
@@ -466,7 +466,7 @@ ow.template.addHelpers("my", {
 });
 
 // Use custom helpers
-var tmpl = "Welcome {{my_upper name}}";
+var tmpl = "Welcome {% raw %}{{my_upper name}}{% endraw %}";
 var result = ow.template.execTemplate(tmpl, {name: "john"});
 ```
 
@@ -527,7 +527,7 @@ logErr("Error message");
 
 // Templated logging
 var user = {name: "John", age: 30};
-tlog("User {{name}} is {{age}} years old", user);
+tlog("User {% raw %}{{name}} is {{age}}{% endraw %} years old", user);
 ```
 
 ### HTTP Operations
@@ -668,7 +668,7 @@ ojob:
   - Format
 
   # Templates and arguments
-  templateArgs: true           # Process {{}} in args
+  templateArgs: true           # Process {% raw %}{{}}{% endraw %} in args
   argsFromEnvs: true           # Load env vars as args
 
   # Channels
@@ -977,7 +977,7 @@ todo:
   ((format)): "json"
 
 # Template processing
-- (template): "Hello {{name}}!"
+- (template): "Hello {% raw %}{{name}}{% endraw %}!"
   ((data)): {name: "World"}
 
 # Logging
@@ -2108,7 +2108,7 @@ $doFirst([task1, task2, task3])
 log("message");           // Info
 logWarn("message");       // Warning
 logErr("message");        // Error
-tlog("{{msg}}", {msg: "Hello"});  // Templated
+tlog("{% raw %}{{msg}}{% endraw %}", {msg: "Hello"});  // Templated
 ```
 
 ---

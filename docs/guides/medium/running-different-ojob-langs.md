@@ -75,8 +75,7 @@ jobs:
 
 For input the _exec_ contents are basically a template (HandleBars) where you can use any of the _args_ variables:
 
-````yaml
-{% raw %}
+{% raw %}````yaml
 jobs:
 # --------------
 - name: Do stuff
@@ -95,20 +94,18 @@ jobs:
   lang: shell
   exec: |
     echo Hello {{name}}!
-{% endraw %}
-````
+````{% endraw %}
 
 ## What's possible
 
 Pretty much all job related functionality is avaiable. Examples:
 
-````yaml
-{% raw %}
+{% raw %}````yaml
 jobs:
 - name: My external file
   lang: perl
   file: myjob.pl
-  
+
 - name: My parallel execution
   lang: shell
   args:
@@ -117,7 +114,7 @@ jobs:
   - name: John
   exec: |
     echo Hello {{name}}!
-    
+
 - name: Using handlebars
   lang: shell
   args:
@@ -135,8 +132,7 @@ jobs:
     {{#each names}}
     echo We need {{name}}, {{#if isMale}}he{{else}}she{{/if}} is a {{type}}.
     {{/each}}
-{% endraw %}
-````
+````{% endraw %}
 
 You can even mix languages and use dependencies if needed:
 

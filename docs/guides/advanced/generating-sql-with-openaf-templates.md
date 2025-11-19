@@ -35,17 +35,16 @@ To show this let's take the hypothetical example of creating several reference t
 
 So we are specifying the application (app) and data (dat) users to use, the tablespace to use and the table names. Now let's create a Handlebars template file (hbs):
 
-`table_creation.hbs`
+{% raw %}`table_creation.hbs`
 ````sql
 -- Creating tables
 --
- 
-{% raw %}{{#each TABLES}}
+
+{{#each TABLES}}
 -- Table for {{../datUser}}.{{tableName}}
 CREATE TABLE {{../datUser}}.{{tableName}} (col1 NUMBER(8), col2 VARCHAR(500)) TABLESPACE {{../tablespace}}
 {{/each}}
-{% endraw %}
-````
+````{% endraw %}
 
 Looking at the JSON object this template is iterating on the tables array, getting the tableName. datUser and tablespace are gather from the parent to the tables array.
 
@@ -72,25 +71,25 @@ CREATE TABLE PROJ_DAT.TAB_3 (col1 NUMBER(8), col2 VARCHAR(500)) TABLESPACE PROJ_
 
 But if we are creating tables in a data schema for which we want to create synonyms on the application schema. Well, now we just need to change the template for that:
 
-`table_creation.hbs`
+{% raw %}`table_creation.hbs`
 ````sql
 -- Creating synonyms
 --
- 
-{% raw %}{{#each TABLES}}
+
+{{#each TABLES}}
 -- Synonym for {{../appUser}}.{{tableName}}
 CREATE OR REPLACE SYNONYM {{../appUser}}.{{tableName}} FOR {{../datUser}}.{{tableName}};
 GRANT ALL ON {{tableName}} TO {{../appUser}} WITH GRANT OPTION;
-{{/each}}{% endraw %}
- 
+{{/each}}
+
 -- Creating tables
 --
- 
-{% raw %}{{#each TABLES}}
+
+{{#each TABLES}}
 -- Table for {{../datUser}}.{{tableName}}
 CREATE TABLE {{../datUser}}.{{tableName}} (col1 NUMBER(8), col2 VARCHAR(500)) TABLESPACE {{../tablespace}}
-{{/each}}{% endraw %}
-````
+{{/each}}
+````{% endraw %}
 
 And execute the unchanged OpenAF script:
 
@@ -131,16 +130,16 @@ print(ow.template.parseHBS("table_creation.hbs", io.readFile("tables.json"));
 
 and use the function inside the template:
 
-`table_creation.hbs`
+{% raw %}`table_creation.hbs`
 ````sql
 -- Creating tables
 --
- 
-{% raw %}{{#each TABLES}}
+
+{{#each TABLES}}
 -- Table for {{../datUser}}.{{upper tableName}}
 CREATE TABLE {{../datUser}}.{{UPPER tableName}} (col1 NUMBER(8), col2 VARCHAR(500)) TABLESPACE {{../tablespace}}
-{{/each}}{% endraw %}
-````
+{{/each}}
+````{% endraw %}
 
 The result:
 
@@ -183,16 +182,16 @@ Well, not all the tables will be equally created. We might not want Oracle loggi
 
 And change the template:
 
-`table_creation.hbs`
+{% raw %}`table_creation.hbs`
 ````sql
 -- Creating tables
 --
- 
-{% raw %}{{#each TABLES}}
+
+{{#each TABLES}}
 -- Table for {{../datUser}}.{{tableName}}
 CREATE TABLE {{../datUser}}.{{tableName}} (col1 NUMBER(8), col2 VARCHAR(500)) {{#if nologging}}NOLOGGING{{/IF}} TABLESPACE {{../tablespace}}
-{{/each}}{% endraw %}
-````
+{{/each}}
+````{% endraw %}
 
 Executing the unchanged script:
 
@@ -212,42 +211,42 @@ CREATE TABLE PROJ_DAT.TAB_3 (col1 NUMBER(8), col2 VARCHAR(500))  TABLESPACE PROJ
 
 Well this way we are going to end with lots of hbs files and little reusability besides copy+paste. Can we solve that? Yes, we case use partials. So let's create two sub templates for synonyms and tables:
 
-`table_creation.hbs`
+{% raw %}`table_creation.hbs`
 ````sql
 -- Creating tables for {{for}}
 --
- 
-{% raw %}{{#each TABLES}}
+
+{{#each TABLES}}
 -- Table for {{../datUser}}.{{upper tableName}}
 {{#if NUMBER}}
 CREATE TABLE {{../datUser}}.{{UPPER tableName}} (col1 NUMBER(8), col2 NUMBER(25)) TABLESPACE {{../tablespace}}
 {{ELSE}}
 CREATE TABLE {{../datUser}}.{{UPPER tableName}} (col1 NUMBER(8), col2 VARCHAR(500)) TABLESPACE {{../tablespace}}
 {{/IF}}
-{{/each}}{% endraw %}
-````
+{{/each}}
+````{% endraw %}
 
 Now one for the synonyms:
 
-`syn_creation.hbs`
+{% raw %}`syn_creation.hbs`
 ````sql
 -- Creating synonyms for {{for}}
 --
- 
-{% raw %}{{#each TABLES}}
+
+{{#each TABLES}}
 -- Synonym for {{../appUser}}.{{upper tableName}}
 CREATE OR REPLACE SYNONYM {{../appUser}}.{{UPPER tableName}} FOR {{../datUser}}.{{UPPER tableName}};
 GRANT ALL ON {{UPPER tableName}} TO {{../appUser}} WITH GRANT OPTION;
-{{/each}}{% endraw %}
-````
+{{/each}}
+````{% endraw %}
 
 And a main template to refer to these two sub templates (partials):
 
-`sql_creation.hbs`
+{% raw %}`sql_creation.hbs`
 ````sql
-{% raw %}{{> synonyms FOR="ref tables"}}
-{{> TABLES   FOR="ref tables"}}{% endraw %}
-````
+{{> synonyms FOR="ref tables"}}
+{{> TABLES   FOR="ref tables"}}
+````{% endraw %}
 
 Now we just need to alter the OpenAF script to register the sub templates (partials):
 
@@ -265,23 +264,21 @@ And we are done. We now can improve the synonyms and table creation separately a
 
 Well, it's text based. Originally Handlebars is used for web templating parsing templates using javascript. So just change the template:
 
-````
+{% raw %}````
 SQL generation report
 ---------------------
 
-{% raw %}
 Using the schemas:
 - DAT = {{datUser}}
 - APP = {{appUser}}
- 
+
 and the tablespace {{tablespace}}, the following reference Oracle objects DDL were generated:
- 
+
 {{#each tables}}
 - The {{#if number}}number {{/if}}reference table {{upper tableName}} for the schema {{../datUser}} and tablespace {{../tablespace}}.
 - The synonym from {{../datUser}}'s {{upper tableName}} for {{../appUser}}.
 {{/each}}
-{% endraw %}
-````
+````{% endraw %}
 
 and it's done:
 

@@ -112,7 +112,7 @@ Taking the JSON output from a weather service and converting it into a markdown 
 Let's start by creating the HandleBars template (save it as _weather.hbs_):
 
 ```handlebars
-# Weather report ({{nearest_area.0.areaName.0.value}}, {{nearest_area.0.country.0.value}})
+{% raw %}# Weather report ({{nearest_area.0.areaName.0.value}}, {{nearest_area.0.country.0.value}})
 
 ## Currently ({{current_condition.0.observation_time}})
 
@@ -143,7 +143,7 @@ Let's start by creating the HandleBars template (save it as _weather.hbs_):
 | {{$ft '%04d' ($number time)}} | {{weatherDesc.0.value}} | {{tempC}}°C ({{tempF}}°F) | {{FeelsLikeC}}°C ({{FeelsLikeF}}°F) | {{windspeedKmph}} km/h ({{windspeedMiles}} miles/h) from the {{winddir16Point}} | {{humidity}}% | {{precipMM}}mm | {{visibility}} km ({{visibilityMiles}} miles) | {{pressure}} mbar | {{uvIndex}} |
 {{/each}}
 ---
-{{/each}}
+{{/each}}{% endraw %}
 ```
 
 Now execute (changing the location if needed):

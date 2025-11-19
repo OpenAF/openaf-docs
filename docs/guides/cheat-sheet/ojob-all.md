@@ -65,7 +65,7 @@ ojob:
   depsOnFail : |
     // Javascript OpenAF code to execute by default, with variables 'args', 'job' and 'id', if a job dependency failed it's execution
   depsTimeout: 300000  # If defined, represents the maximum elapsed time, in ms, from the first point in time a jobs[].deps was evaluated to determine if all deps had successfully executed
-  templateArgs: true   # Boolean that if defined will process "{{ }}" handlebars entries on args using the "args" before the actual processing starts
+  templateArgs: true   # Boolean that if defined will process "{% raw %}{{ }}{% endraw %}" handlebars entries on args using the "args" before the actual processing starts
 
   ## --- LOG CONTROL ---
 
@@ -128,7 +128,7 @@ ojob:
   - lang    : cmd-language
     shell   : "my-cmd run -"   # A command that receives input through stdin
     #pre     : |
-    #  # my cmd-language code to create an args variable from the {{{args}}} json representations
+    #  # my cmd-language code to create an args variable from the {% raw %}{{{args}}}{% endraw %} json representations
     #pos     : |
     #  # my cmd-language code to output the args variable created in pre to a json string representation for parsing
     #withFile: ".cmdlang"      # If a command needs a file with a specific extension
@@ -292,7 +292,7 @@ jobs:
 
   type    : simple  # either simple, jobs, shutdown, subscribe and periodic (see more in typeArgs)
   typeArgs:
-    noTemplateArgs: true # Boolean to indicate that any "{{ }}" handlebars entry on args should be or processed before the actual processing starts (defaults to ojob.templateArgs) 
+    noTemplateArgs: true # Boolean to indicate that any "{% raw %}{{ }}{% endraw %}" handlebars entry on args should be or processed before the actual processing starts (defaults to ojob.templateArgs) 
     noTemplate: false # Boolean to indicate if the "exec" contents should or not be parsed as a template with the current execution args (helpfull for shell or ssh langs)
     shellPrefix: myprefix # When "lang: shell" or "lang: ssh" it will prefix all stdout lines immediatelly
     langFn  : # The same as ojob.langs.langFn
