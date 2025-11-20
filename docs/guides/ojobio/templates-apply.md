@@ -154,7 +154,7 @@ And executing in the same way as the previous example it will generate the same 
 
 When it gets really interesting is when you generate other data files using a master data & template file. Let's say you need to generate some install scripts for your Java application in different architectures with different JREs. Your stepA.yaml could look like this:
 
-````yaml
+{% raw %}```yaml
 template: &TEMPLATE |
   _template: |
     \{{#if win}}
@@ -200,7 +200,7 @@ data:
   - stable
   - canary
   - nightly
-````
+```{% endraw %}
 
 Executing ojob.io/template/apply on stepA.yaml generates a new stepB.yaml with 45 data entries:
 
@@ -227,8 +227,7 @@ data:
   jvm      : 8
   arch     : amd64
 # ...
-````
-{% endraw %}
+```
 
 Executing stepB.yaml:
 
