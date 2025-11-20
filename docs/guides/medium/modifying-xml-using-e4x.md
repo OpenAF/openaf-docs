@@ -107,15 +107,49 @@ And to remove a children element you can use _delete_:
 2
 ````
 
-There are more methods, listed on the end of this section, to add or remove elements like _appendChild(child)_, _prependChild(child)_, _insertChildAfter()_, insertChildBefore()_
+There are more methods to add or remove elements, like `appendChild(child)`, `prependChild(child)`, `insertChildAfter()`, and `insertChildBefore()`.
 
 ## XML Object methods
 
+The E4X specification defines a rich set of methods to interact with XML objects. Here are some of the most common ones, grouped by modification and inspection
+
+### Modification methods
+
 | Method | Description |
 |--------|-------------|
-| appendChild(_child_) | Adds the child XML object at the end of the corresponding XML element children. |
-| prependChild(_child_) | Inserts a child XML object prior to the beginning of the corresponding XML element children. |
-| insertChildAfter(_childRef_, _childNew_) | Inserts _childNew_ after _childRef_. |
-| insertChildBefore(_childRef_, _childNew_) | Inserts _childNew_ before _childRef_. |
-| copy() | Returns a deep copy of a XML object starting on the corresponding XML element children (without the parent). |
-| 
+| `appendChild(child)` | Adds the `child` XML object at the end of the element's children. |
+| `prependChild(child)` | Inserts a `child` XML object at the beginning of the element's children. |
+| `insertChildAfter(childRef, childNew)` | Inserts `childNew` after `childRef`. |
+| `insertChildBefore(childRef, childNew)` | Inserts `childNew` before `childRef`. |
+| `replace(propertyName, value)` | Replaces the XML properties that match `propertyName` with `value`. |
+| `setChildren(value)` | Replaces all children of the XML object with `value`. |
+| `addNamespace(namespace)` | Adds a namespace to the XML object. |
+| `removeNamespace(namespace)` | Removes a namespace from the XML object. |
+| `setLocalName(name)` | Changes the local name of the XML object. |
+| `setName(name)` | Changes the qualified name of the XML object. |
+| `setNamespace(ns)` | Changes the namespace of the XML object. |
+
+### Inspection methods
+
+| Method | Description |
+|--------|-------------|
+| `attribute(attributeName)` | Returns the attribute that matches `attributeName`. |
+| `attributes()` | Returns all attributes of the XML object. |
+| `child(propertyName)` | Returns the children that match `propertyName`. |
+| `children()` | Returns all children of the XML object. |
+| `comments()` | Returns all comments in the XML object. |
+| `copy()` | Returns a deep copy of the XML object. |
+| `descendants(name)` | Returns all descendants of the XML object (optionally with a given `name`). |
+| `elements(name)` | Returns the children of the XML object that are elements (optionally with a given `name`). |
+| `hasComplexContent()` | Returns `true` if the XML object has child elements. |
+| `hasSimpleContent()` | Returns `true` if the XML object has no child elements. |
+| `inScopeNamespaces()` | Returns all in-scope namespaces. |
+| `localName()` | Returns the local name of the XML object. |
+| `name()` | Returns the qualified name of the XML object. |
+| `namespace()` | Returns the namespace of the XML object. |
+| `nodeKind()` | Returns the kind of the XML object (e.g. "element", "text", "comment"). |
+| `parent()` | Returns the parent of the XML object. |
+| `processingInstructions()` | Returns all processing instructions. |
+| `text()` | Returns the text content of the XML object. |
+
+For a complete list of methods and properties please refer to the [ECMA-357 specification](https://www.ecma-international.org/publications-and-standards/standards/ecma-357/).
