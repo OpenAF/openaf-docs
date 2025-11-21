@@ -477,17 +477,17 @@ oafp url="https://wttr.in?format=j2" llmcontext="current and forecast weather" l
 ##### 25
 ### 📖 AI | Template
 Convert oAFp llmconversation JSON file into a HTML of the LLM conversation
-{% raw %}```bash
+```bash
 oafp conversation.json out=template templatetmpl=true template="{{#each this}}*{{role}}*: {{{content}}}\n\n---\n{{/each}}" | oafp in=md out=html htmlopen=false > conversation.html
-```{% endraw %}
+```
 ---
 
 ##### 26
 ### 📖 AI | Template
 Convert oAFp llmconversation JSON file into a terminal readable template of the LLM conversation
-{% raw %}```bash
+```bash
 oafp conversation.json out=template templatetmpl=true template="{{#each this}}*{{role}}*: {{{content}}}\n---\n{{/each}}" pipe="(in: md, out: md)"
-```{% endraw %}
+```
 ---
 
 ##### 27
@@ -652,7 +652,7 @@ out=json | oafp in=oafp
 ##### 45
 ### 📖 AWS | VPC
 On an AWS account go through all AWS regions and produce an output table with each VPC CIDR
-{% raw %}```bash
+```bash
 cat <<EOF | oafp -f -
 cmd         : aws ec2 describe-regions --output json
 out         : template
@@ -661,11 +661,11 @@ template    : |
 templatetmpl: true
 pipe        :
   in      : oafp
-  path    : "[][]"
+  path    : "[][]" 
   out     : ctable
   sql     : select * order by CidrBlock
 EOF
-```{% endraw %}
+```
 ---
 
 ##### 46
@@ -1118,9 +1118,9 @@ oafp bom.csv sql="select name, version, group" out=csv > new_bom.csv
 ##### 93
 ### 📖 Generic | Commands
 Given an input array with phone numbers will run parallel output commands, calling ojob.io/telco/phoneNumber, for each entry effectively building an output from those multiple command executions.
-{% raw %}```bash
+```bash
 oafp data="[(p:911234567)|(p:+18004564567)]" in=slon out=cmd outcmdtmpl=true outcmd="ojob ojob.io/telco/phoneNumber country=PT number={{p}} -json" | oafp in=ndjson ndjsonjoin=true path="[].phoneInfo" out=ctree
-```{% endraw %}
+```
 ---
 
 ##### 94
@@ -1193,9 +1193,9 @@ oafp url="https://emojihub.yurace.pro/api/all" path="[].{category:category,group
 ##### 102
 ### 📖 Generic | HTML
 Given an input file, in a specific language (e.g. yaml, json, bash, etc...), output an HTML representation with syntax highlighting.
-{% raw %}```bash
+```bash
 OUT=yaml && FILE=data.yaml && oafp file=$FILE in=raw outkey=data out=json | oafp out=template templatetmpl=true template="\`\`\`$OUT\n{{{data}}}\n\`\`\`" | oafp in=md out=html
-```{% endraw %}
+```
 ---
 
 ##### 103
@@ -1235,9 +1235,9 @@ FPATH="git/ojob.io" && oafp in=ls lsrecursive=true data="$FPATH" path="[].insert
 ##### 107
 ### 📖 Generic | RSS
 Builds an HTML file with the current linked news titles, publication date and source from Google News RSS.
-{% raw %}```bash
+```bash
 RSS="https://news.google.com/rss" && oafp url="$RSS" path="rss.channel.item[].{title:replace(t(@,'[{{title}}]({{link}})'),'\|','g','\\|'),date:pubDate,source:source._}" from="sort(-date)" out=mdtable | oafp in=md out=html
-```{% endraw %}
+```
 ---
 
 ##### 108
@@ -1251,17 +1251,17 @@ oafp url="https://blog.google/rss" path="rss.channel.item" sql="select title, li
 ##### 109
 ### 📖 Generic | RSS
 Generates a HTML page with the current news from Google News, order by date, and opens a browser with it.
-{% raw %}```bash
+```bash
 oafp url="https://news.google.com/rss" path="rss.channel.item[].{title:title,link:link,date:pubDate,source:source._}" out=template templatetmpl=true template="<html><body><h1>Current Main News</h1><ul>{{#each this}}<li><a href='{{link}}' target='_blank'>{{title}}</a> <br><small>{{date}} | Source: {{source}}</small></li>{{/each}}</ul></body></html>" sql="select * order by date desc" | oafp in=raw out=html
-```{% endraw %}
+```
 ---
 
 ##### 110
 ### 📖 Generic | RSS
 Parses the Slashdot&#x27;s RSS feed news into a quick clickable HTML page in a browser
-{% raw %}```bash
+```bash
 RSS="http://rss.slashdot.org/Slashdot/slashdot" && oafp url="$RSS" path="RDF.item[].{title:replace(t(@,'[{{title}}]({{link}})'),'\|','g','\\|'),department:department,date:date}" from="sort(-date)" out=mdtable | oafp in=md out=html
-```{% endraw %}
+```
 ---
 
 ##### 111
@@ -1291,9 +1291,9 @@ oafp data="[(file: versions-latest.json)|(file: versions-build.json)]" in=oafp s
 ##### 114
 ### 📖 Generic | Template
 Given a meal name will search &#x27;The Meal DB&#x27; site for the corresponding recipe and render a markdown HTML of the corresponding recipe.
-{% raw %}```bash
+```bash
 MEAL="Pizza" && echo "# {{strMeal}}\n> {{strCategory}} | {{strArea}}\n<a href=\"{{strYoutube}}\"><img align=\"center\" width=1280 src=\"{{strMealThumb}}\"></a>\n\n## Ingredients\n\n| Ingredient | Measure |\n|---|---|\n{{#each ingredients}}|{{ingredient}}|{{measure}}|\n{{/each}}\n\n## Instructions\n\n\n\n{{{strInstructions}}}" > _template.hbs && oafp url="https://www.themealdb.com/api/json/v1/1/search.php?s=$MEAL" path="set(meals[0],'o').set(k2a(get('o'),'strIngredient','i',\`true\`),'is').set(k2a(get('o'),'strMeasure','m',\`true\`),'ms')|get('o').insert(get('o'),'ingredients',ranges(length(get('is')),\`0\`,\`1\`).map(&{ ingredient: geta('is',@).i, measure: geta('ms',@).m }, @))" out=json | oafp out=template template=_template.hbs | oafp in=md out=html htmlcompact=true
-```{% endraw %}
+```
 ---
 
 ##### 115
@@ -1623,9 +1623,9 @@ oafp ~/Library/Safari/Bookmarks.plist libs=Mac path="Children[].map(&{category:g
 ##### 154
 ### 📖 Mac | Tunnelblink
 In a Mac OS with Tunnelblink, if you want to copy all your OpenVPN configurations into ovpn files.
-{% raw %}```bash
+```bash
 oafp in=ls data="$HOME/Library/Application Support/Tunnelblick/Configurations" path="[?filename=='config.ovpn'].insert(@,'name',replace(filepath,'.+\/([^\/]+)\.tblk\/.+','','\$1'))" lsrecursive=true out=cmd outcmdtmpl=true outcmd="cp \"{{filepath}}\" output/\"{{name}}.ovpn\""
-```{% endraw %}
+```
 ---
 
 ##### 155
@@ -1837,9 +1837,9 @@ DOMAIN=yahoo.com && oaf -c "sprint(ow.loadNet().getTLSCertificates('$DOMAIN',443
 ##### 179
 ### 📖 OpenAF | oJob.io
 Parses ojob.io/news results into a clickable news title HMTL page.
-{% raw %}```bash
+```bash
 ojob ojob.io/news/awsnews __format=json | oafp path="[].{title:replace(t(@,'[{{title}}]({{link}})'),'\|','g','\\|'),date:date}" from="sort(-date)" out=mdtable | oafp in=md out=html
-```{% endraw %}
+```
 ---
 
 ##### 180
