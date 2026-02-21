@@ -8,13 +8,13 @@ grand_parent: OpenAF docs
 
 ## What are channels?
 
-By definition channels should allow for the flow of data between functionalities or processes. In a similar fashion, OpenAF channels allow the flow of data between two points or functionalities. These two points can be in on the same OpenAF script or in two different scripts (on the same machine or differents).
+By definition, channels should allow the flow of data between functionalities or processes. In a similar way, OpenAF channels allow data to flow between two points or functionalities. These two points can be in the same OpenAF script or in two different scripts (on the same machine or on different machines).
 
 Let's consider a simple example: _Imagine that you have a script, called copyFiles.js, that copies files between a SFTP server and a local server. Additionally you have a preProcess.js script that will pre-process the copied files whenever they are copied. How do you make the name of the copied files “flow” to the preProcess.js script? You can build a channel between copyFiles.js and preProcess.js._
 
 ## How is data represented on a channel?
 
- Data in OpenAF channels is represented by a set of key/value pairs. This set can be handle as a Map (where you can invoke get/set methods) or as a Queue (where you can invoke push/pop/shift methods) by the order a key/value was added/modified.
+Data in OpenAF channels is represented by a set of key/value pairs. This set can be handled as a Map (where you can invoke get/set methods) or as a Queue (where you can invoke push/pop/shift methods), based on the order in which a key/value was added or modified.
 
 The keys and values used can be simple Strings or JSON Maps.
 
@@ -35,13 +35,13 @@ Then preProcess.js can simply invoke the shift method on the same channel to obt
 
 ## How to be notified of a change on a channel?
 
-If a channel allows for the flow of data between two points how would the target point know that the source point as added or changed data in a channel? The answer is channel subscription. For any given OpenAF channel you can subscribe it so a function provided by you can be callback whenever any addition or change is made on a channel.
+If a channel allows data to flow between two points, how does the target point know that the source point has added or changed data in the channel? The answer is channel subscription. For any given OpenAF channel, you can subscribe a function so it can be called whenever data is added or changed.
 
 These subscriptions are non-blocking meaning that changing data on a channel won't be delayed by the subscriptions it holds at any given point. Each subscription will actually be executed on a separate thread in parallel.
 
-At any time you can unsubscribe a previous channel subscript
+At any time, you can unsubscribe a previous channel subscription.
 
-Using the example: T_he copyFiles.js will add a key/value pair per each file it successfully copies in a “CopiedFiles” channel. The preProcess.js just needs to subscribe the “CopiedFiles” channel. Each time copyFiles.js adds a file, a provided preProcess.js function will be executed without delaying copyFiles.js functionality._
+Using the example: _copyFiles.js will add a key/value pair for each file it successfully copies in a "CopiedFiles" channel. preProcess.js just needs to subscribe to "CopiedFiles". Each time copyFiles.js adds a file, the provided preProcess.js function will be executed without delaying copyFiles.js functionality._
 
 ## Channels implementations
 
@@ -58,9 +58,12 @@ Currently there are several different implementations built-in (on the included 
 * ElasticSearch
 * MVS
 * Simple (default from 20181210)
+* File
 * Buffer
 * Proxy
 * Etcd
+* Prometheus
+* All
 * Dummy (for testing)
 
 And some available through oPacks:
@@ -87,7 +90,7 @@ The remote implementation allows for the creation of a channel whose implementat
 
 To access the channel functionality you can use functions in the ow.ch (OpenWrap Channel) library or the common shortcuts: $channel or $ch. We will use the $ch to show the channels basics.
 
-The $ch is actually a javascript function that takes the unique name of a channel as it's parameter. This name only needs to be unique in a single OpenAF script.
+`$ch` is a JavaScript function that takes the unique name of a channel as its parameter. This name only needs to be unique within a single OpenAF script.
 
 #### Channel maintenance
 
@@ -326,13 +329,15 @@ $ch("employees").unset({ id: 1 });
 The Ignite implementation encapsulates access to an Ignite data grid using functionality from the Ignite plugin. Upon creation the shouldCompress is ignored and the options available are not mandatory:
 
 * *gridName* - The Ignite grid name to access
-* *ignite* - A Ignite object from the Ignite plugin that you previously instatiated.
+* *ignite* - An Ignite object from the Ignite plugin that you previously instantiated.
+* *persist* - Optional filesystem path to enable Ignite persistence and WAL storage.
+* *client* - Optional client mode flag used when connecting to a specific gridName.
 
 The name of the channel is actually the name of Ignite data grid cache that will be used. All functionality is available.
 
 ### Ops
 
-The ops or operations implementation is a special channel that won't store values but will actually execute a specific function for each key and return the corresponding value (e.g. usefull for exposing functionality). That function will receive as argument the value map. On the creation the shouldCompress is obviously ignored and the options is actually the map of functions as demonstrated on the next example:
+The ops (operations) implementation is a special channel that does not store values. Instead, it executes a specific function for each key and returns the corresponding value (for example, useful for exposing functionality). That function receives the value map as an argument. On creation, `shouldCompress` is ignored, and the options are the map of functions, as shown in the next example:
 
 ````javascript
 $ch("myops").create(1, "ops", {
@@ -341,7 +346,7 @@ $ch("myops").create(1, "ops", {
 });
 ````
 
-The to use it:
+Then to use it:
 
 ````javascript
 > $ch("myops").get("help");
@@ -358,7 +363,7 @@ Due to the nature of this implementation setAll, pop, shift and unset are not im
 
 ### Cache
 
-The cache implementation lets you define a channel that will use a provided function to retrieve and return the corresponding value given a key. The value will be kept in another OpenAF channel acting as a cache from which the value will be retrieved for a specific TTL (time-to-live) in ms. After the TTL the function will be executed again and the result kept in the other OpenAF channel. This is useful when you know that you will have a lot of gets but it's slow to retrieve each value and a key/value cache mechanism is usefull. 
+The cache implementation lets you define a channel that uses a provided function to retrieve and return the value for a given key. The value is kept in another OpenAF channel acting as a cache, where it is reused for a specific TTL (time-to-live) in ms. After the TTL expires, the function runs again and the new result is cached. This is useful when you expect many `get` operations, but retrieving each value is slow.
 
 To create, the shouldCompress option is ignored and the following options can be used:
 
@@ -366,9 +371,13 @@ To create, the shouldCompress option is ignored and the following options can be
 |--------|-----------|------|-------------|
 | func | Yes | Function | The function that receives a key and returns the corresponding value to be returned and cached for a TTL. |
 | ttl | No | Number | The cache time-to-live in ms (defaults to 5 seconds) |
-| ch | No | String | The name of the secundary OpenAF channel to store the cached values. This channel can already exist (for example if you don't want to cache values in memory). Defaults to the current name suffixed with "::__cache". Note: Upon "destroy" of the cache channel this channel will be also destroyed. |
+| ch | No | String/Channel | The name (or channel object) of the secondary OpenAF channel to store cached values. Defaults to current name suffixed with "::__cache". Note: Upon "destroy" of the cache channel this channel will be also destroyed. |
+| size | No | Number | Maximum number of cached entries (`-1` means unlimited). |
+| method | No | String | Cache policy: `"t"` (TTL-based, default) or `"p"` (promote/reorder on access). |
+| default | No | Any | Default value to return when `useDefault` is enabled and a refresh is in progress. |
+| useDefault | No | Boolean | If true, cache refresh can happen asynchronously while returning `default` (or previous value depending on path). |
 
-The set/setAll functions will actually ignore the value provided and call the function with the key provided updating the cache value and ignoring/reseting the current TTL.
+The `set`/`setAll` functions ignore the provided value and call the function with the provided key, updating the cached value and resetting the current TTL.
 
 ### ElasticSearch
 
@@ -377,10 +386,18 @@ The ElasticSearch implementation encapsulates the access to an ElasticSearch ser
 | Option | Mandatory | Type | Description |
 |--------|-----------|------|-------------|
 | index | Yes | String/Function | The ES index string or a function that returns the name (see also ow.ch.utils.getElasticIndex) |
-| idKey | No | String | If the ES index uses an id field you can specify it (defaults to '_id') |
+| format | No | String | If `index` is a string, optional format pattern used by `ow.ch.utils.getElasticIndex`. |
+| idKey | No | String | If the ES index uses an id field you can specify it (defaults to `'id'`). |
 | url | Yes | String | The URL string to access the ES cluster/server using HTTP/HTTPs |
 | user | No | String | If the ES cluster/server requires authentication credentials, you can specify the username. |
 | pass | No | String | If the ES cluster/server requires authentication credentials, you can specify the password (encrypted or not). |
+| fnId | No | String/Function | Optional id generator for document ids. If string, uses hash function name (e.g. md5/sha1/sha256/sha512). |
+| size | No | Number | Optional limit used by getAll/getKeys when no explicit query map is provided. |
+| stamp | No | Map | Optional map merged into keys/values on set operations and used to scope default search filters. |
+| seeAll | No | Boolean | If `stamp` is set, controls whether getAll/getKeys should ignore (`true`) or apply (`false`) stamp filter. |
+| timeout | No | Number | Request timeout in ms. |
+| preAction | No | Function | Function called before each HTTP request. |
+| throwExceptions | No | Boolean | If true, REST errors throw exceptions (defaults to false). |
 
 Examples:
 
@@ -395,13 +412,15 @@ Nevertheless please use the ElasticSearch oPack that encapsulates more functiona
 
 ### MVS
 
-MVS or MVStore is the a "persistent, log structured key-value store" which is the actual storage subsystem of H2. It's fast, small and a good alternative to keeping channel data in memory at all althought it can also keep it in-memory. The shouldCompress option specifies if the entire data structure should be compress by MVS or not. Pretty much all channels functionality is available. Additionally you can specify on the options map:
+MVS (MVStore) is a "persistent, log structured key-value store" and the storage subsystem used by H2. It is fast, small, and a good alternative to keeping channel data only in memory, although it can also run in-memory. The `shouldCompress` option specifies whether the entire data structure should be compressed by MVS. Most channel functionality is available. You can also specify the following options:
 
 | Option | Mandatory | Type | Description |
 |--------|-----------|------|-------------|
 | file   | No | String | Specifies the file where MVS will store data to. If not defined it stores data in-memory. |
 | compact | No | Boolean | If yes upon channel creation/destruction it will run the MVS compact operation over the file trying to save storage space. |
-| map | No | String/Function | If not defined defaults to the string "default". Each file can contain several "collections" or maps of values. If defined as a function, the function will receive the key in use as an argument and it should return the map name to use (e.g. usefull for sharding) and a default map name when a key is not provided. |
+| map | No | String/Function | If not defined, defaults to `"default"`. Each file can contain several collections (maps) of values. If defined as a function, it receives the key in use as an argument and should return the map name to use (for example, useful for sharding) and a default map name when a key is not provided. |
+| closeOnShutdown | No | Boolean | If true (default), closes/destroys the channel automatically on OpenAF shutdown. |
+| internalTrim | No | String | Optional stringify indentation/trim behavior for stored keys/values (advanced usage). |
 
 Examples:
 
@@ -426,7 +445,7 @@ $ch("myfile").create(1, "mvs", { file: "myfile.db", map: func });
 
 **Note:** function based map channels should only be used for adding/modifying values. For accessing you should create specific channels for the specific map name. Keep in mind that MVS supports concurrent read and write.
 
-There are utilitary functions for mvs files in ow.ch.utils.mvs.* namely:
+There are utility functions for MVS files in `ow.ch.utils.mvs.*`, namely:
 
 * *list(aFile)* - returning an array with all maps contained on a MVS file.
 * *remove(aFile, aMapToRemove)* - deleting any map contained on a MVS file.
@@ -434,13 +453,34 @@ There are utilitary functions for mvs files in ow.ch.utils.mvs.* namely:
 
 ### Simple
 
-The simple implementation, default since version 20181210, instead of using the OpenWrap Big Objects uses plain javascript objects (e.g. arrays and maps). It benefits on add/modify performance but uses more memory in the overall for large or varying size values. All functionality is available and similar behaviour to the default implementation should be expected althought the shouldCompress option is ignored.
+The simple implementation, default since version 20181210, uses plain JavaScript objects (for example, arrays and maps) instead of OpenWrap Big Objects. It improves add/modify performance, but can use more memory overall for large or variable-size values. All functionality is available, and behavior should be similar to the default implementation, although `shouldCompress` is ignored.
 
 To create one just:
 
 ````javascript
 > $ch("test").create(1, "simple")
 ````
+
+### File
+
+The file implementation keeps channel data in JSON or YAML files, either in one file or split across multiple files.
+
+Creation options:
+
+| Option | Mandatory | Type | Description |
+|--------|-----------|------|-------------|
+| file | No | String | File path to store channel data (single-file mode). |
+| path | No | String | Base path used for generated files (especially in multifile mode). |
+| yaml | No | Boolean | Use YAML instead of JSON (default `false`). |
+| compact | No | Boolean | JSON compact output (defaults to `shouldCompress`). |
+| multifile | No | Boolean | Store each value in an individual file plus an index file. |
+| multipart | No | Boolean | For YAML output, write/read multi-document YAML. |
+| key | No | String | If key map contains this property, it is used as effective channel key. |
+| multipath | No | Boolean | Treat string keys containing dots as object paths. |
+| lock | No | String | Lock file path used for filesystem locking while accessing data. |
+| gzip | No | Boolean | Enable gzip compression for persisted file(s). |
+| lz4 | No | Boolean | Enable lz4 compression for persisted file(s). |
+| tmp | No | Boolean | Use temporary backing file and remove it on destroy/process end. |
 
 ### Buffer
 
@@ -457,6 +497,19 @@ To create one just:
     bufferTmpCh   : "buffer::__buffer"
 });
 ````
+
+The options used are:
+
+| Option | Mandatory | Type | Description |
+|--------|-----------|------|-------------|
+| bufferCh | Yes | String | Target channel to receive flushed entries. |
+| bufferIdxs | No | Array | Index fields used to flush through `setAll` (default `[]`). |
+| bufferByTime | No | Number | Flush interval in ms (default `2500`). |
+| bufferByNumber | No | Number | Flush threshold by number of buffered entries (default `100`). |
+| bufferTmpCh | No | String | Temporary buffer storage channel name (default `<name>::__bufferStorage`). |
+| bufferFunc | No | Function | Optional function that can force a flush when returning true. |
+| timeout | No | Number | Timeout in ms used by flush/close helpers (default `1500`). |
+| errorFn | No | Function | Optional error callback when forwarding buffered entries fails. |
 
 ### Proxy
 
@@ -501,11 +554,53 @@ The options used are:
 | url | Yes | String | The URL to connect to the Etcd cluster |
 | folder | No | String | The key prefix to use. |
 | throwExceptions | No | Boolean | If true, whenever there is an error (e.g. communication error, etc...) an exception will be thrown. |
-| default | No | Map | If throwExceptions is false what should be returned on a get function in case of error. | 
+| default | No | Map | If throwExceptions is false what should be returned on a get function in case of error. |
+| preAction | No | Function | Function called before each HTTP request. |
+
+### Prometheus
+
+This implementation connects channels to Prometheus query APIs and/or Pushgateway ingestion.
+
+Creation options:
+
+| Option | Mandatory | Type | Description |
+|--------|-----------|------|-------------|
+| urlQuery | No* | String | Prometheus server URL used for read/query operations. |
+| urlPushGW | No* | String | Prometheus Pushgateway URL used for write/delete operations. |
+| prefix | No | String | Optional metrics prefix for openmetrics payload generation. |
+| gwGroup | No | Map | Grouping labels for Pushgateway endpoints (must include `job` when `urlPushGW` is used). |
+| helpMap | No | Map | Optional help metadata map forwarded to `ow.metrics.fromObj2OpenMetrics`. |
+
+\* At least one of `urlQuery` or `urlPushGW` must be defined.
+
+Behavior notes:
+
+* `forEach`, `getSet`, `pop`, `shift`, `unsetAll` are not supported.
+* `set`/`setAll` use the value payload and ignore the key argument.
+* `getAll` supports:
+  * instant query (`{ query }`);
+  * range query (`{ query, start, end }`);
+  * label values (`{ label }`).
+
+### All
+
+This implementation aggregates multiple target channels behind a single channel.
+
+Creation options:
+
+| Option | Mandatory | Type | Description |
+|--------|-----------|------|-------------|
+| chs | No | Array | Array of channel names to aggregate. |
+| fn | No | Function | Routing function receiving operation/key/value; can return one or more target channels. |
+| errFn | No | Function | Error callback `(name, error, targetCh, operation, args)`. |
+| fnTrans | No | Function | Key translation function before forwarding to target channels. |
+| fnKeys | No | Function | Post-processing function for aggregated `getKeys`/`getSortedKeys`. |
+| fnValues | No | Function | Post-processing function for aggregated values (`getAll`, `get`, `set`, etc.). |
+| treatAll | No | Boolean | If true, executes size/setAll/unsetAll per-entry/per-channel behavior (default `false`). |
 
 ### Dummy
 
-In this implementation all functionality will simple return without executing anything. It's mainly use for testing proposes.
+In this implementation, all operations simply return without executing anything. It is mainly used for testing purposes.
 
 ### Mongo (through the Mongo oPack)
 
@@ -608,9 +703,34 @@ This creates a HTTP server on the port 1234 that will respond to REST queries on
 
 The channel “remoteChannel” can now be used normally. All operations will be relayed back to the original channel. But if you subscribe the “remoteChannel” you won't receive any set/setall/unset operations from “mychannel”.
 
+You can also create a remote channel directly with the `remote` type and options:
+
+````javascript
+> $ch("remoteChannel").create(1, "remote", {
+    url: "http://the.other.guy:1234/mychannel",
+    login: "user",
+    password: "pass",
+    timeout: 1500,
+    throwExceptions: true
+});
+````
+
+Remote options:
+
+| Option | Mandatory | Type | Description |
+|--------|-----------|------|-------------|
+| url | Yes | String | Base URL of the exposed remote channel endpoint. |
+| login | No | String | Optional username for HTTP authentication. |
+| password | No | String | Optional password for HTTP authentication. |
+| timeout | No | Number | Request timeout/connection timeout in ms. |
+| default | No | Any | Default value returned by REST helper when requests fail and exceptions are disabled. |
+| stopWhen | No | Function | Optional stop predicate used by REST helper retries/flow. |
+| throwExceptions | No | Boolean | Throw on REST errors (defaults to `true` for `remote`). |
+| preAction | No | Function | Function called before each HTTP request. |
+
 ### Peering channels
 
-Peering is an advance mode of using remote channels where instead of unidirectional communication between from a source channel to a target channel there is actually bidirectional communication trying to keep both channels up to date.
+Peering is an advanced mode for remote channels. Instead of one-way communication from a source channel to a target channel, it uses bidirectional communication to keep both channels up to date.
 
 On side A you simply execute (similar to *expose*):
 
@@ -624,7 +744,7 @@ and on the other side B:
 > $ch("mychannelOnB").peer(8011, "/mychannel", [ "http://the.original.guy:8010/mychannel" ]);
 ````
 
-If you look carefully on will notice the peer is actually contained on an array because you can actually have a list of peers (that should include all for each side). Let's add a side C:
+If you look carefully, you will notice the peer is provided as an array because you can define a list of peers (which should include all peers for each side). Let's add side C:
 
 On side A:
 
@@ -647,12 +767,12 @@ and on side C:
 The peering functionality is a little similar to the Ignite type with the following differences:
 
 * Subscribers will get triggered in each side upon data change
-* Each side should mirrors all data
+* Each side should mirror all data
 * Static list of peers
 
 ### Channels REST API
 
-The next table describe in more detail the REST API to communicate with a exposed/peered channel:
+The next table describes the REST API in more detail to communicate with an exposed/peered channel:
 
 | Channel operation | HTTP Method | URI |
 |:------------------|:------------|:----|
