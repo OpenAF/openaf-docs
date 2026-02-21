@@ -65,9 +65,19 @@ Currently there are several different implementations built-in (on the included 
 
 And some available through oPacks:
 
-* Mongo (mongo opack)
-* Etcd3 (etcd3 opack, via GRPC)
-* DynamoDB (aws opack)
+* Mongo (`mongo`, Mongo oPack)
+* Etcd3 (`etcd3`, etcd3 oPack, via GRPC)
+* Redis (`redis`, Redis oPack)
+* RocksDB (`rocksdb`, rocksdb oPack)
+* S3 (`s3`, S3 oPack)
+* Chronicle Queue (`cq`, cq oPack)
+* GIST (`gist`, GIST oPack)
+* DynamoDB (`dynamo`, AWS oPack)
+* AWS Secrets Manager (`awssecrets`, AWS oPack, primarily for `$sec`)
+* Lucene Vector Search (`vectordb`, lucene oPack)
+* Lucene Full-text Search (`searchdb`, lucene oPack)
+
+You can find runnable examples for all oPack channel implementations in [OpenAF channel implementations through oPacks](../guides/medium/openaf-channel-implementations-through-opacks.md).
 
 The default implementation, until version 20181210, Big uses the OpenWrap Big Objects functionality (from the OpenWrap Object library). You don't need to know how this functionality works internally. For the sake of simplicity let's assume it's like an internal JavaScript Array of a Map with a Key and Value.
 
@@ -451,16 +461,86 @@ In this implementation all functionality will simple return without executing an
 
 ### Mongo (through the Mongo oPack)
 
-Please check the Mongo oPack documentation (tbc).
+Use channel type `mongo` (Mongo oPack).
+
+Examples:
+* [Accessing MongoDB](../guides/medium/accessing-mongodb.md)
+* [OpenAF channel implementations through oPacks](../guides/medium/openaf-channel-implementations-through-opacks.md)
 
 ### Etcd3 (through the Etcd3 oPack)
 
 This implementation differs from the "etcd" implementation since it will communicate via GRPC instead of HTTP.
-Please check the Etcd3 oPack documentation (tbc).
+
+Use channel type `etcd3` (etcd3 oPack).
+
+Examples:
+* [OpenAF channel implementations through oPacks](../guides/medium/openaf-channel-implementations-through-opacks.md)
+* [oafp with OpenAF channels](../guides/oafp/with-oaf-ch.md)
 
 ### Dynamo (through the AWS oPack)
 
 This implementation uses the AWS API directly to interact with AWS's Dynamo DB.
+
+Use channel type `dynamo` (AWS oPack).
+
+Examples:
+* [OpenAF channel implementations through oPacks](../guides/medium/openaf-channel-implementations-through-opacks.md)
+
+### Redis (through the Redis oPack)
+
+Use channel type `redis` (Redis oPack).
+
+Examples:
+* [OpenAF channel implementations through oPacks](../guides/medium/openaf-channel-implementations-through-opacks.md)
+
+### RocksDB (through the rocksdb oPack)
+
+Use channel type `rocksdb` (rocksdb oPack).
+
+Examples:
+* [OpenAF channel implementations through oPacks](../guides/medium/openaf-channel-implementations-through-opacks.md)
+
+### S3 (through the S3 oPack)
+
+Use channel type `s3` (S3 oPack).
+
+Examples:
+* [OpenAF channel implementations through oPacks](../guides/medium/openaf-channel-implementations-through-opacks.md)
+
+### Chronicle Queue (through the cq oPack)
+
+Use channel type `cq` (cq oPack).
+
+Examples:
+* [OpenAF channel implementations through oPacks](../guides/medium/openaf-channel-implementations-through-opacks.md)
+
+### GIST (through the GIST oPack)
+
+Use channel type `gist` (GIST oPack).
+
+Examples:
+* [OpenAF channel implementations through oPacks](../guides/medium/openaf-channel-implementations-through-opacks.md)
+
+### AWS Secrets Manager (through the AWS oPack)
+
+Use channel type `awssecrets` (AWS oPack), typically through `$sec("awssecrets", ...)`.
+
+Examples:
+* [OpenAF channel implementations through oPacks](../guides/medium/openaf-channel-implementations-through-opacks.md)
+
+### Lucene Vector Search (through the lucene oPack)
+
+Use channel type `vectordb` (lucene oPack).
+
+Examples:
+* [OpenAF channel implementations through oPacks](../guides/medium/openaf-channel-implementations-through-opacks.md)
+
+### Lucene Full-text Search (through the lucene oPack)
+
+Use channel type `searchdb` (lucene oPack).
+
+Examples:
+* [OpenAF channel implementations through oPacks](../guides/medium/openaf-channel-implementations-through-opacks.md)
 
 ### Exposing channels externally
 

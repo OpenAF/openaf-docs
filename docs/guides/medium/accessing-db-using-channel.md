@@ -12,6 +12,8 @@ grand_parent: Guides
 When using the [OpenAF channel](../../concepts/OpenAF-Channels.md) functionality it's possible to wrap it's functionality around a database table. Any JDBC driver accessible database where standard SQL is valid can be used.
 
 > Check also on how to [use different JDBC drivers](../../guides/ojobio/db-drivers.md) in OpenAF
+>
+> For non-JDBC channel backends (Redis, Mongo, Etcd3, S3, RocksDB, DynamoDB, etc.) check [OpenAF channel implementations through oPacks](openaf-channel-implementations-through-opacks.md).
 
 Let's use a simple example with a H2 file database.
 
