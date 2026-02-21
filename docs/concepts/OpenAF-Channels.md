@@ -271,7 +271,55 @@ Do be aware that there is no locking mechanism preventing access to the file and
 
 ### DB
 
-*tbc*
+The DB implementation wraps a database table/object and maps channel operations to SQL statements.
+
+Use channel type `db`.
+
+Creation options:
+
+| Option | Mandatory? | Type | Description |
+|--------|------------|------|-------------|
+| `db` | Yes | `DB` object, map or JSSLON string | Database connection. If you pass a map/string (`url`, `user`, `pass`, `timeout`, optional `driver`) the channel creates the `DB` object internally and closes it on `destroy()`. |
+| `from` | Yes | String | Table name (or SQL object). |
+| `keys` | No | Array | Key fields used to build `WHERE` clauses for `get`/`set` (update)/`unset`. |
+| `cs` | No | Boolean | Case-sensitive table/field handling (defaults to `false`). |
+
+Behavior notes:
+
+* `set(key, value)` performs an upsert pattern:
+  * updates when a matching row exists;
+  * inserts otherwise (using fields from `value`).
+* If `keys` is defined, only those key fields are used for matching/deleting.
+* `getKeys(full)` accepts an optional SQL `WHERE` string.
+* `getAll(full)` accepts an optional map for equality filters.
+* `destroy()` only releases channel resources; it does not remove table data.
+
+Current limitations/nuances in this implementation:
+
+* `getSet(...)` is not implemented for `db`.
+* `getSortedKeys()` currently behaves like `getKeys()` (no extra sorting logic).
+* `pop()`/`shift()` depend on the order returned by `getKeys()` from the database.
+
+Example:
+
+````javascript
+var db = new DB("jdbc:h2:./data", "sa", "sa");
+$ch("employees").create(1, "db", {
+  db: db,
+  from: "employees",
+  keys: ["id"],
+  cs: false
+});
+
+$ch("employees").set({ id: 1 }, {
+  id: 1,
+  first_name: "John",
+  last_name: "Doe"
+});
+
+var row = $ch("employees").get({ id: 1 });
+$ch("employees").unset({ id: 1 });
+````
 
 ### Ignite
 
