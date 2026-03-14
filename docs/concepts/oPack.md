@@ -35,6 +35,7 @@ The following lists all the available oPack commands *verbs* that can be used:
 | install | Will try to install an oPack from a local file, a local folder or from a configured remote central repository. | ````opack install apis````<br/>````opack install /my/dir````<br/>````opack install myPack.opack```` |
 | update | Will try to update an oPack from a local file, a local folder or from a configured remote central repository. | ````opack update apis````<br/>````opack update /my/dir````<br/>````opack update myPack.opack```` | 
 | erase | Will erase an oPack from the current installation. | ````opack erase myPack```` |
+| remove | Removes an oPack entry from the local OpenPack database. Supports an **interactive mode** that prompts for confirmation before removal. | ````opack remove myPack```` |
 | search | Will search an oPack by keywords on the configured remote central repositories. | ````opack search docker```` |
 
 ## How to create an oPack

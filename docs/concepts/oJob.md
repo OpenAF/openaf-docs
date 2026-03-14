@@ -279,7 +279,9 @@ todo:
 
 # Include
 
-This is where you can include other ojob files with more job definitions. This allows for having modular ojob files with different type of jobs. It's basically an array/list of file paths. The files will be searched on the current path and on the installed oPacks. So if you install [oJob-common](https://github.com/OpenAF/oJob-common), for example, you can include existing job definitions in other ojob files:
+This is where you can include other ojob files with more job definitions. This allows for having modular ojob files with different type of jobs. It's basically an array/list of file paths. The files will be searched on the current path and on the installed oPacks. So if you install [oJob-common](https://github.com/OpenAF/oJob-common), for example, you can include existing job definitions in other ojob files.
+
+Included files can also be **encrypted** (`.yaml.enc` / `.json.enc`) — oJob will automatically decrypt them before loading. See [Encrypted oJob files](#encrypted-ojob-files) below.
 
 ````yaml
 include:
@@ -408,3 +410,46 @@ You can also use the following extra options:
 | -deps | Tries to provide a human readable representation of the dependencies between all jobs in includes and on the current file. |
 | -jobhelp | Display any available help information for a job. Can include extra help of jobs defined in "from" an "to". Example: "ojob example.yaml -jobhelp oJob sh" |
 | -nocolor | Removes all processing to determine screen size and use ansi colors. |
+
+---
+
+# Encrypted oJob files
+
+oJob natively loads and decrypts **encrypted job definition files** with `.yaml.enc` and `.json.enc` extensions. Encryption uses a byte-based scheme and the decrypted content is evaluated safely.
+
+To run an encrypted oJob file:
+
+```bash
+ojob myrecipe.yaml.enc
+```
+
+The `include` and `definitions` sections within a job file can also reference encrypted files:
+
+```yaml
+include:
+  - sharedJobs.yaml.enc
+
+definitions:
+  - secrets.yaml.enc
+```
+
+Encrypted files fetched from URLs are also supported — oJob handles decryption transparently after download.
+
+
+---
+
+# Python job type
+
+Jobs can use `python` as the executing language alongside the default `js` (JavaScript):
+
+```yaml
+jobs:
+  - name : My Python job
+    lang : python
+    exec : |
+      import json
+      result = {"hello": "from Python"}
+      args["result"] = result
+```
+
+Job arguments are available in the `args` variable in Python jobs, consistent with JavaScript job behaviour.

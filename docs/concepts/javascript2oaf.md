@@ -223,6 +223,57 @@ Asynchronous utilities received multiple improvements that embrace Java virtual 
 
 These utilities can be combined: for example, producers can push work with `$queue().add(...)`, consumers can fetch it with `$doV` to process in virtual threads, and any critical sections can be guarded with `$sync().run(...)`.
 
+### Cancellation support in $do / $doV
+
+`$do` and `$doV` now support **cancellation** — in-flight async operations can be cancelled cleanly. Call `.cancel()` on the returned `oPromise` to signal cancellation, and check `isCancelled()` inside the function to react appropriately.
+
+```javascript
+var p = $do(() => {
+  // long-running work
+  if (p.isCancelled()) return;
+  // ...
+})
+// cancel before or during execution:
+p.cancel()
+```
+
+## Timer functions
+
+Standard browser-compatible timer functions are available in the OpenAF runtime:
+
+| Function | Description |
+|----------|-------------|
+| `setTimeout(fn, delayMs)` | Schedules `fn` to run once after `delayMs` milliseconds. Returns a timer id. |
+| `setInterval(fn, delayMs)` | Schedules `fn` to run repeatedly every `delayMs` milliseconds. Returns a timer id. |
+| `clearInterval(timerId)` | Cancels a timer created by `setTimeout` or `setInterval`. |
+
+Example:
+
+```javascript
+var count = 0
+var id = setInterval(() => {
+  count++
+  if (count >= 3) clearInterval(id)
+}, 500)
+```
+
+## Semantic version helpers
+
+OpenAF provides utility functions for parsing and comparing [semantic versions](https://semver.org):
+
+```javascript
+// Parse a semver string into a structured map
+var v = semVerParse("1.2.3-alpha.1")
+// -> { major: 1, minor: 2, patch: 3, preRelease: "alpha.1" }
+
+// Compare two semver strings: returns -1, 0 or 1
+semVerCompare("1.2.3", "1.3.0")   // -1
+semVerCompare("2.0.0", "1.9.9")   // 1
+
+// Check whether a version satisfies a range
+semVerSatisfies("1.4.0", ">=1.2.0 <2.0.0")  // true
+```
+
 ## OPack specific
 
 _tbc_
@@ -254,9 +305,11 @@ _tbc_
 | loadCompiled | Loads a pre-compiled OpenAF javascript library (if not pre-compiled it will attempt to compile it). |
 | loadLibCompiled | Same as _loadCompiled_ but ensuring that the pre-compiled OpenAF javascript library code is only executed once. |
 | requireCompiled | Returns an object with all the javascript exports on a javascript pre-compiled library. |
-| restartOpenAF | Terminates the current OpenAF execution and tries to restart the java process again. |
+| restartOpenAF(redirectOutput) | Terminates the current OpenAF execution and tries to restart the java process again. If `redirectOutput` is true, the restarted process output will be redirected. |
+| endOpenAFAndStart(aCmd, redirectOutput) | Terminates the current OpenAF execution and starts `aCmd`. Optionally redirects output. |
+| stopOpenAFAndRun(aCmd, redirectOutput) | Terminates the current OpenAF execution in parallel with starting the execution of a new command-line provided. Optionally redirects output. |
+| endOpenAFAndStartOpenAF(redirectOutput) | Terminates the current OpenAF execution and immediately starts a new OpenAF process. |
 | forkOpenAF | Starts another OpenAF process with the same command-line. |
-| stopOpenAFAndRun | Terminates the current OpenAF execution in parallel with starting the execution of a new command-line provided. |
 | addOnOpenAFShutdown | Adds a function to be executed upon OpenAF execution end. |
 | getNumberOfCores | Returns the current reported number of cores. |
 | getCPULoad | Returns the current reports CPU load from the Java instrumentation API. |

@@ -154,7 +154,9 @@ $ch("a").createRemote("http://some.server:1234/a", __, (h) => {
 __ow.server.checkIn(aPidFile, onAlreadyRunning, onShutdown, anExitCode) : Boolean__
 
 ````
-Will check if a server for the give aPidFile is running or not. Will return false if it's running  and server start shouldn't proceed. Will return true if nothing is running and server start should proceed. Optionally you can provide an onShutdown function to execute any code needed upon controlled shutdown of the server and provide an onAlreadyRunning function (that will received the corresponding aPidFile). If the onAlreadyRunning function returns false the process will exit with -1 (or the anExitCode provided), if true will continue processing. Example:
+Will check if a server for the give aPidFile is running or not. Will return false if it's running  and server start shouldn't proceed. Will return true if nothing is running and server start should proceed. Optionally you can provide an onShutdown function to execute any code needed upon controlled shutdown of the server and provide an onAlreadyRunning function (that will received the corresponding aPidFile). If the onAlreadyRunning function returns false the process will exit with -1 (or the anExitCode provided), if true will continue processing.
+
+The environment variable OAF_PIDFILE can be set to override the aPidFile path. If set to a whitespace-only value it is treated as unset and aPidFile is used. Example:
 
 var params = processExpr();
 ow.server.checkIn("server.pid", function(aPid) {

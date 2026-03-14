@@ -28,6 +28,30 @@ aModel can be a map with the following properties:
 
 If aModel is not provided, it will try to get the model from the environment variable "OAF_MODEL" with the map in JSON or [SLON](https://github.com/nmaguiar/slon) format.
 ````
+### $gpt.promptStream
+
+__$gpt.promptStream(aPrompt, aRole, aModel, aTemperature, tools, aFn) : String__
+
+````
+Streams tokens from aPrompt (a string or array of strings) as they arrive, calling aFn(token) for each token received. Returns the full accumulated response when streaming is complete. Supported for GPT-compatible, Anthropic, and Gemini providers.
+````
+
+### $gpt.promptStreamWithStats
+
+__$gpt.promptStreamWithStats(aPrompt, aRole, aModel, aTemperature, tools, aFn) : Map__
+
+````
+Same as promptStream but returns a map containing the full response text plus statistics (token counts, latency) alongside the streamed output.
+````
+
+### $gpt.getModelInfo
+
+__$gpt.getModelInfo(aModelId) : Map__
+
+````
+Retrieves metadata about a specific model ID from the configured GenAI provider. Returns a map with model details such as name, capabilities, and limits.
+````
+
 ### $gpt.close
 
 __$gpt.close()__
@@ -299,6 +323,20 @@ __ow.ai.gpt.rawPrompt(aPrompt, aRole, aModel, aTemperature, aJsonFlag, tools) : 
 
 ````
 Tries to prompt aPrompt (a string or an array of strings) with aRole (defaults to "user") and aModel (defaults to the one provided on the constructor).
+````
+### ow.ai.gpt.jsonPromptWithStatsRaw
+
+__ow.ai.gpt.jsonPromptWithStatsRaw(aPrompt, aModel, aTemperature, tools) : Map__
+
+````
+Same as jsonPrompt but returns the raw provider response object rather than a parsed result, giving callers full access to provider-specific metadata (token counts, finish reason, etc.).
+````
+### ow.ai.gpt.promptJSONWithStatsRaw
+
+__ow.ai.gpt.promptJSONWithStatsRaw(aPrompt, aModel, aTemperature, tools) : Map__
+
+````
+Same as jsonPromptWithStatsRaw — returns the raw JSON response object with statistics from the provider.
 ````
 ### ow.ai.gpt.setConversation
 
@@ -594,3 +632,42 @@ Creates a valuesArray object with the following functions:
 
 entriesspan - number of entries to keep
 ````
+
+---
+
+## Notes
+
+### Default Gemini model
+
+The default Gemini model is **`gemini-2.5-flash`** (updated from `gemini-1.5-flash`). When constructing a `$gpt` instance with `type: "gemini"` and no explicit model, `gemini-2.5-flash` is used.
+
+### Streaming
+
+Streaming prompt methods (`promptStream` / `promptStreamWithStats`) are available for all supported provider types: GPT-compatible, Anthropic, and Gemini. The `aFn` callback receives each text token as it arrives, enabling real-time display of responses.
+
+### Agent-to-Agent (A2A) registry
+
+OpenAF includes an A2A registry that lets agents register themselves and exchange messages:
+
+```javascript
+ow.loadAI()
+
+// Register an agent
+ow.ai.a2a.register("myAgent", (msg) => {
+  return "reply: " + msg.text
+})
+
+// Send a message to a registered agent
+var reply = ow.ai.a2a.send("myAgent", { text: "hello" })
+```
+
+The registry is in-process by default; combine it with oJob channels or HTTP transports for cross-process messaging.
+
+### Debug channel
+
+Set a debug channel on a GPT model instance to capture detailed logs of all AI interactions:
+
+```javascript
+var gpt = $gpt({ type: "openai", options: { key: "...", model: "gpt-4o" } })
+gpt.setDebugChannel("debug::gpt")   // logs go to channel "debug::gpt"
+```

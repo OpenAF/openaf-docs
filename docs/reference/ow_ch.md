@@ -600,3 +600,16 @@ __ow.ch.waitForJobs(aName, aTimeout) : ow.ch__
 ````
 Each channel subscription (using ow.ch.subscribe) will create internal jobs (threads). To wait for  this jobs to finish provide the channel aName and, optionally, aTimeout.
 ````
+### owrap.ch.getK8sRemoteURLArrayFunc
+
+__owrap.ch.getK8sRemoteURLArrayFunc(aNamespace, aServiceName, aPort, aPath, aProtocol) : Function__
+
+````
+Returns a function that resolves an array of remote channel URLs for Kubernetes peer connections. Uses DNS-based service discovery to locate all pods matching aServiceName in aNamespace. Each pod is represented as aProtocol://pod-ip:aPort/aPath. DNS resolution errors are caught and handled gracefully — unreachable pods are omitted from the result.
+
+Useful when connecting OpenAF channels across Kubernetes pods:
+
+  var getURLs = owrap.ch.getK8sRemoteURLArrayFunc("default", "myapp", 8080, "/ch")
+  $ch("myChannel").createRemote(getURLs())
+
+````

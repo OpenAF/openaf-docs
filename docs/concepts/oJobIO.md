@@ -111,3 +111,4 @@ Most oJobs in ojob.io output results using the function *ow.oJob.output* or *$ou
 | TEXT | __format=text | String results | Output in string text representation (if possible) | 
 | MD | __format=md | String results | Output in markdown parsing (if possible) |
 | HUMAN | __format=human | String results | Output in the raw human-readable representation |
+| TOON | __format=toon | List/Array/Map/String results | Output using the [Toon](https://github.com/nmaguiar/toon) terminal rendering library (v2.1.0+) for rich terminal display |

@@ -190,6 +190,102 @@ For HTTP mode, switch to `type: "remote"` and provide `url: "http://localhost:12
 
 Set `inmcplistprompts=true` to inspect available prompts (if you expose any) or use the other connection fields (`__timeout__`, `__clientInfo__`, …) listed in the `oafp` usage document.
 
+## Tool blacklist
+
+You can prevent specific tools from being accessible to callers by providing a `blacklist` array in the MCP client options:
+
+```javascript
+var client = $mcp({
+  cmd      : "ojob mcps/mcp-myservice.yaml myConfig=value",
+  blacklist: ["dangerous-tool", "internal-only-tool"]
+})
+client.initialize()
+// "dangerous-tool" will not appear in listTools() or be callable
+```
+
+The blacklist is applied at the client side — listed tool names are filtered out from `listTools` responses and calls to them are blocked before being forwarded to the server.
+
+## Dummy mode and oJob-based servers
+
+`$mcp` and `$jsonrpc` support two additional server types for testing and oJob integration:
+
+### Dummy mode
+
+A dummy server returns empty/no-op responses to all tool calls. Useful for integration testing:
+
+```javascript
+var client = $mcp({ type: "dummy" })
+client.initialize()
+// all tool calls return empty results — no real process is spawned
+```
+
+### oJob-based servers
+
+Point `$mcp` directly at an oJob YAML file as the server:
+
+```javascript
+var client = $mcp({
+  type  : "ojob",
+  ojob  : "mcps/mcp-myservice.yaml",
+  args  : { myConfig: "value" }
+})
+client.initialize()
+```
+
+A default command directory can also be set so relative process paths resolve correctly:
+
+```javascript
+var client = $mcp({
+  cmd    : "ojob mcp-myservice.yaml myConfig=value",
+  cmdDir : "/path/to/mcps"
+})
+```
+
+## Per-call options
+
+Both `$jsonrpc` and `$mcp` accept optional per-call options to override tool execution parameters on individual calls:
+
+```javascript
+var result = client.callTool("myservice-tool", { param1: "demo" }, {
+  timeout: 30000   // override timeout for this call only
+})
+```
+
+## TOON output format
+
+MCP server text responses can be formatted using the **TOON** terminal rendering library. Use the `toon` format type with `$output` to produce rich terminal output:
+
+```javascript
+$output(myData, { format: "toon" })
+```
+
+When returning tool results, you can generate TOON-formatted text that MCP clients supporting rich terminal output will render:
+
+```javascript
+return {
+  content: [{
+    type: "text",
+    text: $output(myData, { format: "toon", retStr: true })
+  }]
+}
+```
+
+## Server info with getInfo
+
+Both JSON-RPC and MCP client objects expose a `getInfo()` method to retrieve server metadata after initialisation:
+
+```javascript
+var client = $mcp({ cmd: "ojob mcps/mcp-myservice.yaml myConfig=value" })
+client.initialize()
+
+var info = client.getInfo()
+log(info)   // -> { name: "mini-a-myservice", version: "1.0.0", ... }
+```
+
+## Ping support (stdio)
+
+The MCP stdio server now handles `ping` requests automatically, returning the expected `pong` response for liveness checks. No additional configuration is required.
+
 ## Where to go next
 
 - Browse the catalog in `https://github.com/openaf/mini-a/mcps/README.md` for inspiration.

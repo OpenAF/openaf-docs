@@ -20,7 +20,7 @@ Performs a DNS over HTTPs query with aAddr. Optionally you can provide the aType
 __ow.net.getActualTime(useAlternative) : Date__
 
 ````
-Retrieves the current actual time from worldtimeapi.org (through https). The current actual time will be returned in a Date. If useAlternative = true it will use worldclockapi.com (through http)
+Retrieves the current actual time from NTP servers. The current actual time will be returned in a Date. If the NTP query fails it falls back to alternative sources. If useAlternative = true it will use an alternative time source (HTTP-based).
 ````
 ### ow.net.getAddressInfo
 

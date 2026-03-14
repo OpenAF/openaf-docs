@@ -114,3 +114,18 @@ v Config 3
 > print(result)
 3
 ```
+
+### Cancellation support
+
+`askChoose` and `askChooseMultiple` support **cancellation** via Ctrl+C. When the user presses Ctrl+C, the function returns `undefined` instead of throwing an exception, allowing scripts to handle the cancellation gracefully:
+
+```javascript
+var result = askChoose("Pick an option:", ["Option A", "Option B", "Option C"])
+if (!isDef(result)) {
+  print("Selection cancelled by user.")
+} else {
+  print("Selected index: " + result)
+}
+```
+
+Navigation within the list was also improved to support circular scrolling (wrapping from last to first entry and vice versa).
