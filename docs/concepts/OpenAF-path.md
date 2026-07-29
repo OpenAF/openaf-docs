@@ -175,6 +175,7 @@ These are **extra functions** added to the standard JMESPath syntax — think of
 | ```a4m(arr, "key")``` | Convert array to map using a field as key | ```a4m([{id:1},{id:2}], "id")``` |
 | ```concat(x, y)``` | Concatenate two arrays or strings | ```concat("foo", "bar")``` → "foobar" |
 | ```ch(name, op, arg1, arg2)``` | Interact with a channel (etcd, mvs, etc.) | ```ch("mych", "get", "key")``` |
+| ```chq(name, op, max, value)``` | Queue semantics (push/pop/shift/size/get) backed by a named channel | ```chq("__events", "push", `3`, @)``` |
 
 > Check more in [oAFp filters](../guides/oafp/oafp-filters.md)
 
@@ -242,6 +243,35 @@ oafp chs="(name: store, type: mvs, options: (file: db.mvs))"\
 oafp chs="(name: cache, type: redis, options: (host: redis.local, port: 6379))"\
      path="ch('cache', 'get', '(session: abc)')"
      data="()"
+```
+
+### 🔌 **Using chq() for channel-backed queues**
+
+`chq(name, op, max, value)` gives `$path(...)` expressions queue semantics (push/pop/shift/size/get) backed by an
+auto-created "simple" channel named `name`. It is a lightweight alternative to writing imperative channel code when an
+expression just needs a rolling buffer or event queue.
+
+**🔧 Function Signature**
+
+```javascript
+chq(channelName, operation, max, value?)
+```
+
+| Parameter | Meaning |
+|:---------|:--------|
+| channelName | The name of the (auto-created if missing) backing channel. |
+| operation | One of: push (alias add), pop, shift, size, get (alias all). |
+| max | For push, the maximum number of entries to retain (oldest entries are shifted out once exceeded). Ignored for other operations. |
+| value | The value to push. Required for push/add, ignored otherwise. |
+
+**🧪 Examples**
+
+```javascript
+$path({ id: 1 }, "chq('__events', 'push', `3`, @)");  // push into queue, keep at most 3 entries
+$path({}, "chq('__events', 'size', `3`, @)");         // current queue size
+$path({}, "chq('__events', 'get', `3`, @)");          // full queue contents
+$path({}, "chq('__events', 'shift', `3`, @)");        // remove oldest entry
+$path({}, "chq('__events', 'pop', `3`, @)");          // remove newest entry
 ```
 
 # Other libraries in OpenAF

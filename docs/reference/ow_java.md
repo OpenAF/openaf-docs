@@ -644,4 +644,8 @@ __ow.java.setIgnoreSSLDomains(aList, aPassword)__
 ````
 Replaces the current Java SSL socket factory with a version with a custom trust manager that will "ignore" verification of SSL certificates whose domains are part of aList (if no aList is provided defaults DANGEROUSLY to all). Optionally  aPassword for the key store can be forced.
 WARNING: this should only be used in advanced setups where you know what are doing since it DISABLES IMPORTANT SECURITY FEATURES.
+
+You can also set this up at startup with the __flags.NET_IGNORE_SSL_DOMAINS flag (or the NET_IGNORE_SSL_DOMAINS entry
+in the OAF_FLAGS environment variable): if set to an array of domains, OpenAF will call ow.java.setIgnoreSSLDomains
+with it automatically during initialization and print a warning to stderr.
 ````

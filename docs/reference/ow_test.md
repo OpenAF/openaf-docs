@@ -16,6 +16,27 @@ __ow.test.assert(aResult, checkValue, errorMessage, notShowDiff)__
 Will throw an exception if aResult is different from checkValue. The exception will contain the errorMessage and the different values (if notShowDiff = true).
 (available after ow.loadTest())
 ````
+### ow.test.getAllProfileAvg
+
+__ow.test.getAllProfileAvg() : Map__
+
+````
+Returns a map of all profile keys to their respective average elapsed times in ms.
+````
+### ow.test.getAllProfileHits
+
+__ow.test.getAllProfileHits() : Map__
+
+````
+Returns a map of all profile keys to their respective hit counts.
+````
+### ow.test.getAllProfileLast
+
+__ow.test.getAllProfileLast() : Map__
+
+````
+Returns a map of all profile keys to their respective last recorded elapsed times in ms.
+````
 ### ow.test.getChannel
 
 __ow.test.getChannel() : Channel__
@@ -23,12 +44,89 @@ __ow.test.getChannel() : Channel__
 ````
 Gets the current channel being used for test results.
 ````
+### ow.test.getCountAssert
+
+__ow.test.getCountAssert() : Number__
+
+````
+Returns the current count of assertions executed.
+````
+### ow.test.getCountFail
+
+__ow.test.getCountFail() : Number__
+
+````
+Returns the current count of tests that failed.
+````
+### ow.test.getCountPass
+
+__ow.test.getCountPass() : Number__
+
+````
+Returns the current count of tests that passed.
+````
+### ow.test.getCountTest
+
+__ow.test.getCountTest() : Number__
+
+````
+Returns the current count of tests executed.
+````
 ### ow.test.getExecHistory
 
 __ow.test.getExecHistory() : Array__
 
 ````
 Gets the test results execution history.
+````
+### ow.test.getProfile
+
+__ow.test.getProfile() : Map__
+
+````
+Returns a map of all profile keys with their current hits, sum, last, start, max and min elapsed time values.
+````
+### ow.test.getProfileAvg
+
+__ow.test.getProfileAvg(aProfileKey) : Number__
+
+````
+Returns the average elapsed time in ms across all recorded executions for aProfileKey.
+````
+### ow.test.getProfileHits
+
+__ow.test.getProfileHits(aProfileKey) : Number__
+
+````
+Returns the number of times the timer for aProfileKey was stopped (completed executions).
+````
+### ow.test.getProfileLast
+
+__ow.test.getProfileLast(aProfileKey) : Number__
+
+````
+Returns the last recorded elapsed time in ms for aProfileKey.
+````
+### ow.test.getProfileMax
+
+__ow.test.getProfileMax(aProfileKey) : Number__
+
+````
+Returns the maximum recorded elapsed time in ms for aProfileKey.
+````
+### ow.test.getProfileMin
+
+__ow.test.getProfileMin(aProfileKey) : Number__
+
+````
+Returns the minimum recorded elapsed time in ms for aProfileKey.
+````
+### ow.test.profileReset
+
+__ow.test.profileReset(aProfileKey)__
+
+````
+Resets the profile counters (hits, sum, last and start) for aProfileKey.
 ````
 ### ow.test.reset
 
@@ -102,4 +200,11 @@ __ow.test.toJUnitXML(testSuitesId, testSuitesName) : String__
 
 ````
 Returns a JUnit results XML using testSuitesId and testSuitesName as identifiers.
+````
+### ow.test.toMarkdown
+
+__ow.test.toMarkdown() : String__
+
+````
+Returns a markdown-formatted string with a summary and per-test result table for all tests executed.
 ````

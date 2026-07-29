@@ -153,7 +153,7 @@ Returns a template function, given aSource, that accepts an object as argument a
 __ow.template.html.genStaticVersion(anOriginalHTML) : String__
 
 ````
-Tries to convert anOriginalHTML with "src" based tags like img, script & stylesheet link tags into a single HTML embeeding  all content.
+Tries to convert anOriginalHTML with "src" based tags like img, script & stylesheet link tags into a single HTML embeeding  all content. Stylesheet contents also have their `url(...)` references (e.g. fonts, background images) resolved relative to the stylesheet's URL and inlined, so offline pages keep working when a stylesheet itself references external assets.
 ````
 ### ow.template.html.genStaticVersion4MD
 
@@ -206,10 +206,10 @@ Returns a string with a HTML representation of the aMapOrArray provided or, if g
 ````
 ### ow.template.html.parseMapInHTML
 
-__ow.template.html.parseMapInHTML(aMapOrArray, forceDark) : String__
+__ow.template.html.parseMapInHTML(aMapOrArray, forceDark, aURIPrefix) : String__
 
 ````
-Returns a full HTML page with the nJSMap representation of the aMapOrArray provided. If forceDark = true it will force the dark mode.
+Returns a full HTML page with the nJSMap representation of the aMapOrArray provided. If forceDark = true it will force the dark mode. aURIPrefix, if provided (or auto-detected from the current HTTPD_PREFIX flag), is prepended to the internal script/stylesheet references.
 ````
 ### ow.template.html.thinFontCSS
 
@@ -297,16 +297,21 @@ Returns the results of using someData with the template defined on aFilename (ti
 ````
 ### ow.template.parseMD2HTML
 
-__ow.template.parseMD2HTML(aMarkdownString, isFull, removeMaxWidth, extraDownOptions, forceDark) : String__
+__ow.template.parseMD2HTML(aMarkdownString, isFull, removeMaxWidth, extraDownOptions, forceDark, aURIPrefix) : String__
 
 ````
-Given aMarkdownString will parse it with showdown (using the github flavor) and return the HTML in a string. If isFull = true it will produce a complete HTML with references for the highlight library+css and github markdown css included internally in OpenAF. If removeMaxWidth = true it will remove the max-width css style. You can provide extraDownOptions to be used with showdown and forceDark to force the dark mode. Example:
+Given aMarkdownString will parse it with showdown (using the github flavor) and return the HTML in a string. If isFull = true it will produce a complete HTML with references for the highlight library+css and github markdown css included internally in OpenAF. If removeMaxWidth = true it will remove the max-width css style. You can provide extraDownOptions to be used with showdown and forceDark to force the dark mode. aURIPrefix, if provided (or auto-detected from the current HTTPD_PREFIX flag), is prepended to internal asset src/href/url(...) references so pages keep working when served under a subpath. Example:
 
 ow.server.httpd.route(hs, ow.server.httpd.mapRoutesWithLibs(hs, { 
    "/md": (req) => { return hs.replyOKHTML(ow.template.parseMD2HTML(io.readFileString("README.md"), true)) }
 }), (req) => { return hs.replyOKText("nothing here...");})
 
+Display math blocks: a `$$...$$` block on its own line(s) is extracted and rendered with KaTeX (when the KaTeX
+opack is installed; see ow.template.html.parseMapInHTML/oPack "KaTeX"). auto-render.js scans the resulting HTML for
+these blocks using `$$` as both the inline and display math delimiters.
 
+SVG blocks: when the flag MD_RENDER_SVG is true, fenced ` ```svg ` code blocks are extracted and injected as
+inline SVG in the HTML output instead of being rendered as a code block.
 ````
 ### ow.template.saveCompiledHBS
 

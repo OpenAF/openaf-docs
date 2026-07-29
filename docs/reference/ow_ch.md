@@ -264,6 +264,20 @@ This channel type aggregates access to several channels. The creation options ar
 
 
 ````
+### ow.ch.types.big
+
+__ow.ch.types.big__
+
+````
+This OpenAF channel implementation stores key/values in a compressed in-memory structure (ow.obj.big) optimized
+for large datasets. It accepts no creation options beyond the inherited shouldCompress parameter.
+
+Example:
+
+   ow.ch.create("myBig", true, "big");
+
+Note: the underlying ow.obj.big storage uses a sorted index so getSortedKeys reflects insertion/modification order.
+````
 ### ow.ch.types.buffer
 
 __ow.ch.types.buffer__
@@ -280,6 +294,26 @@ This OpenAF implementation establishes a buffer to another channel. The creation
 
 
 ````
+### ow.ch.types.cache
+
+__ow.ch.types.cache__
+
+````
+This OpenAF channel implementation provides a caching layer around a function or another channel. The creation options are:
+
+   - func       (Function) Function called with the key map when a cache miss occurs; its return value is stored and returned.
+   - ttl        (Number)   Time-to-live in ms before cached entries expire (defaults to 5000ms).
+   - size       (Number)   Maximum number of entries to keep in cache; -1 means unlimited (defaults to -1).
+   - method     (String)   Eviction method: "t" (time-based TTL, default) or "p" (count-based, evicts oldest when size is exceeded).
+   - default    (Object)   Optional default value to store and return on a cache miss if func is not defined.
+   - useDefault (Boolean)  If true the default value is returned instead of calling func on a miss.
+   - ch         (String/Channel) Optional backing storage channel (defaults to an auto-created [name]::__cache simple channel).
+
+Example:
+
+   ow.ch.create("myCache", false, "cache", { func: k => $rest().get("http://api/data/" + k.id), ttl: 60000 });
+
+````
 ### ow.ch.types.db
 
 __ow.ch.types.db__
@@ -292,6 +326,20 @@ This OpenAF channel implementation wraps access to a db table. The creation opti
    - keys (Array)    An array of fields keys to use (don't use double quotes).
    - cs   (Boolean)  Determines if the database is case sensitive for table and field names (defaults to false).
 
+
+````
+### ow.ch.types.dummy
+
+__ow.ch.types.dummy__
+
+````
+This OpenAF channel implementation is a no-op sink: all write operations (set, setAll, unset, unsetAll) are silently
+discarded, all read operations (get, getAll, getKeys, size, forEach) return empty results. Useful for disabling a
+channel without changing calling code. Accepts no creation options.
+
+Example:
+
+   ow.ch.create("blackhole", false, "dummy");
 
 ````
 ### ow.ch.types.elasticsearch
@@ -320,11 +368,12 @@ The getAll/getKeys functions accept an extra argument to provide a ES query map 
 __ow.ch.types.file__
 
 ````
-This OpenAF implementation implements a simple channel on a single JSON or YAML file. The creation options are:
+This OpenAF implementation implements a simple channel on a single JSON, YAML or TOON file. The creation options are:
 
-   - file      (String)  The filepath to the JSON or YAML file to use (if multifile is false)
-   - path      (String)  The path to use to store JSON or YAML objects to use (if multifile is true)
+   - file      (String)  The filepath to the JSON, YAML or TOON file to use (if multifile is false)
+   - path      (String)  The path to use to store JSON, YAML or TOON objects to use (if multifile is true)
    - yaml      (Boolean) Use YAML instead of JSON (defaults to false)
+   - toon      (Boolean) Use TOON instead of JSON (defaults to false)
    - compact   (Boolean) If JSON and compact = true the JSON format will be compacted (defaults to false or shouldCompress option)
    - multifile (Boolean) If true instead of keeping values in one file it will be kept in multiple files (*)
    - multipart (Boolean) If YAML and multipart = true the YAML file will be multipart
@@ -410,6 +459,29 @@ This OpenAF implementation establishes a proxy to another channel. The creation 
    - proxyFunc (Function) Function that receives a map (by reference that can be changed) with: op (operation), name (target channel), function (where applicable), full (where applicable), match (the match of getSet), k (the key(s)), v (the value(s)) and timestamp. If this function returns something no operation will be executed on the chTarget and the value returned by the function will be the value returned by this channel.
 
 
+````
+### ow.ch.types.simple
+
+__ow.ch.types.simple__
+
+````
+This OpenAF channel implementation is the default in-memory key/value store (used when no type is specified in ow.ch.create).
+It stores entries in a JavaScript Map keyed by a deterministic JSON serialization of the key map, preserving
+modification-time order for getSortedKeys. Accepts no creation options.
+
+Example:
+
+   ow.ch.create("myChannel");                    // uses "simple" by default
+   ow.ch.create("myChannel", false, "simple");   // explicit
+
+````
+### ow.ch.types.simpleold
+
+__ow.ch.types.simpleold__
+
+````
+This OpenAF channel implementation is the legacy in-memory key/value store backed by a plain JavaScript object.
+It is kept for backward compatibility; prefer the "simple" type for new channels. Accepts no creation options.
 ````
 ### ow.ch.unset
 

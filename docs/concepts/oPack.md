@@ -37,6 +37,8 @@ The following lists all the available oPack commands *verbs* that can be used:
 | erase | Will erase an oPack from the current installation. | ````opack erase myPack```` |
 | remove | Removes an oPack entry from the local OpenPack database. Supports an **interactive mode** that prompts for confirmation before removal. | ````opack remove myPack```` |
 | search | Will search an oPack by keywords on the configured remote central repositories. | ````opack search docker```` |
+| genpack | Generates a package.json for packaging. Accepts `--exclude a,b` (comma-separated list of top-level files/dirs to exclude) and `--includeSCM` (include .git/.svn). | ````opack genpack --exclude node_modules,dist```` |
+| pack | Generates an opack file from a packaging directory. Accepts the same `--exclude a,b` and `--includeSCM` options; use the same `--exclude` list you used with genpack. | ````opack pack --exclude node_modules,dist```` |
 
 ## How to create an oPack
 

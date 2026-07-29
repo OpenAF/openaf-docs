@@ -212,6 +212,11 @@ The `af` namespace continues to aggregate convenience helpers for day-to-day scr
 | `af.nvl(value, default)` | Returns `value` when it is defined and non-null, or `default` otherwise. It is a concise alternative to common null/undefined coalescing patterns when working with optional data sources. |
 | `af.swap(array, index1, index2)` | Returns a new array where the elements at `index1` and `index2` have been exchanged. The original array is validated and left untouched, making it safer to reorganise data that is being shared between functions or promises. |
 
+`AF.toTOON(aObj, alternative)` and `AF.fromTOON(aTOONStr, alternative)` now default `alternative` to
+`__flags.ALTERNATIVES.toTOON` / `__flags.ALTERNATIVES.fromTOON` (both `true` by default), which routes TOON
+conversion through the bundled json-io/java-util native engine instead of the plain JavaScript implementation.
+Pass `alternative = false` explicitly to force the original JS-based conversion.
+
 ## Parallel execution
 
 Asynchronous utilities received multiple improvements that embrace Java virtual threads while keeping the familiar OpenAF APIs:

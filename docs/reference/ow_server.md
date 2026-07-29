@@ -460,6 +460,15 @@ __ow.server.httpd.getMimeType(aFilename) : String__
 ````
 Tries to determine the mime type of aFilename and returns it. If not determined it will default to application/octet-stream.
 ````
+### ow.server.httpd.getPrefix
+
+__ow.server.httpd.getPrefix(aHTTPdOrPort) : String__
+
+````
+Returns the normalized HTTPD_PREFIX flag value for the given HTTPd object or port. Key "0" on the HTTPD_PREFIX
+map is the global default used for all ports; a specific port key (as a string) overrides it. Set HTTPD_PREFIX
+(via __flags.HTTPD_PREFIX or an ojob.flags entry) before calling ow.server.httpd.start().
+````
 ### ow.server.httpd.mapRoutesWithLibs
 
 __ow.server.httpd.mapRoutesWithLibs(aHTTPd, aMapOfRoutes) : Map__
@@ -473,6 +482,14 @@ __ow.server.httpd.mapWithExistingRoutes(aHTTPd, aMapOfRoutes) : Map__
 
 ````
 Builds a map of routes taking into account the already defined routes for aHTTPd thus effectively letting add new routes.
+````
+### ow.server.httpd.normalizePrefix
+
+__ow.server.httpd.normalizePrefix(aPrefix) : String__
+
+````
+Normalizes a raw path prefix string: ensures a leading "/" and no trailing "/" (e.g. "app/" or "app" become "/app").
+An empty/undefined prefix normalizes to "".
 ````
 ### ow.server.httpd.reply
 
@@ -642,6 +659,9 @@ aWebSockets, if used, should be a map with the following functions:
    onPong(_ws, aPong)
    onException(_ws, anException)
 
+To serve all routes and static resources under a subpath (e.g. when running behind a reverse proxy), set the
+HTTPD_PREFIX flag before calling start: __flags.HTTPD_PREFIX = { "0": "/app" } (key "0" is the global default;
+use a specific port number string, e.g. "8080", to override per port). See ow.server.httpd.getPrefix/withPrefix/stripPrefix.
 
 ````
 ### ow.server.httpd.stop
@@ -650,6 +670,22 @@ __ow.server.httpd.stop(aHTTPd)__
 
 ````
 Will stop the aHTTPd server running.  (available after ow.loadServer())
+````
+### ow.server.httpd.stripPrefix
+
+__ow.server.httpd.stripPrefix(aHTTPdOrPort, aURI) : String__
+
+````
+Removes the configured HTTPD_PREFIX from aURI, useful for internal route matching when the server is deployed
+behind a reverse proxy under a subpath. If aURI does not start with the prefix it is returned unchanged.
+````
+### ow.server.httpd.withPrefix
+
+__ow.server.httpd.withPrefix(aHTTPdOrPort, aURI) : String__
+
+````
+Prepends the configured HTTPD_PREFIX to aURI (skips absolute URLs, e.g. "http://..."). All built-in GUI pages and
+static-file handlers automatically use this to build links so they keep working under a configured path prefix.
 ````
 ### ow.server.jmx.call
 

@@ -494,6 +494,51 @@ __$ft(aString, arg1, arg2, ...) : String__
 ````
 Equivalant to $f but number types are converted to Integer, Long, Double, Float and BigDecimal.
 ````
+### $ftp
+
+__$ftp(aMap) : $ftp__
+
+````
+Creates an FTP or FTPS client connection. aMap can be a URL string or a configuration map.
+
+URL format:
+  ftp://user:pass@host:port/?timeout=5000&passive=true&binary=true
+  ftps://user:pass@host:port/?timeout=5000&passive=true&implicit=false&protocol=TLS
+
+Map format keys: host, port (defaults to 21, or 990 for implicit FTPS), login, pass, secure (enable FTPS, default
+false), implicit (use implicit TLS mode/port 990, default false), protocol (TLS protocol name, default "TLS"),
+passive (default true), binary (binary transfer mode, default true), timeout (connection timeout in ms).
+
+Available methods (all return $ftp for chaining except where noted):
+
+- cd(aPath): Change remote working directory
+- pwd(): Return current remote working directory (String)
+- mkdir(aDir): Create remote directory
+- getFile(src, dst): Download remote src to local dst
+- putFile(src, dst): Upload local src (path or stream) to remote dst
+- rename(src, dst): Rename / move remote file
+- listFiles(aPath): Return array of file-info maps for aPath
+- rm(aFilePath): Delete remote file
+- rmdir(aFilePath): Delete remote directory
+- passive(bool): Toggle passive mode
+- binary(bool): Toggle binary transfer mode
+- timeout(ms): Set connection timeout
+- close(): Close the connection
+
+Examples:
+
+// Plain FTP via URL
+var ftp = $ftp("ftp://user:secret@ftp.example.com/");
+ftp.cd("/uploads")
+   .putFile("/local/report.csv", "report.csv")
+   .close();
+
+// FTPS via map
+var ftps = $ftp({ host: "ftp.example.com", secure: true, login: "user", pass: "secret" });
+var files = ftps.listFiles("/data");
+ftps.getFile("/data/report.csv", "/tmp/report.csv");
+ftps.close();
+````
 ### $get
 
 __$get(aKey) : Object__
@@ -513,21 +558,53 @@ Shortcut to oJobRunJob and ow.oJob.runJob to execute aJob with args and returned
 __$jsonrpc(aOptions) : Map__
 
 ````
-Creates a JSON-RPC client that can be used to communicate with a JSON-RPC server or a local process using stdio. The aOptions parameter is a map with the following possible keys: type (string, default "stdio" for local process or "remote" for remote server), url (string, required for remote server), timeout (number, default 60000 ms for remote server), cmd (string, required for local process), and options (map, optional additional options for remote server). The returned map has the following methods: type (to set the type), url (to set the URL for remote server), sh (to set the command for local process), exec (to execute a method with parameters), and destroy (to stop the client). The exec method returns a promise that resolves to the result of the method call or an error if the call fails. Example usage:
+Creates a JSON-RPC 2.0 client that can communicate with JSON-RPC servers over HTTP/HTTPS or with local processes
+using stdio. The aOptions parameter is a map with the following possible keys:
 
-var client = $jsonrpc({type: "remote", url: "http://example.com/api", timeout: 5000});
-client.exec("methodName", {param1: "value1", param2: "value2"}).then(result => {
-    log("Result:", result);
-}).catch(error => {
-    logErr("Error:", error);
-});
+- type (string): Connection type, either "stdio" for local process, "remote"/"http" for HTTP server, "sse" for HTTP SSE responses (default: "stdio") or "dummy"
+- url (string): Required for remote servers - the endpoint URL
+- timeout (number): Timeout in milliseconds for operations (default: 60000)
+- cmd (string|map|array): Required for stdio type - the command to execute or the map/array accepted by $sh
+- options (map): Additional options passed to $rest for remote connections
+- sse (boolean): When true, remote/http requests expect Server-Sent Events responses with JSON-RPC payloads in `data:` events
+- debug (boolean): Enable debug output showing JSON-RPC messages (default: false)
+- shared (boolean): Share connections between identical configurations (default: false)
 
-var localClient = $jsonrpc({type: "stdio", cmd: "myLocalProcess"});
-localClient.exec("localMethod", {param1: "value1"}).then(result => {
-    log("Local Result:", result);
-}).catch(error => {
-    logErr("Local Error:", error);
-});
+The returned client object provides these methods:
+
+- type(aType): Set the connection type
+- url(aURL): Set the URL and switch to remote type
+- sh(aCommand): Set the command and switch to stdio type
+- exec(aMethod, aParams, aNotification): Execute a JSON-RPC method
+- getClientInfo(): Returns protocol/session metadata (mcp-session-id when applicable, last request/response and response headers)
+- destroy(): Stop the client and cleanup resources
+
+The exec method parameters:
+- aMethod (string): The JSON-RPC method name to call
+- aParams (map): Parameters object to send with the method call
+- aNotification (boolean): If true, sends a notification (no response expected)
+
+For method calls (aNotification=false), exec returns the result directly.
+For notifications (aNotification=true), exec returns undefined.
+
+Examples:
+
+// Remote JSON-RPC server
+var client = $jsonrpc({type: "remote", url: "http://api.example.com/rpc", debug: true});
+var result = client.exec("getUserInfo", {userId: 123});
+log("User info:", result);
+
+// Send notification (no response)
+client.exec("logEvent", {event: "user_login", userId: 123}, true);
+
+// Remote server responding with Server-Sent Events
+var sseClient = $jsonrpc({type: "remote", url: "http://api.example.com/rpc", sse: true});
+var sseResult = sseClient.exec("getUserInfo", {userId: 123});
+
+// Local process via stdio
+var localClient = $jsonrpc({cmd: "python3 my_rpc_server.py"});
+var data = localClient.exec("processData", {input: [1, 2, 3]});
+localClient.destroy();
 
 ````
 ### $llm
@@ -625,6 +702,163 @@ $m4a(a, "key");
 
 
 ````
+### $mcp
+
+__$mcp(aOptions) : Map__
+
+````
+Creates a Model Context Protocol (MCP) client that can communicate with LLM MCP servers using JSON-RPC over stdio,
+remote connections, dummy mode, or oJob-based servers. This client implements the MCP protocol version 2024-11-05
+and provides access to tools, prompts, and other MCP capabilities.
+
+The aOptions parameter is a map with the following possible keys:
+
+- type (string): Connection type - "stdio" for local process, "remote"/"http" for HTTP server, "sse" for HTTP SSE responses, "dummy" for local testing, or "ojob" for oJob-based server (default: "stdio")
+- url (string): Required for remote servers - the MCP server endpoint URL
+- timeout (number): Timeout in milliseconds for operations (default: 60000)
+- cmd (string): Required for stdio type - the command to launch the MCP server
+- options (map): Additional options:
+  - For remote/stdio: passed to underlying JSON-RPC client
+  - For dummy: { fns: map of function implementations, fnsMeta: map of function metadata }
+  - For ojob: { job: path to oJob file, args: arguments map, init: init entry/entries to run, fns: map of additional functions, fnsMeta: map of additional function metadata }
+- debug (boolean): Enable debug output showing JSON-RPC messages (default: false)
+- shared (boolean): Enable shared JSON-RPC connections when possible (default: false)
+- sse (boolean): When true, remote/http MCP requests expect Server-Sent Events responses carrying JSON-RPC payloads
+- strict (boolean): Enable strict MCP protocol compliance (default: true)
+- clientInfo (map): Client information sent during initialization (default: {name: "OpenAF MCP Client", version: "1.0.0"})
+- blacklist (array): Optional array of MCP tool names to hide from listTools() and block in callTool()
+- preFn (function): Function called before each tool execution with (toolName, toolArguments)
+- posFn (function): Function called after each tool execution with (toolName, toolArguments, result)
+- auth (map): Optional authentication options for remote/http type:
+  - type (string): "bearer" (static token) or "oauth2" (automatic token retrieval/refresh)
+  - token (string): Bearer token when type is "bearer"
+  - tokenType (string): Authorization scheme prefix (default: "Bearer")
+  - For oauth2: tokenURL, clientId, clientSecret, scope, audience, resource, grantType (default: "client_credentials"), extraParams (map), refreshWindowMs (default: 30000), authURL/redirectURI for authorization_code flow
+  - For oauth2: if tokenURL/authURL are omitted for remote/http MCP servers they can be discovered through OAuth 2.0 Protected Resource Metadata and Authorization Server Metadata
+  - disableOpenBrowser (boolean): If true prevents opening a browser during OAuth2 authorization_code flow (default: false)
+
+Type-specific details:
+
+"dummy" type: Creates a local testing MCP server without external processes.
+- Use options.fns to define tool implementations as functions
+- Use options.fnsMeta to define tool metadata (description, input schema)
+- Useful for development and testing without running actual MCP servers
+
+"ojob" type: Creates an MCP server based on oJob jobs as tools.
+- options.job (required): Path to the oJob file containing job definitions
+- options.args: Arguments to pass to the oJob
+- options.init: Init entry name(s) to execute on startup (string or array)
+- options.tplDesc (boolean, default false): When true, applies templify ($t) with options.args to tool metadata (descriptions, or full metadata strings when tplDesc processes non-description fields too)
+- options.toolPrefix (string, default ""): Namespaces exposed tool names with this prefix; the prefix is stripped again when resolving an incoming callTool() name back to the underlying job
+- Jobs with fnsMeta property become MCP tools automatically
+- Job names become tool names (except "tools/list", "tools/call", "initialize", "notifications/initialized")
+- Combines oJob's job execution with MCP protocol
+
+The returned client object provides these methods:
+
+- type(aType): Set the connection type
+- url(aURL): Set the URL and switch to remote type
+- sh(aCommand): Set the command and switch to stdio type
+- initialize(clientInfo): Initialize the MCP connection and exchange capabilities
+- getClientInfo(): Returns the underlying JSON-RPC client/session metadata plus the MCP initialize() result
+- listTools(): Get list of available tools from the MCP server
+- callTool(toolName, toolArguments, toolOptions): Execute a specific tool with given arguments and optional per-call options
+- listPrompts(): Get list of available prompts from the MCP server
+- getPrompt(promptName, promptArguments): Get a specific prompt with given arguments
+- toGptTools(aGptInstance, aToolNames): Add MCP tools to a $gpt instance
+- exec(method, params): Low-level method to execute any MCP/JSON-RPC method
+- destroy(): Stop the client and cleanup resources
+
+Important: The initialize() method must be called before using listTools, callTool, listPrompts, or getPrompt
+methods. All methods return results synchronously (not promises).
+
+Examples:
+
+// Connect to local MCP server via stdio
+var client = $mcp({cmd: "npx @modelcontextprotocol/server-filesystem /tmp"});
+client.initialize();
+var tools = client.listTools();
+log("Available tools:", tools.tools.map(t => t.name));
+
+var result = client.callTool("read_file", {path: "/tmp/example.txt"});
+log("File content:", result.content);
+
+// Connect to remote MCP server, hiding a tool via blacklist
+var remoteClient = $mcp({
+  type: "remote",
+  url: "http://localhost:8080/mcp",
+  clientInfo: {name: "MyApp", version: "2.0.0"},
+  blacklist: ["dangerousTool"]
+});
+remoteClient.initialize();
+var result2 = remoteClient.callTool("read_file", {path: "/tmp/example.txt"}, { requestHeaders: { Authorization: "Bearer ..." } });
+var prompts = remoteClient.listPrompts();
+
+// Remote MCP server with OAuth2 client credentials
+var oauthClient = $mcp({
+  type: "remote",
+  url: "https://example.com/mcp",
+  auth: {
+    type: "oauth2",
+    tokenURL: "https://example.com/oauth/token",
+    clientId: "my-client",
+    clientSecret: "my-secret",
+    scope: "mcp:read mcp:write"
+  }
+});
+oauthClient.initialize();
+
+// OAuth2 authorization_code flow (opens browser by default)
+var oauthCodeClient = $mcp({
+  type: "remote",
+  url: "https://example.com/mcp",
+  auth: {
+    type: "oauth2",
+    grantType: "authorization_code",
+    authURL: "https://example.com/oauth/authorize",
+    tokenURL: "https://example.com/oauth/token",
+    redirectURI: "http://localhost/callback",
+    clientId: "my-client",
+    clientSecret: "my-secret",
+    disableOpenBrowser: false
+  }
+});
+
+// Dummy mode for testing
+var dummyClient = $mcp({
+  type: "dummy",
+  options: {
+    fns: {
+      "test_tool": (params) => ({ result: "test" })
+    },
+    fnsMeta: {
+      "test_tool": {
+        description: "A test tool",
+        inputSchema: { type: "object", properties: {} }
+      }
+    }
+  }
+});
+dummyClient.initialize();
+dummyClient.callTool("test_tool", {});
+
+// oJob-based MCP server
+var ojobClient = $mcp({
+  type: "ojob",
+  options: {
+    job: "mytools.yaml",
+    args: { env: "prod" },
+    init: "setup"
+  }
+});
+ojobClient.initialize();
+var jobTools = ojobClient.listTools();
+
+client.destroy();
+remoteClient.destroy();
+dummyClient.destroy();
+ojobClient.destroy();
+````
 ### $openaf
 
 __$openaf(aScript, aPMIn, aOpenAF, extraJavaParamsArray) : Object__
@@ -671,7 +905,7 @@ sql_format(sql, options), sort_semver(arrayVersions), sort_by_semver(arrayMaps, 
 semver(version, operation, argument)
 progress(value, max, min, size, indicator, space),
 to_csv(array, options), from_csv(str, options)
-ch(name, op, arg1, arg2), path(obj, jmespath), opath(jmespath)
+ch(name, op, arg1, arg2), chq(name, op, max, value), path(obj, jmespath), opath(jmespath)
 to_ms(date), timeagoAbbr(x)
 env(str), envs(regex)
 oafp(json/slon)
@@ -1468,6 +1702,12 @@ FG_BLACK; FG_RED; FG_GREEN; FG_YELLOW; FG_BLUE; FG_MAGENTA; FG_CYAN; FG_WHITE;
 BG_BLACK; BG_RED; BG_GREEN; BG_YELLOW; BG_BLUE; BG_MAGENTA; BG_CYAN; BG_WHITE;
 BOLD; FAINT; INTENSITY_BOLD; INTENSITY_FAINT; ITALIC; UNDERLINE; BLINK_SLOW; BLINK_FAST; BLINK_OFF; NEGATIVE_ON; NEGATIVE_OFF; CONCEAL_ON; CONCEAL_OFF; UNDERLINE_DOUBLE; UNDERLINE_OFF;
 
+Also supported (for 256-color and truecolor terminals):
+
+RGB(r,g,b) / FG_RGB(r,g,b) - 24-bit truecolor foreground, e.g. RGB(80,180,255)
+BG_RGB(r,g,b) - 24-bit truecolor background, e.g. BG_RGB(0,0,0)
+FG(n) - 256-color palette foreground index (0-255), e.g. FG(39)
+BG(n) - 256-color palette background index (0-255), e.g. BG(240)
 
 ````
 ### ansiLength
@@ -1893,6 +2133,7 @@ __getOPackRemoteDB() : Array__
 
 ````
 Returns an Array of maps. Each map element is an opack package description registered in the OpenAF central repository.
+Results are cached using $cache for __flags.OPACK_REMOTE_DB_CACHE_TTL milliseconds (default: 60000).
 ````
 ### getOpenAFJar
 

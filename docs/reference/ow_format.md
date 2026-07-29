@@ -23,6 +23,22 @@ __ow.format.bool(aBoolValue, isLight, anExtra) : String__
 ````
 Given aBoolValue will return a green checkmark or a red cross character. If necessary anExtra ansiColor attributes can be added.
 ````
+### ow.format.checkVersionSpec
+
+__ow.format.checkVersionSpec(aVersion, aSpec) : Boolean__
+
+````
+Checks whether aVersion satisfies a comma-separated version specification using >=, <=, >, <, = or bare equality
+(e.g. ">=1.2.0,<2.0.0"). (available after ow.loadFormat())
+````
+### ow.format.compareVersion
+
+__ow.format.compareVersion(aVersionA, aVersionB) : Number__
+
+````
+Compares two versions returning 1 when aVersionA is greater, 0 when they are equal and -1 when aVersionA is lower.
+Supports date, numeric and semantic versions. (available after ow.loadFormat())
+````
 ### ow.format.cron.howManyAgo
 
 __ow.format.cron.howManyAgo(aCron, lastUpdate, aLimit) : Map__
@@ -624,6 +640,98 @@ ow.format.percProgressReport(() => {
 
 
 ````
+### ow.format.printBoxplot
+
+__ow.format.printBoxplot(values, aOptions) : String__
+
+````
+Returns one or more compact terminal boxplots from a number array or an array of { values, label } series.
+aOptions: width, min, max, showOutliers (default true), palette.
+````
+### ow.format.printBullet
+
+__ow.format.printBullet(values, aOptions) : String__
+
+````
+Returns one or more bullet graphs from a map or array of maps with { value, target, min, max, ranges, label }.
+aOptions: width, palette, min, max, target, ranges, label, unit, showValue (default true),
+valueFormat ("raw", "si" or "bytes"; default "raw").
+````
+### ow.format.printDashboard
+
+__ow.format.printDashboard(widgets, aOptions) : String__
+
+````
+Returns a multi-widget dashboard string. widgets is an array (or 2D array for explicit grid rows) of widget maps
+with fields: type, data, title, span (proportional column width, default 1), options. Supported types: table, tree,
+chart, sparkline, histogram, heatmap, bullet, scatter, boxplot, timeline, statusMatrix, progress, text, md, map, area, bar, func.
+
+Per-widget notes:
+
+  chart      : data is a printChart format string
+  area       : data is consumed by ow.format.string.chart
+  bar        : data is a printBars format string; options can include max, min, indicator, space
+  bullet     : data is consumed by ow.format.printBullet; options can include min, max, target, ranges, label, unit, showValue, valueFormat
+  sparkline  : data is consumed by ow.format.printSparkline
+  histogram  : data is consumed by ow.format.printHistogram
+  heatmap    : data is consumed by ow.format.printHeatmap
+  scatter    : data is consumed by ow.format.printScatter
+  boxplot    : data is consumed by ow.format.printBoxplot
+  timeline   : data is consumed by ow.format.printTimeline
+  statusMatrix : data is consumed by ow.format.printStatusMatrix
+
+aOptions: width, height, columns (auto if 0), border (default true), borderColor, borderStyle, palette.
+````
+### ow.format.printHeatmap
+
+__ow.format.printHeatmap(values, aOptions) : String__
+
+````
+Returns a compact terminal heatmap for a numeric matrix or a map containing { values, xLabels, yLabels }.
+aOptions: width, height, min, max, xLabels, yLabels, legend (default false), palette.
+````
+### ow.format.printHistogram
+
+__ow.format.printHistogram(values, aOptions) : String__
+
+````
+Returns a terminal histogram string for the numeric values array. Bucket count is auto-selected via Sturges' formula
+unless aOptions.buckets is set. aOptions: width, height, vertical (default false = horizontal bars), color,
+labels (default true), showCount (default true), palette.
+````
+### ow.format.printScatter
+
+__ow.format.printScatter(points, aOptions) : String__
+
+````
+Returns a compact terminal scatter plot from an array of [x,y] pairs or { x, y, symbol, color } points.
+aOptions: width, height, xMin, xMax, yMin, yMax, xLabel, yLabel, palette.
+````
+### ow.format.printSparkline
+
+__ow.format.printSparkline(series, aOptions) : String__
+
+````
+Returns a compact sparkline string for the provided numeric series or array of named series ({data, name, color}).
+aOptions: width (default terminal width), label, showMinMax (default false), color, palette.
+Degrades to ASCII characters when unicode is not available.
+````
+### ow.format.printStatusMatrix
+
+__ow.format.printStatusMatrix(values, aOptions) : String__
+
+````
+Returns a compact status matrix from a matrix or { values, xLabels, yLabels } of statuses.
+aOptions: width, height, xLabels, yLabels, symbols, palette.
+````
+### ow.format.printTimeline
+
+__ow.format.printTimeline(events, aOptions) : String__
+
+````
+Returns a compact terminal timeline from an array of { label, start, end, color, status } events.
+aOptions: width, from, to, palette, labels (default true).
+````
 ### ow.format.printWithFooter
 
 __ow.format.printWithFooter(aMessage, aFooter)__
@@ -908,13 +1016,38 @@ Returns an array of two 8 bit codes given an unicode astralCodePoint of 16 bits
 __ow.format.string.grid(aMatrix, aX, aY, aBgPattern, shouldReturn) : String__
 
 ````
-Will generate a aX per aY grid to be displayed with aBgPattern (defaults to " "). Each grid cell with use the contents on aMatrix array of an array. Each cell content can be a map with obj (a Map), a xspan/yspan for in cell spacing, a type (either map, table, chart, area, bar, func or string)  and a title. If shouldReturn = true it will just return the string content instead of trying to print it.
-Extra options per type:
+Renders a live terminal grid composed of cells defined by aMatrix (an array of rows, each row an array of cell maps).
+aX sets the height per row in lines (defaults to terminal height / number of rows), aY sets the total width in
+characters (defaults to terminal width). aBgPattern is the background fill character (defaults to " "). If
+shouldReturn = true the result is returned as a string instead of printed with cursor-up (for live-update loops).
 
- chart: the 'obj' check printChart format string
- bar  : the 'obj' check printBar format stirng; 'max'; 'min'; 'indicator'; 'space'
+Each cell is a map with the following fields:
 
+  obj    : the data to render (type-dependent, see below)
+  type   : rendering type - map, tree, table, chart, area, bar, func, sparkline, histogram, heatmap, bullet, scatter, boxplot, timeline, statusMatrix, progress, md or text (default: tree for maps/arrays, text otherwise)
+  title  : optional column heading rendered as "> title ────" above the cell content
+  xspan  : number of columns this cell spans horizontally (default: 1)
+  yspan  : number of rows this cell spans vertically (default: 1)
 
+Per-type 'obj' format and extra options:
+
+  text/md    : obj is a string; md renders markdown
+  map        : obj is a map rendered with printMap
+  tree/table : obj is a map or array rendered with ow.format
+  chart/area : obj is a printChart format string
+  bar        : obj is a printBars format string (e.g. "int 42:red:label"); delegates to printBars and supports max, min, indicator, space
+  func       : obj is a JS function body string receiving mx (height) and my (width), must return a string
+  sparkline  : obj is a number array or multi-series array (see ow.format.printSparkline)
+  histogram  : obj is a number array (see ow.format.printHistogram)
+  heatmap    : obj is a number matrix or { values, xLabels, yLabels } (see ow.format.printHeatmap)
+  bullet     : obj is a map or array of maps with { value, target, min, max, ranges, label }; supports target, ranges, label, unit, showValue and valueFormat in options (see ow.format.printBullet)
+  scatter    : obj is an array of [x,y] or { x, y, symbol, color } points (see ow.format.printScatter)
+  boxplot    : obj is a number array or array of { values, label } series (see ow.format.printBoxplot)
+  timeline   : obj is an array of { label, start, end, color, status } events (see ow.format.printTimeline)
+  statusMatrix : obj is a matrix or { values, xLabels, yLabels } of status values (see ow.format.printStatusMatrix)
+  progress   : obj is a number or { value, max, min } map
+
+Each cell delegates rendering to ow.format.printDashboard.
 ````
 ### ow.format.string.leftPad
 
@@ -1134,6 +1267,24 @@ __ow.format.testURLLatency(aURL, aCustomTimeout) : Number__
 ````
 Test sending a HTTP(s) GET to aURL. Optionally aCustomTimeout can be provided. The test will be timed and the time in ms will be returned. If returned a time < 0 then an error occurred or the host:port couldn't be reached.
 ````
+### ow.format.term.getCapabilities
+
+__ow.format.term.getCapabilities(aOptions) : Map__
+
+````
+Returns a map with terminal capabilities, including width/height, tty/ansi availability and color depth
+(isTTY, ansi, width, height, colorDepth, colorMode: "none"|"16"|"256"|"truecolor", unicode, term).
+Results are cached unless aOptions.refresh = true.
+````
+### ow.format.term.getPalette
+
+__ow.format.term.getPalette(mode, overrides) : Map__
+
+````
+Resolves a semantic color palette (title, accent, positive, warning, negative, muted, gridLine) for the current
+terminal. mode defaults to "auto" (resolved from ow.format.term.getCapabilities().colorMode) but can be forced to
+"none", "16", "256" or "truecolor". overrides is a map merged on top of the resolved palette.
+````
 ### ow.format.timeago
 
 __ow.format.timeago(aDate, isAbv) : String__
@@ -1302,12 +1453,71 @@ __ow.format.unescapeHTML4(aString) : String__
 ````
 Uses Apache Commons Lang unescape HTML4 functionality to unconvert aString with HTML4 entities to the original string
 ````
-### ow.format.withMD
+### ow.format.viz.benchmarkRender
 
-__ow.format.withMD(aString, defaultAnsi) : String__
+__ow.format.viz.benchmarkRender(aRendererFn, aOptions) : Map__
 
 ````
-Use aString with simple markdown and convert it to ANSI. Optionally you can add a defaultAnsi string to return back  after applying the ansi styles for markdown (use ansiColor function to provide the defaultAnsi). Currently supports only: bold, italic, tables, simple code blocks, line rule, bullets, numbered lines, links and blocks.
+Calls aRendererFn(i) aOptions.iterations times (default 50) timing each call and returns
+{ iterations, minMs, maxMs, p50Ms, p95Ms, avgMs }. Useful to tune fps for ow.format.viz.live.
+````
+### ow.format.viz.createCanvas
+
+__ow.format.viz.createCanvas(aOptions) : Map__
+
+````
+Creates a 2D character canvas with aOptions.width and aOptions.height (both default to terminal size).
+Returns a map with: width, height, write(row, col, str, style) and render() -> String.
+````
+### ow.format.viz.diffFrames
+
+__ow.format.viz.diffFrames(aPreviousFrame, aNextFrame, aOptions) : Map__
+
+````
+Produces a terminal patch for replacing aPreviousFrame with aNextFrame and returns metadata for changed lines
+({ patch, changedLines, lines, isFullRewrite }). aOptions.clearLine (default true) prefixes each patched line
+with a clear-line ANSI sequence.
+````
+### ow.format.viz.layout
+
+__ow.format.viz.layout__
+
+````
+Layout helpers: split(total, specs) splits a total dimension into sizes (numbers = fixed, "50%" = percentage,
+anything else = auto remainder). padLines(str, width, height, fillChar) pads/trims str to a fixed box.
+````
+### ow.format.viz.live
+
+__ow.format.viz.live(aRendererFn, aOptions) : Map__
+
+````
+Starts a live-updating terminal render loop calling aRendererFn({ id, frame, size, capabilities, prevFrame })
+on every tick and printing the result (diffed against the previous frame unless aOptions.diff = false).
+aOptions: fps (default 8), diff (default true), autoStart (default true), watchResize (default true),
+onError, onStop.
+Returns a controller map with start(), stop(), update() (force an immediate render) and stats()
+(dropped/rendered/errors/avgRenderMs plus active/frame/interval).
+````
+### ow.format.viz.watchResize
+
+__ow.format.viz.watchResize(aCallback, aOptions) : Map__
+
+````
+Polls ow.format.term.getCapabilities() every aOptions.interval ms (default 250) and calls
+aCallback(newCapabilities, previousCapabilities) whenever the terminal width or height changes.
+Returns a map with stop() to cancel the watch.
+````
+### ow.format.withMD
+
+__ow.format.withMD(aString, defaultAnsi, aLineWidth, aBgColor) : String__
+
+````
+Use aString with simple markdown and convert it to ANSI. Optionally you can add a defaultAnsi string to return back
+after applying the ansi styles for markdown (use ansiColor function to provide the defaultAnsi), provide aLineWidth
+to override the detected console width when line width is needed, and provide aBgColor (an ansiColor color name,
+e.g. "BG_BLUE") to maintain a background color throughout the output and pass it to sub-functions where applicable.
+Currently supports only: bold, italic, inline code, strikethrough, tables, simple code blocks, line rule, bullets,
+numbered lines, links and blocks.
 ````
 ### ow.format.withSideLine
 

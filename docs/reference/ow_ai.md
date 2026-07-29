@@ -101,6 +101,27 @@ __$gpt.promptJSON(aPrompt, aModel, aTemperature)__
 ````
 Tries to prompt aPrompt (a string or an array of strings) and aModel (defaults to the one provided on the constructor) returning a Javascript function.
 ````
+### $gpt.jsonSchemaPrompt
+
+__$gpt.jsonSchemaPrompt(aPrompt, aResponseSchema, aModel, aTemperature, tools) : Object__
+
+````
+Executes a prompt using OpenAI's Responses API JSON Schema mode, enforcing structured output validated against aResponseSchema. aResponseSchema should be a map with: name (string), description (string), schema (JSON Schema object), strict (boolean, defaults to true). Returns the parsed JSON response matching the provided schema. Only supported by the "openai" provider; throws if the underlying provider does not implement it.
+````
+### $gpt.jsonSchemaPromptWithStats
+
+__$gpt.jsonSchemaPromptWithStats(aPrompt, aResponseSchema, aModel, aTemperature, tools) : Map__
+
+````
+Executes jsonSchemaPrompt and returns the parsed response together with any reported statistics ({ response, stats }).
+````
+### $gpt.rawPromptWithStats
+
+__$gpt.rawPromptWithStats(aPrompt, aModel, aTemperature, aJsonFlag, tools) : Map__
+
+````
+Executes rawPrompt and returns the raw response together with any reported statistics ({ response, stats }).
+````
 ### $gpt.promptMD
 
 __$gpt.promptMD(aPrompt, aRole, aModel, aTemperature, tools) : String__
@@ -157,6 +178,20 @@ __$gpt.withSQLTables(aDBName, aTablesDefs) : ow.ai.gpt__
 ````
 Adds aDBName with aTableDefs to be used with promptSQL.
 ````
+### $gpt.exportConversation
+
+__$gpt.exportConversation() : Array__
+
+````
+Exports the current conversation in a standard portable format that can be imported into a different provider via importConversation(). Supported by all built-in providers (OpenAI-compatible, Gemini, Ollama and Anthropic).
+````
+### $gpt.importConversation
+
+__$gpt.importConversation(aExport) : $gpt__
+
+````
+Imports a portable conversation previously exported via exportConversation() into this provider instance, replacing the current conversation.
+````
 ### ow.ai.cluster
 
 __ow.ai.cluster(args) : Object__
@@ -202,8 +237,34 @@ C45:
 __ow.ai.gpt(aType, aOptions) : ow.ai.gpt__
 
 ````
-Creates a GPT AI model of aType (e.g. "openai" or "ollama") with aOptions.
+Creates a GPT AI model of aType (e.g. "openai", "gemini", "ollama" or "anthropic") with aOptions.
 
+Common aOptions properties include:
+- key: provider API key when required.
+- model: default model name or deployment name.
+- url: provider base URL. For OpenAI defaults to "https://api.openai.com".
+- temperature: default model temperature.
+- timeout: request timeout in milliseconds (defaults to 15 minutes).
+- headers: extra request headers. These override generated headers with the same names.
+- params: extra request body parameters merged into prompt, image and embedding calls.
+- noSystem: when true, system messages are converted to developer messages where supported (defaults to true).
+- noResponseFormat: when true, disables OpenAI-compatible JSON response_format injection.
+- promptCaching: when true enables Anthropic prompt caching headers and cache_control markers (defaults to false).
+
+OpenAI-compatible transport options (aOptions.type = "openai"), used to target Azure OpenAI and Azure AI Foundry as well as plain OpenAI:
+- apiVersion: API version/path segment for OpenAI-compatible routes (defaults to "v1"). In Azure legacy mode this becomes the api-version query parameter. In Foundry mode, "v1" uses the /openai/v1 path; dated versions use the /models route with api-version.
+- mode: transport mode. Supported values are "openai" (default), "azure-openai-v1", "azure-openai-legacy" and "foundry". Aliases: "azure-v1", "azure-legacy" and "azure-foundry".
+- deployment: deployment name for "azure-openai-legacy" mode. If omitted, the selected model name is used.
+- authType: authentication header style. Supported values are "bearer" (OpenAI default), "api-key" (Azure/Foundry default) and "none".
+
+Examples:
+- OpenAI: new ow.ai.gpt("openai", { key: "sk-...", url: "https://api.openai.com/v1", model: "gpt-4o-mini" })
+- Azure OpenAI v1: new ow.ai.gpt("openai", { key: "...", url: "https://RESOURCE.openai.azure.com", mode: "azure-openai-v1", model: "DEPLOYMENT" })
+- Azure OpenAI legacy: new ow.ai.gpt("openai", { key: "...", url: "https://RESOURCE.openai.azure.com", mode: "azure-openai-legacy", deployment: "DEPLOYMENT", apiVersion: "2024-10-21" })
+- Azure AI Foundry v1: new ow.ai.gpt("openai", { key: "...", url: "https://RESOURCE.services.ai.azure.com", mode: "foundry", model: "DEPLOYMENT" })
+- Azure AI Foundry dated API: new ow.ai.gpt("openai", { key: "...", url: "https://RESOURCE.services.ai.azure.com/models", mode: "foundry", apiVersion: "2024-05-01-preview", model: "DEPLOYMENT" })
+
+Usage stats note: getLastStats() now includes OpenAI cached prompt tokens (tokens.cached) when reported by compatible models.
 ````
 ### ow.ai.gpt.addDeveloperPrompt
 
@@ -260,6 +321,20 @@ __ow.ai.gpt.getConversation() : Array__
 
 ````
 Returns the current conversation.
+````
+### ow.ai.gpt.exportConversation
+
+__ow.ai.gpt.exportConversation() : Array__
+
+````
+Exports the current conversation in a standard portable format. Throws an error if the underlying provider does not support conversation export. The exported format can be safely imported into a different provider via importConversation().
+````
+### ow.ai.gpt.importConversation
+
+__ow.ai.gpt.importConversation(aExport) : ow.ai.gpt__
+
+````
+Imports a portable conversation previously exported via exportConversation() into this provider, replacing the current conversation. Throws an error if the underlying provider does not support conversation import.
 ````
 ### ow.ai.gpt.jsonPrompt
 
@@ -323,6 +398,27 @@ __ow.ai.gpt.rawPrompt(aPrompt, aRole, aModel, aTemperature, aJsonFlag, tools) : 
 
 ````
 Tries to prompt aPrompt (a string or an array of strings) with aRole (defaults to "user") and aModel (defaults to the one provided on the constructor).
+````
+### ow.ai.gpt.rawPromptWithStats
+
+__ow.ai.gpt.rawPromptWithStats(aPrompt, aRole, aModel, aTemperature, aJsonFlag, tools) : Map__
+
+````
+Executes rawPrompt and returns the raw response together with any reported statistics ({ response, stats }).
+````
+### ow.ai.gpt.jsonSchemaPrompt
+
+__ow.ai.gpt.jsonSchemaPrompt(aPrompt, aResponseSchema, aModel, aTemperature, tools) : Object__
+
+````
+Executes a prompt using OpenAI's Responses API JSON Schema mode, enforcing structured output validated against aResponseSchema. aResponseSchema should be a map with: name (string), description (string), schema (JSON Schema object), strict (boolean, defaults to true). Returns the parsed JSON response matching the provided schema. Only supported by the "openai" provider; throws if the underlying provider does not implement rawResponse.
+````
+### ow.ai.gpt.jsonSchemaPromptWithStats
+
+__ow.ai.gpt.jsonSchemaPromptWithStats(aPrompt, aResponseSchema, aModel, aTemperature, tools) : Map__
+
+````
+Executes jsonSchemaPrompt and returns the parsed response together with any reported statistics ({ response, stats }).
 ````
 ### ow.ai.gpt.jsonPromptWithStatsRaw
 
