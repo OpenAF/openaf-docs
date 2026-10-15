@@ -32,7 +32,7 @@ ow.ch.create("myChan", false, "db", { db: myDB, from: "TABLE" });
 __ow.ch.destroy(aName) : ow.ch__
 
 ````
-Deletes all data and removes references to the channel aName.
+Deletes all data and removes references to the channel aName, including its locks. Stop producers and wait for pending channel operations/subscriber jobs before destroying a channel. Channel creation, destruction and listing are serialized; destruction does not drain active operations.
 ````
 ### ow.ch.forEach
 
@@ -393,12 +393,15 @@ This OpenAF implementation implements a simple channel on a single JSON, YAML or
 __ow.ch.types.ignite__
 
 ````
-This channel type will use an Ignite Data Grid. The creation options are:
+This channel type uses plugin-Ignite 3.1 tables with JSON keys and values. The creation options are:
 
    - ignite (Ignite) Use a previously instantiated Ignite plugin (defaults to a new instance).
-   - gridName (String) Use a specific Ignite grid name.
-
-
+   - gridName (String) Use a specific Ignite node/client name.
+   - client (Boolean) Connect a thin client instead of starting an embedded node.
+   - configuration (Map) Ignite.configure options, including addresses or configFile/workDir.
+   - persist (String) Persistent Ignite 3 work directory (alias for configuration.workDir).
+   - cacheName (String) Shared backing table name (defaults to the channel name).
+   - keepOnDestroy (Boolean) Keep the backing table when destroying the channel (default false).
 ````
 ### ow.ch.types.mvs
 
@@ -434,7 +437,7 @@ __ow.ch.types.prometheus__
 ````
 This OpenAF implementation connects to a prometheus server. The creation options are:
 
-   - urlQuery  (String) The URL of a prometheus server (e.g. http://prometheus:9090) 
+   - urlQuery  (String) The URL of a prometheus server (e.g. http://prometheus:9090)
    - urlPushGW (String) The URL of a prometheus push gateway server (e.g. http://prometheus:9091).
    - prefix    (String) If defined the prefix for all openmetrics.
    - gwGroup   (Map)    A map of grouping labels for data ingestion by the push gw (job label must be defined).
@@ -569,7 +572,7 @@ Returns a channel subscriber function that will keep the channel size to the max
 __ow.ch.utils.getLogFilePerDate(aLogFolder, aTemplate, aFileDateFormat, aLineTemplate, aLineDateFormat) : Function__
 
 ````
-Returns a function to be used to generate a log file in aLogFolder path. If the log file already exists it will append to it. You can customize the log filename format using a aTemplate (e.g. "log-{{timedate}}.log" by default). The "timedate" is defined on the aFileDateFormat (e.g. "yyyy-MM-dd" by day, "yyyy-MM-dd-HH" by hour (check ow.format.fromDate for more options)). Each line that will be append to the file can be defined by aLineTemplate (e.g. "{{timedate}} | {{type}} | {{message}}"  by default) where "type" is the of logging (INFO, WARN, ERROR), "message" the logged message and "timedate" is defined on the aLineDateFormat (e.g. "yyyy-MM-dd HH:mm:ss.SSS" by default (check ow.format.fromDate for more options)).
+Returns a function to be used to generate a log file in aLogFolder path. If the log file already exists it will append to it. You can customize the log filename format using a aTemplate (e.g. "log-{% raw %}{{timedate}}{% endraw %}.log" by default). The "timedate" is defined on the aFileDateFormat (e.g. "yyyy-MM-dd" by day, "yyyy-MM-dd-HH" by hour (check ow.format.fromDate for more options)). Each line that will be append to the file can be defined by aLineTemplate (e.g. "{% raw %}{{timedate}}{% endraw %} | {% raw %}{{type}}{% endraw %} | {% raw %}{{message}}{% endraw %}"  by default) where "type" is the of logging (INFO, WARN, ERROR), "message" the logged message and "timedate" is defined on the aLineDateFormat (e.g. "yyyy-MM-dd HH:mm:ss.SSS" by default (check ow.format.fromDate for more options)).
 ````
 ### ow.ch.utils.getLogStashSubscriber
 

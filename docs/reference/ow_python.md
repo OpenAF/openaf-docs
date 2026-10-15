@@ -10,71 +10,57 @@ grand_parent: OpenAF docs
 
 ### ow.python.exec
 
-__ow.python.exec(aPythonCode, aInput, aOutputArray, shouldFork) : Map__
+__ow.python.exec(aPythonCode, aInput, aOutputArray, throwExceptions, shouldFork) : Map__
 
 ````
-Tries to execute aPythonCode with the current interpreter providing the aInput map keys as python variables. It tries to return the values of the aOutputArray name variables. Example:
-
-   var res = ow.python.exec("c = a + b", { a: 2, b: 1 }, [ "c" ]);
-   print(res.c); // 3
-
-
+Exchanges JSON values via named Python variables. Names must be ASCII identifiers and not keywords. A started embedded server preserves variables, imports and functions across serialized calls; otherwise a fresh process is used. shouldFork=true isolates a call. Errors print by default; throwExceptions=true throws on stderr, nonzero exits or bridge failures. Missing results return undefined.
 ````
 ### ow.python.execPM
 
-__ow.python.execPM(aPythonCode, aInput) : Map__
+__ow.python.execPM(aPythonCode, aInput, throwExceptions, shouldFork) : Map__
 
 ````
-Tries to execute aPythonCode with the current interpreter providing the aInput map as a python variable __pm. Any changes to this python variable will be returned.
+Exchanges a JSON map through __pm. Mutate __pm to return values. Uses the persistent server when started; shouldFork=true runs an isolated process. Errors print by default; throwExceptions=true throws on stderr, nonzero exits or bridge failures. Failed calls without a result return undefined.
 ````
 ### ow.python.execStandalone
 
-__ow.python.execStandalone(aPythonCodeOrFile, aInput, throwExceptions)__
+__ow.python.execStandalone(aPythonCodeOrFile, aInput, throwExceptions, aArgv) : Map__
 
 ````
-Executes aPythonCodeOrFile (a Python script path ending in ".py" or inline code) via the standalone bridge
-started with ow.python.startServer(..., isAlone=true). The OpenAF bridge init code is prepended so that
-the script can call back into OpenAF via _(). If throwExceptions is true, stderr output will raise an exception.
+Executes a .py file or inline code in standalone mode with callbacks. Returns a process result with exitcode, inherits stdin and streams stdout/stderr (the returned output strings are empty). aInput is reserved. Explicit aArgv overrides OAF_PY_ARGC/OAF_PY_ARG_n. File execution preserves __file__, __name__, sys.argv[0], script import directory and future imports. throwExceptions defaults to false; true throws on stderr or a nonzero exit. Stop the bridge when done.
 ````
 ### ow.python.getVersion
 
-__ow.python.getVersion() : String__
+__ow.python.getVersion() : Number__
 
 ````
-The majoy python version detected.
+Returns the Python major version (2 or 3), or -1 after failed detection.
 ````
 ### ow.python.reset
 
 __ow.python.reset(noException, tryOthers)__
 
 ````
-Detects the Python version by running the configured interpreter. If noException is true, version detection
-failures are silently recorded (version set to -1) rather than thrown. If tryOthers is true, a fallback
-to "python3" is attempted when the primary interpreter fails.
+Detects the configured interpreter using --version. tryOthers enables python3 fallback. noException records failure as version=-1. The successful interpreter is retained. Stop the bridge before resetting.
 ````
 ### ow.python.setPython
 
 __ow.python.setPython(aPythonPath)__
 
 ````
-Sets the aPythonPath to the python interpreter process to use.
+Selects and detects the interpreter executable. Stop the bridge first. Paths may contain spaces.
 ````
 ### ow.python.startServer
 
-__ow.python.startServer(aPort, aSendPort, aFn, isAlone)__
+__ow.python.startServer(aPort, aSendPort, aFn, isAlone) : String__
 
 ````
-Starts the bidirectional OpenAF-Python bridge. aPort is the port for the receive server (random if not specified),
-aSendPort is the port for the Python-side server (random if not specified), aFn is an optional callback for
-events ("connect", "exec", "error") and isAlone (boolean) starts only the receive half without launching a
-Python subprocess (standalone mode).
+Acquires a bridge reference, returning its token. Embedded mode owns a persistent, serialized Python namespace. isAlone=true starts only the callback listener for standalone scripts. Modes cannot be mixed until stopped. aFn receives connect, exec and error events. Startup has a bounded readiness check.
 ````
 ### ow.python.stopServer
 
 __ow.python.stopServer(aPort, force) : Boolean__
 
 ````
-Stops the OpenAF-Python bridge listening on aPort. If force is true the server is stopped unconditionally;
-otherwise it only stops when the internal reference counter reaches zero. Returns true if the server was
-actually stopped.
+Releases one explicit start reference. Stops owned resources at zero, or immediately with force=true. Returns true only when resources were stopped; repeated stops return false. aPort is retained for compatibility.
 ````

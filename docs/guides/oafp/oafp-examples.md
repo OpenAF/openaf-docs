@@ -5,6 +5,7 @@ parent: oafp
 grand_parent: Guides
 ---
 
+{% raw %}
 # oafp reference list of examples
 
 Examples of use of _oafp_ avaiable also in [https://ojob.io/oafp-examples.yaml](https://ojob.io/oafp-examples.yaml).
@@ -2239,3 +2240,5 @@ Given a nAttrMon config folder, with YAML files, produce a summary table with th
 oafp cmd="grep -R execFrom" in=lines path="[].split(@,':').{plug:[0],execFrom:[2]}" linesjoin=true out=ctable sql="select execFrom, plug where plug <> '' order by execFrom"
 ```
 
+
+{% endraw %}

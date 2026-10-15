@@ -8,7 +8,7 @@ grand_parent: OpenAF docs
 
 ## scope
 
-### $$from 
+### $$from
 
 __$$from : Array__
 
@@ -31,7 +31,7 @@ $a2m(['a', 'b', 'c'], [1, 2, 3])    // { a: 1, b: 2, c: 3 }
 __$a4m(anArray, aKey, dontRemove) : Array__
 
 ````
-Tries to create a map of maps from the provided anArrays. Optionally if aKey is provided it will be used to create the map keys (otherwise will fallback to "row[number]"). And can also optionally indicate by dontRemove = true that aKey shouldn't be removed from each map. 
+Tries to create a map of maps from the provided anArrays. Optionally if aKey is provided it will be used to create the map keys (otherwise will fallback to "row[number]"). And can also optionally indicate by dontRemove = true that aKey shouldn't be removed from each map.
 var a = [
   { "abc": "123", "xpt": "000", "key": "A1" },
   { "abc": "456", "xpt": "001", "key": "A2" },
@@ -328,7 +328,7 @@ Equivalent to $do but using virtual threads (if available) to execute the aFunct
 __$doWait(aPromise, aWaitTimeout) : oPromise__
 
 ````
-Blocks until aPromise is fullfilled or rejected. Optionally you can specify aWaitTimeout between checks. Returns aPromise.
+Blocks until aPromise is fullfilled or rejected. Optionally you can specify aWaitTimeout, in milliseconds, as an overall deadline for the wait: once it elapses $doWait returns even if aPromise hasn't settled yet (the caller is then responsible for checking aPromise's state and, if still pending, cancelling it to reclaim the thread pool slot). Returns aPromise.
 ````
 ### $err
 
@@ -480,7 +480,7 @@ $fnM2A(h.get, h, $fnDef4Help("HTTP.get"), { aUrl: "https://openaf.io/build", isB
 
 
 ````
-### $from 
+### $from
 
 __$from : Array__
 
@@ -558,13 +558,15 @@ Shortcut to oJobRunJob and ow.oJob.runJob to execute aJob with args and returned
 __$jsonrpc(aOptions) : Map__
 
 ````
-Creates a JSON-RPC 2.0 client that can communicate with JSON-RPC servers over HTTP/HTTPS or with local processes
-using stdio. The aOptions parameter is a map with the following possible keys:
+Creates a JSON-RPC 2.0 client that can communicate with JSON-RPC servers over HTTP/HTTPS or with local processes using stdio. The aOptions parameter is a map with the following possible keys:
 
 - type (string): Connection type, either "stdio" for local process, "remote"/"http" for HTTP server, "sse" for HTTP SSE responses (default: "stdio") or "dummy"
 - url (string): Required for remote servers - the endpoint URL
 - timeout (number): Timeout in milliseconds for operations (default: 60000)
 - cmd (string|map|array): Required for stdio type - the command to execute or the map/array accepted by $sh
+- pwd (string): For stdio type - the working directory to use when executing cmd (default: the JSONRPC.cmd.defaultDir flag, if set)
+- envs (map): For stdio type - a map of environment variables to use when executing cmd. Note: by default these are merged over the current process environment (so secrets in the parent environment are inherited); set envsOnly to true to use only this map
+- envsOnly (boolean): For stdio type - when true the child process environment will be exactly the envs map instead of merging it with the current environment (default: false)
 - options (map): Additional options passed to $rest for remote connections
 - sse (boolean): When true, remote/http requests expect Server-Sent Events responses with JSON-RPC payloads in `data:` events
 - debug (boolean): Enable debug output showing JSON-RPC messages (default: false)
@@ -575,8 +577,10 @@ The returned client object provides these methods:
 - type(aType): Set the connection type
 - url(aURL): Set the URL and switch to remote type
 - sh(aCommand): Set the command and switch to stdio type
+- pwd(aPath): Set the working directory to use for stdio execution
+- envs(aMap): Set the environment variables map to use for stdio execution (merged with the current environment unless envsOnly is true)
 - exec(aMethod, aParams, aNotification): Execute a JSON-RPC method
-- getClientInfo(): Returns protocol/session metadata (mcp-session-id when applicable, last request/response and response headers)
+- getClientInfo(): Returns protocol/session metadata, last request/response and response headers
 - destroy(): Stop the client and cleanup resources
 
 The exec method parameters:
@@ -600,12 +604,12 @@ client.exec("logEvent", {event: "user_login", userId: 123}, true);
 // Remote server responding with Server-Sent Events
 var sseClient = $jsonrpc({type: "remote", url: "http://api.example.com/rpc", sse: true});
 var sseResult = sseClient.exec("getUserInfo", {userId: 123});
+sseClient.destroy();
 
 // Local process via stdio
 var localClient = $jsonrpc({cmd: "python3 my_rpc_server.py"});
 var data = localClient.exec("processData", {input: [1, 2, 3]});
 localClient.destroy();
-
 ````
 ### $llm
 
@@ -707,16 +711,16 @@ $m4a(a, "key");
 __$mcp(aOptions) : Map__
 
 ````
-Creates a Model Context Protocol (MCP) client that can communicate with LLM MCP servers using JSON-RPC over stdio,
-remote connections, dummy mode, or oJob-based servers. This client implements the MCP protocol version 2024-11-05
-and provides access to tools, prompts, and other MCP capabilities.
-
+Creates a Model Context Protocol (MCP) client that can communicate with LLM MCP servers using JSON-RPC over stdio, remote connections, dummy mode, or oJob-based servers. This client speaks the legacy, initialize-handshake-based MCP protocol eras by default (protocolVersion "2024-11-05" or "2025-06-18", selectable via aOptions.protocolVersion, default "2025-06-18") and provides access to tools, prompts, and other MCP capabilities. It can optionally opt into the modern, stateless 2026-07-28+ protocol era by setting aOptions.protocolVersion to "auto": this probes the server (server/discover on stdio, a modern request inspected for a recognized error on HTTP) and negotiates the modern era when the server supports it, falling back to the legacy initialize handshake otherwise -- existing callers that don't set "auto" are completely unaffected.
 The aOptions parameter is a map with the following possible keys:
 
 - type (string): Connection type - "stdio" for local process, "remote"/"http" for HTTP server, "sse" for HTTP SSE responses, "dummy" for local testing, or "ojob" for oJob-based server (default: "stdio")
 - url (string): Required for remote servers - the MCP server endpoint URL
 - timeout (number): Timeout in milliseconds for operations (default: 60000)
-- cmd (string): Required for stdio type - the command to launch the MCP server
+- cmd (string|array): Required for stdio type - the command to launch the MCP server (an array is executed directly, without going through a shell)
+- pwd (string): For stdio type - the working directory to use when launching the MCP server
+- envs (map): For stdio type - a map of environment variables to use when launching the MCP server. Note: by default these are merged over the current process environment (so secrets in the parent environment are inherited); set envsOnly to true to use only this map
+- envsOnly (boolean): For stdio type - when true the MCP server environment will be exactly the envs map instead of merging it with the current environment (default: false)
 - options (map): Additional options:
   - For remote/stdio: passed to underlying JSON-RPC client
   - For dummy: { fns: map of function implementations, fnsMeta: map of function metadata }
@@ -734,8 +738,13 @@ The aOptions parameter is a map with the following possible keys:
   - token (string): Bearer token when type is "bearer"
   - tokenType (string): Authorization scheme prefix (default: "Bearer")
   - For oauth2: tokenURL, clientId, clientSecret, scope, audience, resource, grantType (default: "client_credentials"), extraParams (map), refreshWindowMs (default: 30000), authURL/redirectURI for authorization_code flow
-  - For oauth2: if tokenURL/authURL are omitted for remote/http MCP servers they can be discovered through OAuth 2.0 Protected Resource Metadata and Authorization Server Metadata
+  - For oauth2: if tokenURL/authURL are omitted for remote/http MCP servers they can be discovered through OAuth 2.0 Protected Resource Metadata and Authorization Server Metadata (the metadata issuer must match and discovered endpoints must use HTTPS unless they are loopback addresses or allowHTTP is true)
+  - interactive (boolean): false prohibits browser login and code prompts; omitted preserves existing behavior
+  - callback (boolean): opt-in loopback login through ow.server.httpd.oauth2 at redirectURI, with state/PKCE validation; loginTimeoutMs defaults to 300000
+  - tokenStore (map): opt-in {type: "sec", profile: "default"}; optional repo (default mcp-oauth2), bucket, key, file, lockSecret, mainSecret, lockTimeoutMs (60000). Or a synchronous custom load/save/clear/withLock store.
+  - sendResource (boolean): false omits the OAuth resource parameter; default true
   - disableOpenBrowser (boolean): If true prevents opening a browser during OAuth2 authorization_code flow (default: false)
+- authenticate() / getAuthStatus() / clearAuth(): authenticate, inspect non-secret status, or clear local tokens
 
 Type-specific details:
 
@@ -747,20 +756,20 @@ Type-specific details:
 "ojob" type: Creates an MCP server based on oJob jobs as tools.
 - options.job (required): Path to the oJob file containing job definitions
 - options.args: Arguments to pass to the oJob
+- options.tplDesc (boolean, default false): Templates tool metadata using options.args
+- options.toolPrefix (string, default ""): Prefixes exposed tool names; stripped when resolving calls
 - options.init: Init entry name(s) to execute on startup (string or array)
-- options.tplDesc (boolean, default false): When true, applies templify ($t) with options.args to tool metadata (descriptions, or full metadata strings when tplDesc processes non-description fields too)
-- options.toolPrefix (string, default ""): Namespaces exposed tool names with this prefix; the prefix is stripped again when resolving an incoming callTool() name back to the underlying job
 - Jobs with fnsMeta property become MCP tools automatically
 - Job names become tool names (except "tools/list", "tools/call", "initialize", "notifications/initialized")
 - Combines oJob's job execution with MCP protocol
 
 The returned client object provides these methods:
+- getClientInfo(): Returns underlying client/session metadata and MCP initialization information
 
 - type(aType): Set the connection type
 - url(aURL): Set the URL and switch to remote type
 - sh(aCommand): Set the command and switch to stdio type
 - initialize(clientInfo): Initialize the MCP connection and exchange capabilities
-- getClientInfo(): Returns the underlying JSON-RPC client/session metadata plus the MCP initialize() result
 - listTools(): Get list of available tools from the MCP server
 - callTool(toolName, toolArguments, toolOptions): Execute a specific tool with given arguments and optional per-call options
 - listPrompts(): Get list of available prompts from the MCP server
@@ -769,8 +778,8 @@ The returned client object provides these methods:
 - exec(method, params): Low-level method to execute any MCP/JSON-RPC method
 - destroy(): Stop the client and cleanup resources
 
-Important: The initialize() method must be called before using listTools, callTool, listPrompts, or getPrompt
-methods. All methods return results synchronously (not promises).
+Important: The initialize() method must be called before using listTools, callTool,
+listPrompts, or getPrompt methods. All methods return results synchronously (not promises).
 
 Examples:
 
@@ -783,7 +792,7 @@ log("Available tools:", tools.tools.map(t => t.name));
 var result = client.callTool("read_file", {path: "/tmp/example.txt"});
 log("File content:", result.content);
 
-// Connect to remote MCP server, hiding a tool via blacklist
+// Connect to remote MCP server
 var remoteClient = $mcp({
   type: "remote",
   url: "http://localhost:8080/mcp",
@@ -791,6 +800,7 @@ var remoteClient = $mcp({
   blacklist: ["dangerousTool"]
 });
 remoteClient.initialize();
+// Optional per-call HTTP options (only used for remote/http MCP clients)
 var result2 = remoteClient.callTool("read_file", {path: "/tmp/example.txt"}, { requestHeaders: { Authorization: "Bearer ..." } });
 var prompts = remoteClient.listPrompts();
 
@@ -871,28 +881,28 @@ Tries to start an external process running openaf (if aOpenAF is provided, as a 
 __$path(obj, path, customFunctions) : Object__
 
 ````
-Shortcut for the JMESPath library for easy query and access to arrays/objects. To see all the available options please refer to http://jmespath.org. Optional you can provide a map of customFunctions. Examples:
+Shortcut for the JMESPath library for easy query and access to arrays/objects. To see all the available options please refer to http://jmespath.org. Uses the Java engine by default; set __flags.ALTERNATIVES.path=false to use the Javascript engine. __flags.PATH_CACHE_SIZE controls the Java syntax cache (256 entries by default; 0 disables). Optional you can provide a map of customFunctions. Examples:
 
-[Slicing]: 
+[Slicing]:
   $path(arr, "[0:5]"); $path(arr, "[5:10]"); $path(arr, "[:5]"); $path(arr, "[::2]"); $path(arr, "[::-1]");
 
-[Projections]: 
+[Projections]:
   $path(arr, "a[*].first"); $path(arr, "a.*.b"); $path(arr, "[]");
 
-[Filters]: 
+[Filters]:
   $path(arr, "a[?b=='xyz'].c"); $path(arr, "a[?b>`1`].x");
 
-[MultiSelect]: 
+[MultiSelect]:
   $path(arr, "a[].[x, y]"); $path(arr, "a[].{ x: x, y: y }");
 
-[Pipe]: 
-  $path(arr, "a[*].b | [0]"); 
+[Pipe]:
+  $path(arr, "a[*].b | [0]");
 
-[Functions]: 
+[Functions]:
   abs(x), avg(x), contains(x, y), ceil(x), floor(x), join(x, arr), keys(obj), length(x), map(expr, arr), max(x), max_by(x, y), merge(a, b), min(a), min_by(a, b), not_null(a), reverse(arr), sort(arr), sort_by(a, y), starts_with(a, b), ends_with(a, b), sum(a), to_array(a), to_string(a), to_number(a), type(a), values(a)
   $path(arr, "a[?contains(@, 'b') == `true`]")
 
-[OpenAF custom functions]: 
+[OpenAF custom functions]:
   a2m(arrFields, arrValues), a4m(arr, 'key', dontRemove), m2a(arrFields, obj), m4a(obj, 'key'), count_by(arr, 'field'), format(x, 'format'), formatn(x, 'format'), group(arr, 'field'), group_by(arr, 'field1,field2'), unique(arr), to_map(arr, 'field'), to_date(x), to_datef(x, format) from_datef(x, format), to_isoDate(x), flat_map(x), search_keys(arr, 'text'), search_values(arr, 'text'), delete(map, 'field'), substring(a, ini, end),
  template(a, 'template'), t(a, 'template'), templateF(x, 'template'), tF(x, 'template'), to_bytesAbbr(x), to_numAbbr(x), from_bytesAbbr(x), from_siAbbr(x), from_timeAbbr(x), timeago(x), from_ms(x, 'format'), replace(x, 're', 'flags', 'replaceText'), split(x, 'sep'), trim(x), index_of(x, 'search'), last_index_of(x, 'search'), lower_case(x), upper_case(x), concat(x, y), match(x, 're', 'flags'), amerge(x, y), to_slon(x), from_slon(x), to_json(x), from_json(x, str), to_yaml(x, isMultiDoc), from_yaml(x), trim(x), nvl(x, v), to_toml(x), from_toml(x) add(x, y), sub(x, y), mul(x, y), div(x, y), mod(x, y)
 split(x, sep), split_re(x, sepRE), split_sep(x, sepRE, encls), date_diff(d, unit, nullValue)
@@ -908,34 +918,36 @@ to_csv(array, options), from_csv(str, options)
 ch(name, op, arg1, arg2), chq(name, op, max, value), path(obj, jmespath), opath(jmespath)
 to_ms(date), timeagoAbbr(x)
 env(str), envs(regex)
-oafp(json/slon)
+oafp(json/slon), oafpd(obj, json/slon)
 if(cond, then, else)
 assign(obj, path, value), assignp(objPathStr, path, value)
 random(min, max), srandom(min, max)
 at(arrayIndex)
 to_numSpace(num, space), from_numSpace(num, space)
+to_kyaml(obj), from_kyaml(str)
+to_toon(obj), from_toon(str)
+to_base64(str), from_base64(str)
+to_xml(obj), from_xml(str)
  Functions only active if flag PATH_SAFE is false:
   ojob(name, argsJSSLON)
   sh(command, stdin), sh_json(command, stdin), sh_jsslon(command, stdin), sh_yaml(command, stdin)
 
 Custom functions:
   $path(2, "example(@)", { example: { _func: (a) => { return Number(a) + 10; }, _signature: [ { types: [ $path().number ] } ] } });
-
-
 ````
 ### $py
 
-__$py(aPythonCodeOrFile, aInput, aOutputArray) : Map__
+__$py(aPythonCodeOrFile, aInput, aOutputArray, throwExceptions, shouldFork) : Map__
 
 ````
-Executes aPythonCodeOrFile using a map aInput as variables in python and returns a map with python  variables in aOutputArray.
+Executes aPythonCodeOrFile using a map aInput as variables in python and returns a map with python  variables in aOutputArray. Starts an embedded session once if needed. throwExceptions defaults to false; true throws on stderr, nonzero exit or bridge failure. shouldFork=true isolates this call.
 ````
 ### $pyExec
 
-__$pyExec(aPythonCodeOrFile, aInput)__
+__$pyExec(aPythonCodeOrFile, aInput, throwExceptions, aArgv) : Map__
 
 ````
-Executes aPythonCodeOrFile using a map aInput as variables in python. The python execution will be 'standalone', with access to OpenAF functionality, but no output will be returned.
+Runs a standalone script with callbacks and returns a process result including exitcode. aInput is reserved. aArgv overrides launcher environment arguments; throwExceptions defaults to false.
 ````
 ### $pyStart
 
@@ -1747,56 +1759,57 @@ Tries to find aObj in anArray returning the position where it's first found or -
 ````
 ### ask
 
-__ask(aPrompt, aMask) : String__
+__ask(aPrompt, aMask, aConsole, noAnsi, aWrite) : String__
 
 ````
 Stops for user interaction prompting aPrompt waiting for an entire line of characters and, optionally, masking the user input with aMask (e.g. "*"). Returns the user input.
 ````
 ### ask1
 
-__ask1(aPrompt, allowed) : String__
+__ask1(aPrompt, allowed, aConsole, aWrite) : String__
 
 ````
 Stops for user interaction prompting aPrompt waiting for a single character within the allowed string (a set of characters). Returns the user input.
 ````
 ### askChoose
 
-__askChoose(aPrompt, anArray, aMaxDisplay, aHelpText) : Number__
+__askChoose(aPrompt, anArray, aMaxDisplay, aHelpText, aUI) : Number__
 
 ````
 Stops for user interaction prompting aPrompt waiting for a single character to choose from the provided anArray of options. Optionally you can provide aMaxDisplay to limit the number of options displayed at a time. Returns the index of the chosen option.
+Optional aUI is the console/write/ansi map returned by askConsole (or a compatible injected UI).
 ````
 ### askChooseMultiple
 
-__askChooseMultiple(aPrompt, anArray, aMaxDisplay, aHelpText) : Array__
+__askChooseMultiple(aPrompt, anArray, aMaxDisplay, aHelpText, aUI) : Array__
 
 ````
 Stops for user interaction prompting aPrompt waiting for a single character to choose multiple from the provided anArray of options. Optionally you can provide aMaxDisplay to limit the number of options displayed at a time. Returns an array with the chosen options.
 ````
 ### askDef
 
-__askDef(aInit, aQuestion, isSecret, isVoidable) : String__
+__askDef(aInit, aQuestion, isSecret, isVoidable, aUI) : String__
 
 ````
 If aInit is not defined will ask aQuestion (if isSecret = true it will askEncrypt) and return the value. If isVoidable = true and no answer is provided it will return undefined.
 ````
 ### askEncrypt
 
-__askEncrypt(aPrompt) : String__
+__askEncrypt(aPrompt, aConsole, noAnsi, aWrite) : String__
 
 ````
 Similar to ask but the return user input will be encrypted. If an empty string is entered by the user the function will return undefined.
 ````
 ### askN
 
-__askN(aPromptFn, aStopFn) : String__
+__askN(aPromptFn, aStopFn, aConsole) : String__
 
 ````
 Stops for a multi-line user interaction prompting, for each line, the result of calling aPromptFn that receives the current user input  (if a string is provided it will default to a function that returns that string). The interaction will stop when aStopFn function, that receives the current user input as an argument, returns true (if the function is not provided it will default to 3 new lines).
 ````
 ### askStruct
 
-__askStruct(anArrayOfQuestions) : Array__
+__askStruct(anArrayOfQuestions, aUI) : Array__
 
 ````
 Given anArrayOfQuestions with a structure like:
@@ -1894,7 +1907,7 @@ Tries to clear the screen. The commands to try to clean the screen are given in 
 __colorify(aObject) : String__
 
 ````
-Tries to ANSI colorify a json aObject for use with cprint, cprintErr, cprintErrnl and cprintnl
+Tries to ANSI colorify a json aObject for use with cprint, cprintErr, cprintErrnl and cprintnl. Colors are defined in __colorFormat.
 ````
 ### compare
 
@@ -2006,7 +2019,7 @@ Returns an array with collected log messages. Each entry has: d - timestamp; t -
 __exit(anExitCode, force)__
 
 ````
-Immediately exits execution with the provided exit code.  Optionally force=true can be provided but no shutdown triggers will be executed (use only as a last option)
+Immediately exits execution with the provided exit code. Optionally force=true can be provided to run any registered OpenAF shutdown hooks (see addOnOpenAFShutdown/Threads.addOpenAFShutdownHook) synchronously and then terminate the process at the operating system level, bypassing the JVM's own shutdown sequence. Regular JVM shutdown hooks not registered through OpenAF, and File.deleteOnExit() entries, will NOT run in this case. Use this when a still-running JIT compilation would otherwise stall a plain exit() for several seconds waiting for the JVM's safepoint teardown to complete. To get the same behavior on shutdown paths that don't call exit() explicitly (a script simply finishing, Ctrl-C, SIGTERM), see armFastExitOnShutdown.
 ````
 ### extend
 
@@ -3158,7 +3171,7 @@ Executes a function in a specific number of threads (each function will receive 
 ````
 ### parallel4Array
 
-__parallel4Array(anArray, aFunction, numThreads, aControlMap) : Object__
+__parallel4Array(anArray, aFunction, numThreads, aControlMap, options) : Object__
 
 ````
 Given anArray, divides it in subsets for processing in a specific number of threads. In each thread aFunction(aValue) will be executed for each value in sequence. An array with all the aFunction results will be returned. If no numThreads is  provided, the number of threads will be automatically determined. Optionally you can provide a empty map as aControlMap that it will be filled with aControlMap.__threads with the threads object, the aControlMap.__numThreads for the number of threads in use and a thread __uuid list. Example:
@@ -3173,14 +3186,13 @@ var res = parallel4Array(thingsToProcess,
    undefined,
    ctrl
 );
-
 ````
 ### parallelArray
 
 __parallelArray(anArray, aReduceFunction, initValue, aAggFunction, numThreads, aControlMap) : Object__
 
 ````
-Given anArray, divides it in subsets for processing in a specific number of threads. In each thread aReduceFunction(pr, cv, i, arr), where pr = previous result, cv = current value, i = index and arr = array subset, will be executed for each value in sequence. The pr value for the first execution on each thread will have the value initValue if provided. The returned result, in each thread, will be placed into an array. If aAggFunction is defined, the resulting array will be passed to the aAggFunction for processing and the corresponding result of aAggFunction will be returned. If no numThreads is provided, the number of threads will be  automatically determined. Optionally you can provide a empty map as aControlMap that it will be filled with aControlMap.__threads with the threads object, the aControlMap.__numThreads for the number of threads in use and a thread __uuid list.
+An installed GPU opack may handle calls without an explicit thread count/control map. Set OAF_PFOREACH_GPU=false, __flags.PFOREACH.useGPU=false or options.useGPU=false to bypass it. Given anArray, divides it in subsets for processing in a specific number of threads. In each thread aReduceFunction(pr, cv, i, arr), where pr = previous result, cv = current value, i = index and arr = array subset, will be executed for each value in sequence. The pr value for the first execution on each thread will have the value initValue if provided. The returned result, in each thread, will be placed into an array. If aAggFunction is defined, the resulting array will be passed to the aAggFunction for processing and the corresponding result of aAggFunction will be returned. If no numThreads is provided, the number of threads will be  automatically determined. Optionally you can provide a empty map as aControlMap that it will be filled with aControlMap.__threads with the threads object, the aControlMap.__numThreads for the number of threads in use and a thread __uuid list.
 ````
 ### persistDBInMem
 
@@ -3191,10 +3203,10 @@ Tries to persist a in-memory database, aDB object, previously created by the fun
 ````
 ### pForEach
 
-__pForEach(anArray, aFn, aErrFn, aUseSeq) : Array__
+__pForEach(anArray, aFn, aErrFn, aUseSeq, aTimeoutMs, options) : Array__
 
 ````
-Given anArray, divides it in subsets for processing in a specific number of threads. In each thread aFn(aValue, index) will be executed for each value in sequence. The results of each aFn will be returned in the same order as the original array. If an error occurs during the execution of aFn, aErrFn will be called with the error. If aUseSeq is true the sequential execution will be forced.
+Given anArray, divides it in subsets for processing in a specific number of threads. In each thread aFn(aValue, index) will be executed for each value in sequence. The results of each aFn will be returned in the same order as the original array. If an error occurs during the execution of aFn, aErrFn will be called with the error. If aUseSeq is true the sequential execution will be forced. aTimeoutMs, if provided, overrides __flags.PFOREACH.wait_timeout_ms as the overall deadline, in milliseconds, from parallel dispatch through queue-pressure and completion waits. If neither is a positive number (the default) pForEach waits for all partitions to complete. Sequential callbacks remain synchronous and are not interrupted by this deadline. On timeout the still-pending partitions (and their pool worker threads) are cancelled, aErrFn is called with a "pForEach: N of M partitions timed out" diagnostic and whatever results were collected so far are returned (missing entries come back as arrays of __, so the returned array keeps the same length and order as anArray).
 
 Example:
 
@@ -3205,7 +3217,6 @@ var res = pForEach(thingsToProcess,
   function(e) {
     printErr(e)
   } )
-
 ````
 ### pidCheck
 
@@ -3337,14 +3348,14 @@ Prints the aStr to the stdout (without adding a new line on the end) (example: p
 __printTable(anArrayOfEntries, aWidthLimit, displayCount, useAnsi, aTheme, aBgColor, wordWrap, useRowSep, bandRows) : String__
 
 ````
-Returns a ASCII table representation of anArrayOfEntries where each entry is a Map with the same keys. Optionally you can specify aWidthLimit, useAnsi, bandRows and/or aBgColor. If you want to include a count of rows just use displayCount = true. If useAnsi = true you can provide a theme (e.g. "utf" or "plain")
+Returns a ASCII table representation of anArrayOfEntries where each entry is a Map with the same keys. Optionally you can specify aWidthLimit, useAnsi, bandRows and/or aBgColor. If you want to include a count of rows just use displayCount = true. If useAnsi = true you can provide a theme (e.g. "utf", "plain" or "borderless"). The "borderless" theme uses two-space column gaps, heavy Unicode header rules and optional light rules between records (useRowSep), including wrapped records
 ````
 ### printTree
 
 __printTree(aObj, aWidth, aOptions) : String__
 
 ````
-Given aObj(ect) will return a tree with the object elements. Optionaly you can specificy aWidth and/or aOptions: noansi (boolean) no ansi character sequences, curved (boolean) for UTF curved characters, wordWrap (boolean) to wrap long string values, compact (boolean) to compact tree lines, fullKeySize (boolean) to pad the each entry key, fullValSize (boolean) to pad the entire key and value and withValues (boolean) to include or not each key values
+Given aObj(ect) will return a tree with the object elements. Optionaly you can specificy aWidth and/or aOptions: noansi (boolean) no ansi character sequences, curved (boolean) for UTF curved characters, wordWrap (boolean) to wrap long string values, compact (boolean) to compact tree lines, fullKeySize (boolean) to pad the each entry key, fullValSize (boolean) to pad the entire key and value and withValues (boolean) to include or not each key values, tableArrays (boolean) to render arrays composed only of non-map/array values (or maps whose fields are all non-map/array values) as a printTable instead of nested tree branches
 ````
 ### printTreeOrS
 
@@ -3407,14 +3418,14 @@ Terminates the current OpenAF execution and tries to start a new with the same c
 __saveHelp(aPath, aMapOfFiles)__
 
 ````
-Given aMapOfFiles, or basically an array of JavaScript or Java source filenames, each file will  be processed for ODoc XML tags and the corresponding ODoc database will be generated on the  provided aPath suitable for offline use.
+Given aMapOfFiles mapping subject ids to JavaScript or Java source filenames, each file will be processed for ODoc XML tags and the corresponding ODoc database will be generated on the  provided aPath suitable for offline use.
 ````
 ### saveHelpWeb
 
 __saveHelpWeb(aPath, aMapOfFiles)__
 
 ````
-Given aMapOfFiles, or basically an array of JavaScript or Java source filenames, each file will  be processed for ODoc XML tags and the corresponding ODoc database will be generated on the  provided aPath suitable for online use.
+Given aMapOfFiles mapping subject ids to JavaScript or Java source filenames, each file will be processed for ODoc XML tags and the corresponding ODoc database will be generated on the  provided aPath suitable for online use.
 ````
 ### searchArray
 
@@ -3425,10 +3436,10 @@ Shortcut to ow.obj.searchArray.
 ````
 ### searchHelp
 
-__searchHelp(aTerm, aPath, anArrayOfIds) : Map__
+__searchHelp(aTerm, aPath, anArrayOfIds) : Array__
 
 ````
-Searches the OpenAF ODoc help system for a specific term. Optionally you can provide a path of where to  search for ODoc help files. If an exact match is found the function will return an array with a single a map with the corresponding ODoc id, key, fullkey and text. If no exact match is found the function will return an array of alternative matches or an empty array if no alternatives are found. Optionally you can also restrict by anArrayOfIds.
+Searches the OpenAF ODoc help system for a specific term. Optionally you can provide a path of where to  search for ODoc help files. A unique result returns an array with one map containing id, key, fullkey and raw text, plus format for explicitly marked entries. Ambiguous results contain id and key only. Matches prefer case-sensitive exact keys, then case-insensitive exact keys, then substrings. Returns an empty array when nothing is found. Optionally restrict by anArrayOfIds.
 ````
 ### searchKeys
 
@@ -3469,7 +3480,7 @@ Sets the current log output settings:
 __setOfflineHelp(aBoolean)__
 
 ````
-Forces help (odoc) to be retrieved locally (if aBoolean is true) or reestablishes the normal behaviour of retrieving from online first (if aBoolean is false)
+Forces help (odoc) to be retrieved locally (if aBoolean is true) or reestablishes the normal behaviour of loading local documentation with online fallback and background refresh (if aBoolean is false)
 ````
 ### sh
 
@@ -3823,4 +3834,141 @@ __yprintErr(aObj, multidoc)__
 
 ````
 Prints aObj in YAML to stderr. If multiDoc = true and aJson is an array the output will be multi-document.
+````
+
+### printChartArray
+
+__printChartArray(anArray, aType, hSize, vSize, aMax, aMin, options) : String__
+
+````
+Produces and returns a one-shot terminal line chart directly from anArray, without calling functions or keeping a named dataset between calls. Use an array of numbers for one series or an array of arrays of numbers for multiple series. Series can have different lengths. aType controls the y-axis label format and can be: int, dec1, dec2, dec3, dec4, dec, bytes or si. hSize and vSize set the chart width and height; when omitted in a console they default to the terminal width and terminal height minus 5 respectively. aMax and aMin optionally fix the y-axis bounds; omitted bounds are calculated from the values.
+
+options is passed to ow.format.string.lineChart and can include:
+
+   colors  (array)   ANSI color specification for each series. Colors are assigned by series order and repeat if fewer colors are provided;
+   label   (boolean) Include y-axis labels (default true);
+   dColor  (string)  ANSI color specification for the labels, axes and other default chart elements;
+   offset  (number)  Horizontal offset reserved for the y-axis (default 2);
+   padding (string)  String prepended to each chart line (default "");
+   symbols (array)   Ten characters replacing the default line drawing symbols;
+
+Each color accepts the same values and comma-separated combinations as ansiColor (check 'help ansiColor'), including named foreground/background colors (for example GREEN, FG_CYAN or BG_BLUE), attributes (for example BOLD,GREEN), 256-color forms such as FG(208) or BG(236), and true-color forms such as RGB(80,160,255), FG_RGB(80,160,255) or BG_RGB(20,20,20). ANSI colors are shown when terminal color support is enabled.
+
+Examples:
+
+   print(printChartArray([1, 4, 2, 5, 3], "int", 40, 10, 5, 0, { colors: ["GREEN"] }));
+   print(printChartArray([[1, 2, 3], [3, 2, 1]], "dec1", 40, 10, __, __, { colors: ["BOLD,CYAN", "FG(208)"] }));
+````
+
+### __colorFormat
+
+____colorFormat__
+
+````
+Global map with the ANSI color/style settings used when printing colored output (colorify, cprint*, printTable/printTree, ask/askChoose/askChooseMultiple prompts and markdown rendering). Each color value is a comma-separated list of ansiColor attributes (e.g. "BOLD,CYAN", "FG(12)", "RESET"). Entries can be changed at runtime to customize the theme:
+
+  - key, number, string, boolean, date, default: colors used by colorify and tree/table values per data type.
+  - askPre, askQuestion, askChoose, askChooseFilter, askPos: colors used by ask, askChoose and askChooseMultiple.
+  - askChooseChars: characters used in choose prompts (chooseMultipleSelected, chooseMultipleUnselected, chooseUp, chooseDown, chooseLine).
+  - table: { lines, value, title, bandRow, format } colors for table output; the optional "format" (table, stable, ctable, btable or bstable)
+    selects the default table renderer for $output when no global or explicit format is set.
+  - tree: { lines } color for tree connecting lines (other tree options are merged with __flags.TREE).
+  - md: colors used by ow.format.withMD: codeBlock {line, text, theme}, codeInline {text, surround}, heads {h1..h4}, line, link {text, url},
+    bullets, list, strike and note {line, text, theme}. Missing md entries are filled with defaults on first use.
+
+Example:
+
+  __colorFormat.string = "GREEN"; __colorFormat.table.title = "BOLD,UNDERLINE"; __colorFormat.md.heads.h1 = "CYAN,BOLD"
+````
+
+### $jq
+
+__$jq(input, expression, options) : Object__
+
+````
+Evaluates jq syntax (jq 1.6 mode, jackson-jq 1.6.5) against one JSON value. expression defaults to ".". Zero outputs return undefined, one returns the value, and multiple outputs return an array. options.all=true always returns an array of outputs. options.vars binds JSON values by variable name without the leading $. Examples:
+  $jq({ a: 2 }, ".a"); // 2
+  $jq([1, 2], ".[]", { all: true }); // [1, 2]
+  $jq([1, 3], "map(select(. > $min))", { vars: { min: 2 } }); // [3]
+Accepts plain objects, dense arrays, strings, finite numbers, booleans and null. Rejects unsupported values and cycles with their location. Does not mutate inputs. Results are detached JavaScript values; numbers have JavaScript precision. __flags.JQ_CACHE_SIZE controls compiled query caching (256 entries; 0 clears/disables). Filesystem imports, CLI input streams and OpenAF callbacks are unavailable. See docs/jq.md for compatibility, value boundaries and error behavior.
+````
+
+### armFastExitOnShutdown
+
+__armFastExitOnShutdown(anExitCode)__
+
+````
+Arms the same fast-exit trick exit(anExitCode, true) uses (see exit) so it also happens automatically once the JVM actually starts shutting down (a script simply finishing, Ctrl-C, SIGTERM, etc.), not just when exit(code, true) is called explicitly. Once every OpenAF-registered shutdown hook has run, the process terminates immediately with anExitCode - skipping the JVM's own trailing teardown that can otherwise delay exit by several seconds when a JIT compilation is still in flight. Only takes effect once shutdown actually begins, so it doesn't affect normal execution or daemon/server processes that intentionally stay alive. Shortcut for Threads.armFastExitOnShutdown.
+````
+
+### ow.loadInstrumentation
+
+__ow.loadInstrumentation()__
+
+````
+Loads the opt-in generic instrumentation module. Loading does not enable capture.
+````
+
+### loadAjv
+
+__loadAjv()__
+
+````
+Loads the bundled Ajv v8 JSON Schema validator as global Ajv. OpenAF schema helpers automatically load it and configure formats, draft routing and compatibility options. See ow.obj.schemaInit and docs/json-schema.md.
+````
+
+### io.readJSONArray
+
+__io.readJSONArray(source, callback, encoding, raw) : Number__
+
+````
+Reads a top-level JSON array from a filename or a Java input stream, retaining only one element at a time. Calls callback(value, zeroBasedIndex) for each element. Return true to stop early. Encoding defaults to UTF-8. With raw=true the callback receives each element as JSON text instead. Returns the number of delivered elements. Non-array roots, malformed JSON and trailing content throw. Filename streams are closed even on errors; caller-provided streams remain owned by the caller.
+````
+
+### io.scanJSON
+
+__io.scanJSON(aFile, aVisitor, aOptions) : Map__
+
+````
+Visits UTF-8 JSON without materializing values. Events have phase (value/end), path (an array of literal keys/indices), type, start and, on end, end (exclusive byte offsets) and size for traversed containers. Return "skip" on a value to skip its children, or "stop" to stop. Options: cancel (function), progress (function receiving byte offset), maxNodes. A stopped scan does not validate the unread suffix. The file and parser are always closed.
+````
+
+### io.copyJSONRange
+
+__io.copyJSONRange(aFile, aStart, anEnd, anOutputStream, aOptions)__
+
+````
+Copies an exclusive byte range discovered by io.scanJSON using bounded buffers. The output is borrowed and remains open. Input is always closed. Optional cancel/progress functions work as in io.scanJSON.
+````
+
+### io.extractJSON
+
+__io.extractJSON(aFile, aPath, anOutputStream, aOptions) : boolean__
+
+````
+Copies the JSON value at a literal key/index path to a borrowed output stream. An empty path selects the root. Returns false without writing when absent. Uses bounded buffers and preserves original JSON bytes. The source must remain unchanged during extraction. Options cancel/progress/maxNodes apply to scanning; copy progress restarts at zero. Early selection does not validate the unread suffix.
+````
+
+### askConsole
+
+__askConsole() : Map__
+
+````
+Opens an independent controlling terminal (including with piped stdin/redirected stdout). Returns console/write/ansi/close for injection into askChoose and ask. Close in finally. Throws if no controlling terminal is available. Does not replace process input or output.
+````
+
+### askKey
+
+__askKey(aUI, aTimeoutMs) : String__
+
+````
+Reads a single key from aUI (a map returned by askConsole or compatible, providing read(aTimeoutMs) that returns a character code, -2 on timeout and -1 on end of input) and returns a normalized name: "up", "down", "left", "right", "home", "end", "pgup", "pgdn", "delete", "insert", "enter", "tab", "shift-tab", "backspace", "esc", "eof", "ctrl-<letter>", "alt-<char>" or the printable character itself. Returns undefined if aTimeoutMs expires without input. A lone ESC is told apart from escape sequences with a short timeout.
+````
+
+### joniRegExp
+
+__joniRegExp(pattern, options) : Object__
+
+````
+Compiles an Oniguruma (Ruby syntax) pattern once. Options are ignoreCase, dotAll and extended (booleans, default false). Methods: test(input), match(input), matchAll(input), replace(input, replacement), replaceAll(input, replacement), split(input, limit). Matches contain text, index, end (UTF-16 offsets), captures and groups. Replacement strings use JavaScript dollar tokens; callbacks receive match, captures, offset, input and named groups. Inputs must be strings without unpaired surrogates. See docs/joni.md for details.
 ````

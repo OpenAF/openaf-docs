@@ -345,7 +345,7 @@ jobs:
     to: oJobManager Job End
     catch: oJobManager Error
     args:
-      name: "batch-{{batchId}}"
+      name: "batch-{% raw %}{{batchId}}{% endraw %}"
       timeout: 1800000
     exec: |
       log("Processing batch: " + args.batchId);
@@ -775,7 +775,7 @@ todo:
 
 ```yaml
 # Good - descriptive and unique
-name: customer-data-sync-{{customerId}}
+name: customer-data-sync-{% raw %}{{customerId}}{% endraw %}
 name: daily-report-generator
 
 # Bad - generic

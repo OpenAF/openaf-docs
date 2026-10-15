@@ -199,7 +199,7 @@ There are a set of libraries includes to help to "navigate" through javascript a
 
 | Function | Description | 
 |----------|-------------|
-| $from | See more in [$from](OpenAF-nLinq) |
+| $from | See more in [$from](OpenAF-nLinq.md) |
 | $path | Uses the [JMESPath library](http://jmespath.org) |
 | $stream | Uses the old [streamjs library](https://github.com/winterbe/streamjs/blob/master/APIDOC.md) |
 
@@ -365,4 +365,8 @@ External javascript based libraries are also included:
 
 ## Java support
 
-To check on how to interact between Javascript and Java in OpenAF (including some OpenAF helper functions built-in) see [Java support](/docs/concepts/java)
+To check on how to interact between Javascript and Java in OpenAF (including some OpenAF helper functions built-in) see [Java support](java.md)
+
+## October runtime additions
+
+New helpers include [`$jq`](../guides/advanced/jq.md), [`joniRegExp`](../guides/advanced/joni.md), [streaming JSON extraction and independent-terminal prompts](../guides/advanced/json-extraction-and-prompts.md), and [opt-in instrumentation](../guides/advanced/instrumentation.md). See the [additional `$` helpers](../guides/advanced/openaf-dollar-functions.md) for synchronization, processes, and cleanup contracts.

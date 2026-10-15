@@ -453,3 +453,7 @@ jobs:
 ```
 
 Job arguments are available in the `args` variable in Python jobs, consistent with JavaScript job behaviour.
+
+## October authoring updates
+
+Start with [the script-to-oJob tutorial](../guides/ojob/script-to-ojob.md) and [downloadable recipes](../guides/ojob/authoring-recipes.md). The refreshed [YAML reference](../guides/ojob/ojob-yaml-reference.md) explains argument sharing, language subprocesses, and embedded code export/import. Sequential execution does not by itself enable `shareArgs`; configure it explicitly when stages pass results through `args`. [Testing guidance](../guides/ojob/authoring-testing.md) covers failure behavior and cleanup.

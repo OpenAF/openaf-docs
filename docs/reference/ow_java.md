@@ -583,10 +583,10 @@ Tries to search aTerm in maven.org and then fallsback to archetype-catalog.xml r
 ````
 ### ow.java.parseHSPerf
 
-__ow.java.parseHSPerf(aByteArrayOrFile, retFlat) : Map__
+__ow.java.parseHSPerf(aByteArrayOrFile, retFlat, options) : Map__
 
 ````
-Given aByteArray or a file path for a java (hotspot jvm) hsperf file (using ow.java.getLocalJavaPIDs or similar) will return the java performance information parsed into a map. If retFlat = true the returned map will be a flat map with each java performance metric and correspondent value plus additional calculations with the prefix "__"
+Given aByteArray or a file path for a java (hotspot jvm) hsperf file (using ow.java.getLocalJavaPIDs or similar) will return the java performance information parsed into a map. If retFlat = true the returned map will be a flat map with each java performance metric and correspondent exact string value. Nested output includes available derived calculations with the prefix "__". Supports HotSpot perfdata 2.0 (Java 8+), with long scalars and UTF-8 strings. options.metadata=true returns {values, header, entries}; entries use original counter names. options.strict=true throws descriptive parse errors, including unsupported counter types/shapes; otherwise unsupported counters are skipped and invalid or inaccessible buffers return 4. File and argument errors throw. Header overflow reports counters that could not be stored. Derived timer values use the reported frequency; application time is an estimate.
 ````
 ### ow.java.parseJFR
 

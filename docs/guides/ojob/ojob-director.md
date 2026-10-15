@@ -56,7 +56,7 @@ jobs:
     from: oJob Director checkin
     args:
       jobName: process-data
-      jobUUID: "{{uuid}}"
+      jobUUID: "{% raw %}{{uuid}}{% endraw %}"
     exec: |
       // This code only runs if no other instance has processed this UUID
       log("Processing job with UUID: " + args.jobUUID)
@@ -149,7 +149,7 @@ jobs:
     from: oJob Director checkin
     args:
       jobName: order-processing
-      jobUUID: "{{orderId}}"
+      jobUUID: "{% raw %}{{orderId}}{% endraw %}"
     exec: |
       // Only runs if this orderId hasn't been processed
       log("Processing order: " + args.orderId)
@@ -236,7 +236,7 @@ jobs:
     from: oJob Director checkin
     args:
       jobName: event-processor
-      jobUUID: "{{eventId}}"
+      jobUUID: "{% raw %}{{eventId}}{% endraw %}"
     exec: |
       log("Processing event: " + args.eventId)
 
@@ -280,7 +280,7 @@ jobs:
       cron: "0 * * * *"  # Every hour
     args:
       jobName: cleanup
-      jobUUID: "{{ow.format.fromDate(new Date(), 'yyyyMMddHH')}}"
+      jobUUID: "{% raw %}{{ow.format.fromDate(new Date(), 'yyyyMMddHH')}}{% endraw %}"
     exec: |
       // Generate UUID based on hour - ensures once per hour
       log("Running hourly cleanup")
@@ -332,7 +332,7 @@ jobs:
     from: oJob Director checkin
     args:
       jobName: batch-processor
-      jobUUID: "{{batchId}}"
+      jobUUID: "{% raw %}{{batchId}}{% endraw %}"
     exec: |
       log("Worker " + getEnv("WORKER_ID") + " processing " + args.batchId)
 
@@ -404,7 +404,7 @@ jobs:
     from: oJob Director checkin
     args:
       jobName: risky-task
-      jobUUID: "{{jobUUID}}"
+      jobUUID: "{% raw %}{{jobUUID}}{% endraw %}"
     exec: |
       log("Attempt " + args.attempt + " for task " + args.taskId)
 
@@ -590,16 +590,16 @@ jobName: process
 
 ```yaml
 # Event ID - natural unique identifier
-jobUUID: "{{orderId}}"
+jobUUID: "{% raw %}{{orderId}}{% endraw %}"
 
 # Time-based - for scheduled jobs
-jobUUID: "{{ow.format.fromDate(new Date(), 'yyyyMMddHHmm')}}"
+jobUUID: "{% raw %}{{ow.format.fromDate(new Date(), 'yyyyMMddHHmm')}}{% endraw %}"
 
 # Combined - for batch items
-jobUUID: "{{batchId}}-{{itemId}}"
+jobUUID: "{% raw %}{{batchId}}{% endraw %}-{% raw %}{{itemId}}{% endraw %}"
 
 # Random - for one-time tasks
-jobUUID: "{{genUUID()}}"
+jobUUID: "{% raw %}{{genUUID()}}{% endraw %}"
 ```
 
 ### 3. Always Checkout
@@ -716,7 +716,7 @@ jobs:
     from: oJob Director checkin
     args:
       jobName: order-processing
-      jobUUID: "{{orderId}}"
+      jobUUID: "{% raw %}{{orderId}}{% endraw %}"
     exec: |
       log("Processing order: " + args.orderId)
 

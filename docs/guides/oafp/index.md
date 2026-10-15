@@ -8,3 +8,8 @@ nav_order: 5
 ---
 
 ## oafp
+
+## October documentation
+
+* [Processor reference](oafp-reference.md)
+* [Decisions and interactive JSON exploration](october-features.md)

@@ -43,3 +43,7 @@ The following lists all the available oPack commands *verbs* that can be used:
 ## How to create an oPack
 
 ## How to setup an oPack Server
+
+## Package authoring reference
+
+The [oPacks guide](../guides/advanced/opacks.md) documents manifests, repository configuration, script integration, dependency resolution, and package publishing. Declaring an oJob package dependency can install or update packages; it does not import JavaScript or job definitions.

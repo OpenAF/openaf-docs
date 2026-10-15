@@ -159,7 +159,7 @@ Given data as an array of maps or a single map tries to produce an output with o
 __ow.obj.flatten(arrayOfMaps, aSeparator, aNADefault) : Array__
 
 ````
-Converts any structured arrayOfMaps into a flat array of maps with only one level of keys. The map key path will be converted into a single key using aSeparator (defaults to "_") and the value will be represented as aNADefault (defaults to "") when no  value or key exists in other entries. For each array entry a new array element will be created replicated all other keys. Usefull to convert data to output into CSV for example.
+Converts any structured arrayOfMaps into a flat array of maps with only one level of keys. The map key path will be converted into a single key using aSeparator (defaults to "_") and the value will be represented as aNADefault (defaults to "") when no  value or key exists in other entries. For each array entry a new array element will be created replicated all other keys. Useful to convert data to output into CSV for example. Nested arrays of scalar values use the full parent path as their column name. aSeparator is literal, including regular-expression characters.
 ````
 ### ow.obj.fromArray2DB
 
@@ -173,7 +173,7 @@ Given anArray composed of maps where each key is a field name tries to insert in
 __ow.obj.fromArray2Obj(anArray, aKey, dontRemove) : Array__
 
 ````
-Tries to create a map of maps from the provided anArrays. Optionally if aKey is provided it will be used to create the map keys (otherwise will fallback to "row[number]"). And can also optionally indicate by dontRemove = true that aKey shouldn't be removed from each map. 
+Tries to create a map of maps from the provided anArrays. Optionally if aKey is provided it will be used to create the map keys (otherwise will fallback to "row[number]"). And can also optionally indicate by dontRemove = true that aKey shouldn't be removed from each map.
 var a = [
   { "abc": "123", "xpt": "000", "key": "A1" },
   { "abc": "456", "xpt": "001", "key": "A2" },
@@ -287,15 +287,13 @@ For example:
 __ow.obj.getPath(aObject, aPath) : Object__
 
 ````
-Given aObject it will try to parse the aPath a retrive the corresponding object under that path. Example:
+Given aObject, retrieves the value at aPath using dot notation or unquoted bracket indexes. Returns undefined if a key is absent or an intermediate value is null, undefined or a scalar. A null or scalar at the final path segment is returned unchanged. Example:
 
 var a = { a : 1, b : { c: 2, d: [0, 1] } };
 
 print(ow.obj.getPath(a, "b.c")); // 2
 sprint(ow.obj.getPath(a, "b.d")); // [0, 1]
 print(ow.obj.getPath(a, "b.d[0]")); // 0
-
-
 ````
 ### ow.obj.http
 
@@ -323,7 +321,7 @@ Example:
 __ow.obj.http.close()__
 
 ````
-Closes the current http connection.
+Closes the current http connection response (if any) and releases any pooled connections kept open by this http client (useful when a single http object is reused, e.g. through options.httpClient, to ensure idle keep-alive connections aren't left open).
 ````
 ### ow.obj.http.exec
 
@@ -820,21 +818,21 @@ Given aMap will return a URL query string. Example:
 __ow.obj.schemaAdd(aKey, aSchema)__
 
 ````
-Adds a JSON aSchema internally referring as aKey.
+Registers a JSON Schema under aKey in its selected draft engine. Keys and root $ids cannot collide across drafts. Register referenced schemas in the same draft before compiling a schema that uses them.
 ````
 ### ow.obj.schemaCheck
 
 __ow.obj.schemaCheck(aSchema) : Boolean__
 
 ````
-Returns true/false if aSchema is a valid or not.
+Checks whether aSchema is valid in its selected dialect, returning true/false. Unsupported dialects and configuration errors are thrown; this does not validate application data.
 ````
 ### ow.obj.schemaCompile
 
 __ow.obj.schemaCompile(aSchema) : Function__
 
 ````
-Given a JSON aSchema returns a specific function to validate data over the provided aSchema.
+Compiles a JSON Schema into a reusable validator returning true/false with details in its errors property. The root $schema selects the draft; absent means draft-07. Compilation errors are thrown.
 ````
 ### ow.obj.schemaGenerator
 
@@ -842,25 +840,24 @@ __ow.obj.schemaGenerator(aJson, aId, aRequiredArray, aDescriptionTmpl) : Map__
 
 ````
 Given aJson object it tries to return a generated base json-schema (http://json-schema.org/understanding-json-schema/index.html) with an optional aId and optional descriptions based on aDescriptionTmpl (template) with the variables id, required, json, _detail (boolean indicating whent the template is used for items), type, format and key. Some special notation:
+The generator emits draft-07 and infers array items from the first sample item. Review and schemaCheck the result.
   - to indicate a regular expression just use a string starting and ending with a "/"
   - to indicate a numeric range just use a "[" (inclusive) or a "]" (exclusive) to describe a numeric range (e.g "[2, 4[" )
   - for enumeration use a "(" and a ")" on the beginning and end of a string representing an array of values (e.g. "([ 'red', 'blue', 'green' ])" )
-
-
 ````
 ### ow.obj.schemaInit
 
 __ow.obj.schemaInit(aOptions)__
 
 ````
-Internally initializes the Ajv library. That initialization will use the options refered in  https://github.com/epoberezkin/ajv#options.
+Initializes JSON Schema validation once per process. Without options, enables $data, $comment and useDefaults (which can modify validated data). Explicit options replace these defaults; later calls do not reconfigure it. Schemas select draft-07 (the default), draft-2019-09 or draft-2020-12 through $schema. See https://ajv.js.org/options.html and docs/json-schema.md for options and compatibility notes.
 ````
 ### ow.obj.schemaRemove
 
 __ow.obj.schemaRemove(aKey)__
 
 ````
-Removes a previsouly added JSON schema identified as aKey.
+Removes schemas by key/$id, regular expression, or schema object across the draft engines. Without aKey, removes all application schemas, retaining built-in meta-schemas and initialization options.
 ````
 ### ow.obj.schemaSampleGenerator
 
@@ -874,14 +871,14 @@ Tries to generate a sample JSON map based on the provided aJsonSchema. There is 
 __ow.obj.schemaValidate(aSchema, aData, aErrorOptions) : boolean__
 
 ````
-Using a JSON aSchema ill try to validate the provided aData. Optionally error options can be provided. (check more in https://github.com/epoberezkin/ajv)
+Validates data against a schema object or registered key/$id. Returns true on success; throws an error string on invalid data. aErrorOptions supports dataVar (default args) and separator. Defaults can modify aData. For boolean validation use schemaCompile(aSchema)(aData). See docs/json-schema.md.
 ````
 ### ow.obj.searchArray
 
 __ow.obj.searchArray(anArray, aPartialMap, useRegEx, ignoreCase, useParallel) : Array__
 
 ````
-Searches anArray of maps for entries where aPartialMap matches. If useRegEx is true all string entries on aPartialMap will be interpreted as regular expressions. For number entries on the original map you can  have the prefixes >, <, >= and <= to limit the numeric values. Optionally you can provide also ignoreCase = true to ignore case (will only affect if useRegEx is true). And optionally also useParallel to provide the number of threads to use. Example:
+Searches anArray of maps for entries where aPartialMap matches. If useRegEx is true all string entries on aPartialMap will be interpreted as regular expressions. For number entries on the original map you can  have the prefixes >, <, >= and <= to limit the numeric values. The complete comparison must contain a signed or unsigned number, optionally with decimals or an exponent (for example, >=-1.5). Comparisons accept numbers and numeric strings; missing, null, boolean and nonnumeric values do not match. Other string patterns remain regular expressions. Optionally you can provide also ignoreCase = true to ignore case (will only affect if useRegEx is true). And optionally also useParallel to provide the number of threads to use. Example:
 
 ow.obj.searchArray(io.listFiles("/usr/bin").files, { "isFile": true, "filename": "^cal.*", "size": ">=32000" }, true, true);
 
@@ -1178,4 +1175,12 @@ __ow.obj.syncMap.toMap() : Map__
 
 ````
 Returns the internal map as a javascript map.
+````
+
+### ow.obj.http0.close
+
+__ow.obj.http0.close()__
+
+````
+Closes the current http connection response (if any) and shuts down the underlying Apache HTTP client, releasing any pooled connections it may be keeping open. The object remains usable afterwards: the next exec() call will transparently build a new underlying client.
 ````

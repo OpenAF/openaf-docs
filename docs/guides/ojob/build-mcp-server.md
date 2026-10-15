@@ -292,3 +292,6 @@ The MCP stdio server now handles `ping` requests automatically, returning the ex
 - Revisit `https://github.com/openaf/mini-a/mcps/CREATING.md` whenever you need the full checklist.
 - Extend `https://github.com/openaf/oJob-common/oJobMCP.yaml` if you need new shared behaviours (additional logging, authentication, etc.).
 
+## October protocol and authentication additions
+
+The [server API reference](../../reference/ow_server.md) documents shared protocol helpers, stdio serving, and HTTP replies. Modern stateless protocol support is negotiated explicitly by clients; see [`$mcp`](../../reference/scope.md#mcp). For delegated client login, use the [localhost OAuth guide](../advanced/mcp-oauth.md).

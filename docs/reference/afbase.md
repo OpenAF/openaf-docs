@@ -411,8 +411,42 @@ Given aToken and a 2FA aKey returns true if it's valid. Note: it will use the cu
 ````
 ### af.visibleLength
 
-__af.visibleLength(aString) : int__
+__af.visibleLength(aString, aWideEmojiPresentation) : int__
 
 ````
-Given aString will try to remove ansi characters and just count code point (e.g. removing combined characters like emojis).
+Given aString returns its visible terminal width in columns, removing ANSI sequences and collapsing combined characters and emoji grapheme sequences. By default (aWideEmojiPresentation = true) bare "Emoji_Presentation=Yes" symbols (e.g. ✅ ⏳ ⚽ without a trailing U+FE0F) count as double-width, matching how modern GUI terminals (macOS Terminal, iTerm2, VS Code) render them. Pass false to match plain wcwidth-style terminals that only widen those symbols with an explicit U+FE0F.
+````
+
+### af.jqJava
+
+__af.jqJava(input, expression, options) : Object__
+
+````
+Evaluates jq 1.6 against JSON values. Prefer $jq for the documented public interface.
+````
+
+### af.pathJava
+
+__af.pathJava(obj, expression, customFunctions) : Object__
+
+````
+Evaluates a JMESPath expression directly against Rhino values using the Java engine. Uses __flags.PATH_CACHE_SIZE (default 256, 0 disables caching). Prefer $path for OpenAF extensions.
+````
+
+### af.compileToJar
+
+__af.compileToJar(aClassfile, aScriptString, aJarFile)__
+
+````
+Given aClassfile name and aScriptString it will generate Java bytecode as a result of compiling aScriptString, writing every generated class as a single entry into aJarFile instead of one loose .class file per class (see af.compileToClasses). aJarFile is written to a temporary file next to it and then moved into place, so a failed compile never leaves a partial/corrupt jar behind; the class can then be loaded with af.externalClass/af.runFromExternalClass pointed at aJarFile directly (a URLClassLoader treats a jar file URL the same as a directory URL). Example:
+
+af.compileToJar("SomeClass", "print('hello world!');", "/some/path/SomeClass.jar")
+````
+
+### af.newScriptInstance
+
+__af.newScriptInstance(aClassOrName) : Script__
+
+````
+Instantiates a compiled script class, handling Rhino descriptor-based constructors when needed.
 ````

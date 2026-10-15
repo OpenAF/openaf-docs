@@ -150,7 +150,7 @@ jobs:
     args:
       file: report.xlsx
       sheet: "Sales Data"
-      data: "{{salesData}}"
+      data: "{% raw %}{{salesData}}{% endraw %}"
       position:
         row: 2
         column: 'B'
@@ -200,8 +200,8 @@ jobs:
     to: SQL
     args:
       DBURL: "jdbc:postgresql://localhost:5432/mydb"
-      DBUser: "{{dbUser}}"
-      DBPass: "{{dbPass}}"
+      DBUser: "{% raw %}{{dbUser}}{% endraw %}"
+      DBPass: "{% raw %}{{dbPass}}{% endraw %}"
       sql: |
         SELECT
           employee_id,
@@ -443,13 +443,13 @@ jobs:
   - name: Email Report
     to: oJob Send email
     args:
-      server: "{{emailServer}}"
+      server: "{% raw %}{{emailServer}}{% endraw %}"
       from: "reports@example.com"
       to: ["team@example.com"]
-      subject: "Daily Report - {{ow.format.fromDate(new Date(), 'yyyy-MM-dd')}}"
+      subject: "Daily Report - {% raw %}{{ow.format.fromDate(new Date(), 'yyyy-MM-dd')}}{% endraw %}"
       output: "Please find attached the daily report."
       addAttachments:
-        - file: "{{filename}}"
+        - file: "{% raw %}{{filename}}{% endraw %}"
           name: "daily-report.xlsx"
 
 todo:
@@ -685,9 +685,9 @@ jobs:
   - name: Get Sales Data
     to: SQL
     args:
-      DBURL: "{{dbUrl}}"
-      DBUser: "{{dbUser}}"
-      DBPass: "{{dbPass}}"
+      DBURL: "{% raw %}{{dbUrl}}{% endraw %}"
+      DBUser: "{% raw %}{{dbUser}}{% endraw %}"
+      DBPass: "{% raw %}{{dbPass}}{% endraw %}"
       sql: |
         SELECT
           DATE(order_date) as date,
@@ -706,9 +706,9 @@ jobs:
   - name: Get Summary
     to: SQL
     args:
-      DBURL: "{{dbUrl}}"
-      DBUser: "{{dbUser}}"
-      DBPass: "{{dbPass}}"
+      DBURL: "{% raw %}{{dbUrl}}{% endraw %}"
+      DBUser: "{% raw %}{{dbUser}}{% endraw %}"
+      DBPass: "{% raw %}{{dbPass}}{% endraw %}"
       sql: |
         SELECT
           category,
@@ -785,18 +785,18 @@ jobs:
       - Generate Report
     to: oJob Send email
     args:
-      server: "{{emailServer}}"
+      server: "{% raw %}{{emailServer}}{% endraw %}"
       from: "reports@example.com"
       to: ["sales-team@example.com", "management@example.com"]
-      subject: "Monthly Sales Report - {{ow.format.fromDate(new Date(), 'MMMM yyyy')}}"
+      subject: "Monthly Sales Report - {% raw %}{{ow.format.fromDate(new Date(), 'MMMM yyyy')}}{% endraw %}"
       output: |
         Please find attached the monthly sales report.
 
-        Report period: {{ow.format.fromDate(new Date(), 'MMMM yyyy')}}
-        Generated: {{ow.format.fromDate(new Date(), 'yyyy-MM-dd HH:mm:ss')}}
+        Report period: {% raw %}{{ow.format.fromDate(new Date(), 'MMMM yyyy')}}{% endraw %}
+        Generated: {% raw %}{{ow.format.fromDate(new Date(), 'yyyy-MM-dd HH:mm:ss')}}{% endraw %}
       addAttachments:
-        - file: "{{reportFile}}"
-          name: "{{reportFile}}"
+        - file: "{% raw %}{{reportFile}}{% endraw %}"
+          name: "{% raw %}{{reportFile}}{% endraw %}"
 
 todo:
   - Get Sales Data
@@ -871,6 +871,6 @@ jobs:
 ## See Also
 
 - [oJob Basics](common-browse.md)
-- [oJob SQL](common-browse.md#oJobSQL)
-- [XLS Plugin Reference](../../reference/plugins/xls.md)
+- [oJob YAML reference](ojob-yaml-reference.md)
+- [Package documentation and discovery](../advanced/opacks.md)
 - [ow.format.xls Reference](../../reference/ow_format.md)

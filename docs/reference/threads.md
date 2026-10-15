@@ -169,3 +169,35 @@ __Threads.waitForThreads(aTimeout) : boolean__
 ````
 Waits for all threads to finish during aTimeout period (in ms). Returns true if all threads stopped or false otherwise.
 ````
+
+### Threads.runOpenAFShutdownHooksNow
+
+__Threads.runOpenAFShutdownHooksNow()__
+
+````
+Synchronously runs, in the current thread, every shutdown hook/action registered so far via addOpenAFShutdownHook (and Java-side registrations such as io.createTempDir's cleanup) - in the reverse order they were added. Each one is guarded to run at most once, so it is safe to call this and still let the normal JVM shutdown sequence run afterwards (e.g. via System.exit): already-run hooks will be skipped there. Intended to be used right before Threads.nativeExit.
+````
+
+### Threads.nativeExit
+
+__Threads.nativeExit(anExitCode)__
+
+````
+Terminates the current process immediately at the operating system level (the C library's _exit), bypassing the JVM's own shutdown sequence entirely - including JVM-registered shutdown hook threads and the safepoint HotSpot uses to wait for JIT compiler threads, which can otherwise delay process exit by several seconds (observed up to ~10s) when a compilation is still in flight. Because JVM-level cleanup is skipped, call Threads.runOpenAFShutdownHooksNow() first for any cleanup that must still happen (this is what exit(code, true) does). Falls back to Runtime.halt (not guaranteed to avoid the delay this method exists to avoid) if the native call is unavailable on this platform.
+````
+
+### Threads.armFastExitOnShutdown
+
+__Threads.armFastExitOnShutdown(anExitCode)__
+
+````
+Arms an extra JVM shutdown hook that waits for every other OpenAF-registered shutdown hook/action (see addOpenAFShutdownHook and the Java-side registerShutdownAction) to finish, then calls Threads.nativeExit(anExitCode) itself - the same fast-exit trick exit(code, true) uses, but triggered automatically once JVM shutdown actually begins rather than requiring an explicit exit(code, true) call. This covers cases like a script simply finishing, Ctrl-C or SIGTERM, where the JVM's own trailing teardown (including the safepoint wait for JIT compiler threads that can delay exit by several seconds) would otherwise still run after the hooks are done. Calling this does nothing on its own: it only takes effect once real JVM shutdown starts, so normal execution and daemon/server processes that intentionally stay alive (non-daemon threads still running) are unaffected. As with exit(code, true), once armed, any shutdown hook or File.deleteOnExit() entry not registered through OpenAF will NOT run once shutdown starts. Idempotent: calling it again just updates the exit code that will be used.
+````
+
+### Threads.setRequestedExitCode
+
+__Threads.setRequestedExitCode(anExitCode)__
+
+````
+Records anExitCode as the status the process is about to exit with (to be called right before System.exit) so that, if armFastExitOnShutdown is armed, the fast exit preserves it instead of using the armed exit code.
+````

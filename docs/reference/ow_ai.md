@@ -13,7 +13,7 @@ grand_parent: OpenAF docs
 __$gpt(aModel) : $gpt__
 
 ````
-Creates a GPT AI model of aType (e.g. "openai" or "ollama") with aOptions.
+Creates a GPT AI model from aModel (e.g. type "openai", "gemini", "ollama" or "anthropic").
 
 aModel can be a map with the following properties:
 - type: the type of the model (e.g. "openai", "ollama", "anthropic")
@@ -25,8 +25,25 @@ aModel can be a map with the following properties:
 - instructions: a string or an array of strings with the instructions for the model (e.g. "json", "boolean", "sql", "js", "path")
 - headers: a map with the headers to use in the requests (e.g. { "Content-Type": "application/json" })
 - params: a map with the parameters to use in the requests (e.g. { "max_tokens": 1000, "top_p": 1, "frequency_penalty": 0, "presence_penalty": 0 })
+- promptCaching: when true adds Anthropic cache_control markers; no prompt-caching beta header is required (defaults to false)
 
-If aModel is not provided, it will try to get the model from the environment variable "OAF_MODEL" with the map in JSON or [SLON](https://github.com/nmaguiar/slon) format.
+For type "openai", options can also include:
+- decisionApi: native decision contract ("openai" default, "openrouter", or "microsoft"). Microsoft requires mode "foundry" or "azure-foundry", API v1 and an explicit deployment name in model.
+- decisionUrl: optional absolute HTTP(S) native decision endpoint override.
+- mode: transport mode ("openai", "azure-openai-v1", "azure-openai-legacy" or "foundry").
+- apiVersion: OpenAI-compatible API version path segment, or Azure legacy api-version query parameter. In Foundry mode, "v1" uses the /openai/v1 path; dated versions use the /models route with api-version. Defaults to "v1".
+- deployment: Azure OpenAI legacy deployment name; defaults to model when omitted.
+- authType: generated authentication header style ("bearer", "api-key" or "none"). Defaults to "bearer" for OpenAI mode and "api-key" for Azure/Foundry modes.
+
+OpenAI-compatible examples:
+- { type: "openai", key: "sk-...", url: "https://api.openai.com/v1", model: "gpt-4o-mini" }
+- { type: "openai", key: "...", url: "https://RESOURCE.openai.azure.com", mode: "azure-openai-v1", model: "DEPLOYMENT" }
+- { type: "openai", key: "...", url: "https://RESOURCE.openai.azure.com", mode: "azure-openai-legacy", deployment: "DEPLOYMENT", apiVersion: "2024-10-21" }
+- { type: "openai", key: "...", url: "https://RESOURCE.services.ai.azure.com", mode: "foundry", model: "DEPLOYMENT" }
+- { type: "openai", key: "...", url: "https://RESOURCE.services.ai.azure.com/models", mode: "foundry", apiVersion: "2024-05-01-preview", model: "DEPLOYMENT" }
+
+If aModel is not provided, it will try to get the model from the environment variable "OAF_MODEL" with the map in JSON or SLON format.
+The returned object also exposes helper methods to inspect vendor usage information: `getLastStats`/`lastStats` (map with the latest statistics), `promptWithStats`, `promptJSONWithStats` and `rawPromptWithStats` (returning `{ response, stats }`). OpenAI compatible models can expose cached prompt tokens via `stats.tokens.cached`.
 ````
 ### $gpt.promptStream
 
@@ -106,7 +123,11 @@ Tries to prompt aPrompt (a string or an array of strings) and aModel (defaults t
 __$gpt.jsonSchemaPrompt(aPrompt, aResponseSchema, aModel, aTemperature, tools) : Object__
 
 ````
-Executes a prompt using OpenAI's Responses API JSON Schema mode, enforcing structured output validated against aResponseSchema. aResponseSchema should be a map with: name (string), description (string), schema (JSON Schema object), strict (boolean, defaults to true). Returns the parsed JSON response matching the provided schema. Only supported by the "openai" provider; throws if the underlying provider does not implement it.
+Executes a prompt using OpenAI's JSON Schema response format, enforcing structured output validated against aResponseSchema.
+aResponseSchema should be a map with: name (string), description (string), schema (JSON Schema object), strict (boolean, defaults to true).
+Gemini uses its provider-specific GenerateContent schema hook and supported schema subset; explicit nonempty tools are rejected.
+Returns the parsed JSON response matching the provided schema.
+Supported by the "openai" and "gemini" providers.
 ````
 ### $gpt.jsonSchemaPromptWithStats
 
@@ -114,6 +135,7 @@ __$gpt.jsonSchemaPromptWithStats(aPrompt, aResponseSchema, aModel, aTemperature,
 
 ````
 Executes jsonSchemaPrompt and returns the parsed response together with any reported statistics ({ response, stats }).
+aResponseSchema should be a map with: name (string), description (string), schema (JSON Schema object), strict (boolean, defaults to true). Gemini uses its provider-specific GenerateContent schema hook and supported schema subset; explicit nonempty tools are rejected.
 ````
 ### $gpt.rawPromptWithStats
 
@@ -249,12 +271,14 @@ Common aOptions properties include:
 - params: extra request body parameters merged into prompt, image and embedding calls.
 - noSystem: when true, system messages are converted to developer messages where supported (defaults to true).
 - noResponseFormat: when true, disables OpenAI-compatible JSON response_format injection.
-- promptCaching: when true enables Anthropic prompt caching headers and cache_control markers (defaults to false).
+- promptCaching: when true adds Anthropic cache_control markers; no prompt-caching beta header is required (defaults to false).
 
-OpenAI-compatible transport options (aOptions.type = "openai"), used to target Azure OpenAI and Azure AI Foundry as well as plain OpenAI:
+OpenAI-compatible transport options:
 - apiVersion: API version/path segment for OpenAI-compatible routes (defaults to "v1"). In Azure legacy mode this becomes the api-version query parameter. In Foundry mode, "v1" uses the /openai/v1 path; dated versions use the /models route with api-version.
 - mode: transport mode. Supported values are "openai" (default), "azure-openai-v1", "azure-openai-legacy" and "foundry". Aliases: "azure-v1", "azure-legacy" and "azure-foundry".
 - deployment: deployment name for "azure-openai-legacy" mode. If omitted, the selected model name is used.
+- decisionApi: native decision contract ("openai" default, "openrouter", or "microsoft"). Microsoft requires Foundry mode, API v1 and an explicit model deployment name.
+- decisionUrl: optional absolute HTTP(S) native decision endpoint override.
 - authType: authentication header style. Supported values are "bearer" (OpenAI default), "api-key" (Azure/Foundry default) and "none".
 
 Examples:
@@ -264,7 +288,7 @@ Examples:
 - Azure AI Foundry v1: new ow.ai.gpt("openai", { key: "...", url: "https://RESOURCE.services.ai.azure.com", mode: "foundry", model: "DEPLOYMENT" })
 - Azure AI Foundry dated API: new ow.ai.gpt("openai", { key: "...", url: "https://RESOURCE.services.ai.azure.com/models", mode: "foundry", apiVersion: "2024-05-01-preview", model: "DEPLOYMENT" })
 
-Usage stats note: getLastStats() now includes OpenAI cached prompt tokens (tokens.cached) when reported by compatible models.
+Usage stats note: `getLastStats()` now includes OpenAI cached prompt tokens (`tokens.cached`) when reported by compatible models.
 ````
 ### ow.ai.gpt.addDeveloperPrompt
 
@@ -411,7 +435,11 @@ Executes rawPrompt and returns the raw response together with any reported stati
 __ow.ai.gpt.jsonSchemaPrompt(aPrompt, aResponseSchema, aModel, aTemperature, tools) : Object__
 
 ````
-Executes a prompt using OpenAI's Responses API JSON Schema mode, enforcing structured output validated against aResponseSchema. aResponseSchema should be a map with: name (string), description (string), schema (JSON Schema object), strict (boolean, defaults to true). Returns the parsed JSON response matching the provided schema. Only supported by the "openai" provider; throws if the underlying provider does not implement rawResponse.
+Executes a prompt using OpenAI's JSON Schema response format, enforcing structured output validated against aResponseSchema.
+aResponseSchema should be a map with: name (string), description (string), schema (JSON Schema object), strict (boolean, defaults to true).
+Gemini uses its provider-specific GenerateContent schema hook and supported schema subset; explicit nonempty tools are rejected.
+Returns the parsed JSON response matching the provided schema.
+Only supported by the "openai" provider; throws if the underlying provider does not implement rawResponse.
 ````
 ### ow.ai.gpt.jsonSchemaPromptWithStats
 
@@ -419,6 +447,7 @@ __ow.ai.gpt.jsonSchemaPromptWithStats(aPrompt, aResponseSchema, aModel, aTempera
 
 ````
 Executes jsonSchemaPrompt and returns the parsed response together with any reported statistics ({ response, stats }).
+aResponseSchema should be a map with: name (string), description (string), schema (JSON Schema object), strict (boolean, defaults to true). Gemini uses its provider-specific GenerateContent schema hook and supported schema subset; explicit nonempty tools are rejected.
 ````
 ### ow.ai.gpt.jsonPromptWithStatsRaw
 
@@ -615,7 +644,7 @@ __ow.ai.network.train(trainingData, trainArgs)__
 
 ````
 Trains the current network with the trainingData provided. trainingData should be an array of maps. Each  map entry should have a input and output keys. Each input and output entries should be an array for the  entry values and output values normalized to a decimal number between 0 and 1. Example:
-[{input: [0,0], output: [0]}, {input: [0,1], output: [1]}, {input: [1,0], output: [1]}, {input: [1,1], output :[0]}]\. 
+[{input: [0,0], output: [0]}, {input: [0,1], output: [1]}, {input: [1,0], output: [1]}, {input: [1,1], output :[0]}]\.
 
 ````
 ### ow.ai.network.writeFile
@@ -767,3 +796,67 @@ Set a debug channel on a GPT model instance to capture detailed logs of all AI i
 var gpt = $gpt({ type: "openai", options: { key: "...", model: "gpt-4o" } })
 gpt.setDebugChannel("debug::gpt")   // logs go to channel "debug::gpt"
 ```
+
+### ow.ai.gpt.getCapabilities
+
+__ow.ai.gpt.getCapabilities() : Map__
+
+````
+Returns implemented decision strategies, verified contracts and model availability (usually unknown). Does not contact the provider. Legacy adapters without hooks report unsupported decision strategies.
+````
+
+### ow.ai.gpt.decide
+
+__ow.ai.gpt.decide(aState, aQuestions, aOptions) : Map__
+
+````
+Evaluates text/JSON state with named choice, boolean and ordinal score questions. Returns contractVersion 1. Options: strategy (auto/native/structured), model, requireProbabilities, providerOptions, images (Ollama raw base64 or OpenAI inline image data URLs; native only). Stateless: ignores conversation and tools. Native probabilities are provider information, not calibrated correctness. Structured probability fields are null.
+````
+
+### ow.ai.gpt.rawDecide
+
+__ow.ai.gpt.rawDecide(aState, aQuestions, aOptions) : Map__
+
+````
+Returns { contractVersion, provider, model, strategy, raw } from one execution. Malformed answer content can be inspected, except requireProbabilities still validates coverage and probability semantics. Transport/API errors always throw.
+````
+
+### ow.ai.gpt.decideWithStats
+
+__ow.ai.gpt.decideWithStats(aState, aQuestions, aOptions) : Map__
+
+````
+Returns { response, stats } from one execution with request-scoped usage. Missing usage remains absent.
+````
+
+### $gpt.decide
+
+__$gpt.decide(aState, aQuestions, aOptions) : Map__
+
+````
+Returns a stateless versioned decision envelope. Also exposed through $llm. See ow.ai.gpt.decide and docs/llm-decisions.md.
+````
+
+### $gpt.rawDecide
+
+__$gpt.rawDecide(aState, aQuestions, aOptions) : Map__
+
+````
+Returns execution metadata and the raw provider payload from one stateless request.
+````
+
+### $gpt.decideWithStats
+
+__$gpt.decideWithStats(aState, aQuestions, aOptions) : Map__
+
+````
+Returns { response, stats } from one stateless decision execution.
+````
+
+### $gpt.getCapabilities
+
+__$gpt.getCapabilities() : Map__
+
+````
+Reports decision adapter support and runtime availability without a network request.
+````

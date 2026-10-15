@@ -373,7 +373,7 @@ Converts aUnixDate timestamp into a javascript Date.
 __ow.format.fromWedoDate(aWedoDate, aFormat) : String__
 
 ````
-Shortcut for ow.format.fromDate but using a wedo date. See ow.format.fromDate for more help.  
+Shortcut for ow.format.fromDate but using a wedo date. See ow.format.fromDate for more help.
 (available after ow.loadFormat())
 ````
 ### ow.format.fromWedoDateToDate
@@ -556,7 +556,7 @@ Tries to determine if aURL seems a syntactic valid URL.
 __ow.format.isWedoDate(aWedoDate) : boolean__
 
 ````
-Determines if the aWedoDate object is a wedo date type (returns true if yes, false otherwise).  
+Determines if the aWedoDate object is a wedo date type (returns true if yes, false otherwise).
 (available after ow.loadFormat())
 ````
 ### ow.format.isWindows
@@ -662,9 +662,7 @@ valueFormat ("raw", "si" or "bytes"; default "raw").
 __ow.format.printDashboard(widgets, aOptions) : String__
 
 ````
-Returns a multi-widget dashboard string. widgets is an array (or 2D array for explicit grid rows) of widget maps
-with fields: type, data, title, span (proportional column width, default 1), options. Supported types: table, tree,
-chart, sparkline, histogram, heatmap, bullet, scatter, boxplot, timeline, statusMatrix, progress, text, md, map, area, bar, func.
+Returns a multi-widget dashboard string. widgets is an array (or 2D array for explicit grid rows) of widget maps with fields: type, data, title, span (proportional column width, default 1), options. Supported types: table, tree, chart, sparkline, histogram, heatmap, bullet, scatter, boxplot, timeline, statusMatrix, progress, text, md, map, area, bar, func.
 
 Per-widget notes:
 
@@ -674,7 +672,7 @@ Per-widget notes:
   bullet     : data is consumed by ow.format.printBullet; options can include min, max, target, ranges, label, unit, showValue, valueFormat
   sparkline  : data is consumed by ow.format.printSparkline
   histogram  : data is consumed by ow.format.printHistogram
-  heatmap    : data is consumed by ow.format.printHeatmap
+  heatmap    : data is consumed by ow.format.printHeatmap (numeric matrix, or a date/time/date-time keyed map for a time-bucketed view)
   scatter    : data is consumed by ow.format.printScatter
   boxplot    : data is consumed by ow.format.printBoxplot
   timeline   : data is consumed by ow.format.printTimeline
@@ -687,8 +685,8 @@ aOptions: width, height, columns (auto if 0), border (default true), borderColor
 __ow.format.printHeatmap(values, aOptions) : String__
 
 ````
-Returns a compact terminal heatmap for a numeric matrix or a map containing { values, xLabels, yLabels }.
-aOptions: width, height, min, max, xLabels, yLabels, legend (default false), palette.
+Returns a compact terminal heatmap for a numeric matrix, a map containing { values, xLabels, yLabels }, or (for a time-bucketed view) a plain map keyed by date ("YYYY-MM-DD"), time ("HH:mm") or date-time ("YYYY-MM-DDTHH:mm") strings mapping to numeric values, e.g. { "2026-01-15": 3, "2026-01-16": 0 }.
+Time-bucketed aOptions: xAxis/yAxis (one of "year", "month", "week", "weekday", "day", "hour"; yAxis may be "none" to force a single row; defaults to xAxis:"week",yAxis:"weekday" for date/date-time keys - a GitHub-style contribution calendar - or xAxis:"hour",yAxis:"none" for time-only keys; pass e.g. xAxis:"hour",yAxis:"weekday" on date-time keys for a punch-card view), weekStart (0=Sunday, default), from/to (bound the visible range), aggregate ("sum" default, "avg", "max" or "count", for multiple values landing in the same bucket), legend (default false, renders "Less (shades) More"), empty (glyph for buckets with no data, default "·"), dayLabels (which weekday rows/columns get a text label, default ["Mon","Wed","Fri"]), width, height, palette.
 ````
 ### ow.format.printHistogram
 
@@ -884,7 +882,7 @@ To be used with sh, af.sh or ssh.exec as the callbackFunc. Returns a function th
 __ow.format.streamSHPrefix(aPrefix, anEncoding, aSeparator, aTemplate, aFnHandler, infoFn, errorFn) : Function__
 
 ````
-To be used with sh, af.sh or ssh.exec as the callbackFunc. Returns a function that will prefix each line with aPrefix and used the returned string with print and printErr. Optionally you can provide aTemplate to add "prefix" (defaults to "[{{prefix}}]") and/or provide aFnHandler to chain another streaming handling function (receives a stream and a boolean to indicate if its stdout or stderr). It's also possible to provide a infoFn and errorFn to handle the output. If infoFn or errorFn are not provided they will default to print and printErr or to log and logErr if __flags.SH.prefixLog is true.
+To be used with sh, af.sh or ssh.exec as the callbackFunc. Returns a function that will prefix each line with aPrefix and used the returned string with print and printErr. Optionally you can provide aTemplate to add "prefix" (defaults to "[{% raw %}{{prefix}}{% endraw %}]") and/or provide aFnHandler to chain another streaming handling function (receives a stream and a boolean to indicate if its stdout or stderr). It's also possible to provide a infoFn and errorFn to handle the output. If infoFn or errorFn are not provided they will default to print and printErr or to log and logErr if __flags.SH.prefixLog is true.
 ````
 ### ow.format.string.ansiMoveDown
 
@@ -1112,7 +1110,7 @@ Returns a function to print multiple lines at the same time (using ansi cursor u
 __ow.format.string.pauseString(aString, aMsg)__
 
 ````
-Given aString starts an interactive paging of the contents of aString.  Optionally aMsg can be provided to be displayed with the paging percentage (use \{{percentage}} to be replaced by the percentage).
+Given aString starts an interactive paging of the contents of aString. PgUp/Left and PgDown/Right move by a page; Up/Down move by a line. Shift+Left/Home jumps to the top and Shift+Right/End jumps to the bottom. Shift+PgUp and Shift+PgDown are also supported as top/bottom aliases. At the bottom navigation remains available; forward paging or any ordinary key exits. Use q to quit. Optionally aMsg can be provided to be displayed with the paging percentage (use \{% raw %}{{percentage}}{% endraw %} to be replaced by the percentage).
 ````
 ### ow.format.string.printable
 
@@ -1222,15 +1220,14 @@ Given aString word wraps the text on it given the maxWidth length per line. Opti
 ````
 ### ow.format.string.wordWrapArray
 
-__ow.format.string.wordWrapArray(anArray, maxTableSize, sepLen, sepFunc, useIndex) : Array__
+__ow.format.string.wordWrapArray(anArray, maxTableSize, sepLen, sepFunc, useIndex, perRowHeight) : Array__
 
 ````
-Given anArray of maps will return an array suitable to use with printTable for a maxTableSize, a separator length (sepLen (which defaults to 1)) and an optional line separator function (sepFunc that receives the max length of a  column). Word-wrap is achieved by creating new map array entries whenever the calculated max size of each line  with sepLen is achieved. The boolean flag useIndex changes the result to a map with lines and idx (array of the positions on the lines array that are a new anArray entry). Example of usage:
+Given anArray of maps will return an array suitable to use with printTable for a maxTableSize, a separator length (sepLen (which defaults to 1)) and an optional line separator function (sepFunc that receives the max length of a  column). Word-wrap is achieved by creating new map array entries whenever the calculated max size of each line  with sepLen is achieved. The boolean flag useIndex changes the result to a map with lines and idx (array of the positions on the lines array that are a new anArray entry). If perRowHeight is true, each record uses its own wrapped height and column sizes are measured per physical line. Example of usage:
 
   __initializeCon()
   var maxS = __con.getTerminal().getWidth()
   print(printTable(ow.format.string.wordWrapArray(io.listFiles("js").files, maxS, 1, s => ansiColor("FAINT", repeat(s, "-"))), maxS))
-
 ````
 ### ow.format.testHost
 
@@ -1436,7 +1433,7 @@ Returns a unix timestamp from the provided javascript aDate.
 __ow.format.toWedoDate(aStringDate, aFormat) : Map__
 
 ````
-Shortcut for using ow.format.toDate but converting the output into a wedo date.  
+Shortcut for using ow.format.toDate but converting the output into a wedo date.
 (available after ow.loadFormat())
 ````
 ### ow.format.transposeArrayLines
@@ -1512,12 +1509,7 @@ Returns a map with stop() to cancel the watch.
 __ow.format.withMD(aString, defaultAnsi, aLineWidth, aBgColor) : String__
 
 ````
-Use aString with simple markdown and convert it to ANSI. Optionally you can add a defaultAnsi string to return back
-after applying the ansi styles for markdown (use ansiColor function to provide the defaultAnsi), provide aLineWidth
-to override the detected console width when line width is needed, and provide aBgColor (an ansiColor color name,
-e.g. "BG_BLUE") to maintain a background color throughout the output and pass it to sub-functions where applicable.
-Currently supports only: bold, italic, inline code, strikethrough, tables, simple code blocks, line rule, bullets,
-numbered lines, links and blocks.
+Use aString with simple markdown and convert it to ANSI. Optionally you can add a defaultAnsi string to return back after applying the ansi styles for markdown (use ansiColor function to provide the defaultAnsi), provide aLineWidth to override the detected console width when line width is needed, and provide aBgColor (an ansiColor color name, e.g. "BG_BLUE") to maintain a background color throughout the output and pass it to sub-functions where applicable. Currently supports only: bold, italic, inline code, strikethrough, tables, simple code blocks, line rule, bullets, numbered lines, links, blocks and simple LaTeX-like math symbols (e.g. "$\rightarrow$", "$\alpha$", "$\leq$") which are converted to their unicode equivalent.
 ````
 ### ow.format.withSideLine
 
@@ -1571,7 +1563,7 @@ Creates a cell styler object, for the aXLS object (XLS plugin object instance), 
   - valign ("top", "bottom", "center", "justify")
   - align ("center", "centerSelection", "fill", "general", "justify", "left", "right")
 
-Color names:\  
+Color names:\
   aqua,auto,black,blue,blue_grey,bright_green,brown,coral,cornflower_blue,dark_blue,dark_green,dark_red,dark_teal, dark_yellow,gold,green,grey25,grey40,grey50,grey80,indigo,lavender,lemon_chiffon,light_blue,light_cornflower_blue, light_green,light_orange,light_turquoise,light_yellow,lime,maroon,olive_green,orange,orchid,pale_blue,pink,plum, red,rose,royal_blue,sea_green,sky_blue,tan,teal,turquoise,violet,white,yellow
 
 Border names:
@@ -1590,4 +1582,33 @@ __ow.format.xls.setTable(aXLS, aSheet, aColumn, aRow, anArray, shouldAutoFilter,
 
 ````
 Shortcut for xls.setTable that given aXLS object, a corresponding aSheet object will try to set the contents of  anArray of maps starting in aColumn and aRow performing auto size for all columns. If shouldAutoFilter = true is will also add an autofilter to all columns. It's possible also to customize the headerStyle and linesStyle.
+````
+
+### ow.format.string.ansiClip
+
+__ow.format.string.ansiClip(aStr, aWidth, aEllipsis) : String__
+
+````
+Clips aStr to, at most, aWidth visible columns (wide emoji count as 2) without ever cutting an ANSI escape sequence. If clipped, aEllipsis (default "…") is appended and any open ANSI styling is reset.
+````
+
+### ow.format.string.ansiPad
+
+__ow.format.string.ansiPad(aStr, aWidth) : String__
+
+````
+Right-pads aStr with spaces up to aWidth visible columns (ANSI escape sequences and wide emoji are accounted for). Never truncates.
+````
+
+### ow.format.withSideLineThemes
+
+__ow.format.withSideLineThemes() : Map__
+
+````
+Returns a map of theme name to theme definition for use as the aTheme argument of ow.format.withSideLine (and the "theme" entries of __colorFormat.md). A theme is a map with the optional characters ltop, tmiddle, rtop (top border), lmiddle, rmiddle (left and right sides), lbottom, bmiddle, rbottom (bottom border) and tab (replacement for tab characters, default 3 spaces). The top/bottom border is only drawn when the corner entries are defined. Built-in themes: closedOneSpace, simpleOneSpace, simpleLine, doubleOneSpace, doubleLine, simpleLineWithTips, simpleLineWithBottomTip, simpleLineWithTopTip, simpleLineWithCTips, simpleLineWithCBottomTip, simpleLineWithCTopTip, simpleLineWithRTips, simpleLineWithRTopTip, simpleLineWithRBottomTip, doubleLineWithRTips, doubleLineBothSides, closedRect, closedDoubleRect, closedCurvedRect, openTopRect, openBottomRect, openRect, openTopCurvedRect, openBottomCurvedRect, openCurvedRect, openCurvedSpace and blockCurvedSpace. Custom themes can be added (built-in themes win on name clashes) by setting __flags.sideLineCustomThemes to a map of name to theme before calling it.
+
+Example:
+
+  __flags.sideLineCustomThemes = { arrow: { lmiddle: ">" } }
+  print(ow.format.withSideLine("hello", __, "GREEN", __, ow.format.withSideLineThemes().arrow))
 ````

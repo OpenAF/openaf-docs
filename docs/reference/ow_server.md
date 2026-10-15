@@ -124,10 +124,10 @@ Example:
 
 ow.loadServer();
 $ch("a").expose(1234, "/a", (u, p) => {
-   if (u == "a" && 
-       ow.server.authAppCheck("...", p, "...", "...")) 
-     return true; 
-   else 
+   if (u == "a" &&
+       ow.server.authAppCheck("...", p, "...", "..."))
+     return true;
+   else
      return false;
 });
 
@@ -343,7 +343,7 @@ __ow.server.httpd.authBasic(aRealm, aHTTPd, aReq, aAuthFunc, aReplyFunc, aUnAuth
 Wraps a httpd reply with basic HTTP authentication for the provided aRealm on the aHTTPd server. The aReq request map should be provided along with aAuthFunc (that receives the user and password and should return true of false if authentication is successful). If authentication is successful aReplyFunc will be executed receiving aHTTPd and aReq. Otherwise an optional aUnAuthFunc will be executed also receiving aHTTPd and aReq. Example:
 
 ow.server.httpd.route(hs, ow.server.httpd.mapRoutesWithLibs(hs, {
-   "/f": function(req) { 
+   "/f": function(req) {
       return ow.server.httpd.authBasic(
          "realm", hs, req,
          function(user, pass) {
@@ -383,7 +383,7 @@ aMapOptions:
    oauthTokenURL     (mandatory) The OAuth token_endpoint
    oauthLogoutURL    (mandatory) The OAuth end_session_endpoint
    oauthCliendId     (mandatory) The OAuth configured client id
-   oauthClientSecret (mandatory) The OAuth configured client secret\  
+   oauthClientSecret (mandatory) The OAuth configured client secret\
 
 ````
 ### ow.server.httpd.browse.files
@@ -567,7 +567,7 @@ r => hs.replyOKText("nothing here...")
 ````
 ### ow.server.httpd.replyJSONRPC
 
-__ow.server.httpd.replyJSONRPC(server, request, mapOfFunctions, logFn, debugFn) : Map__
+__ow.server.httpd.replyJSONRPC(server, request, mapOfFunctions, logFn, debugFn, opts) : Map__
 
 ````
 Implements a JSON-RPC 2.0 endpoint using the provided mapOfFunctions. The request must be a POST with a JSON-RPC body.
@@ -575,13 +575,21 @@ Optionally you can provide logFn and debugFn functions to log errors and debug i
 
 Example usage:
   ow.server.httpd.route(hs, {
-    "/rpc": (req) => ow.server.httpd.replyJSONRPC(hs, req, { sum: (a, b) => a + b }, logErr, log) 
+    "/rpc": (req) => ow.server.httpd.replyJSONRPC(hs, req, { sum: (a, b) => a + b }, logErr, log)
   })
 
+opts is an optional map: { modern: false, listMethods: [...] } (defaults shown). When modern is true,
+requests carrying a modern (2026-07-28+) per-request _meta protocol version are validated against
+ow.server.mcp.versions.supported (replying with an UnsupportedProtocolVersionError otherwise), results are
+wrapped with the required resultType (plus ttlMs/cacheScope for methods listed in opts.listMethods, default
+["tools/list","prompts/list","resources/list","resources/templates/list"]), and the negotiated version is
+echoed back via the MCP-Protocol-Version response header. Legacy requests (the default, and everything when
+modern is false/omitted) are handled exactly as before -- zero behavior change.
+	 *
 ````
 ### ow.server.httpd.replyMCP
 
-__ow.server.httpd.replyMCP(server, request, mapOfFunctions, logFn, debugFn) : Map__
+__ow.server.httpd.replyMCP(server, request, mapOfFunctions, logFn, debugFn, opts) : Map__
 
 ````
 Implements a Model Context Protocol (MCP) endpoint using the provided mapOfFunctions. The request must be a POST with a MCP body.
@@ -596,7 +604,12 @@ ow.server.httpd.route(hs, {
 	"prompts/list"             : params => ({})
   }, logErr, log),
   "/echo": req => ow.server.httpd.reply(stringify(req))
- })      *
+ })
+opts is an optional map: { modern: false, listMethods: [...] } -- see ow.server.httpd.replyJSONRPC for the
+meaning of both; the same opt-in 2026-07-28 modern-era handling (version validation, resultType/ttlMs/
+cacheScope wrapping, MCP-Protocol-Version response header) applies here, with legacy behavior (default)
+left fully unchanged.
+     *
 ````
 ### ow.server.httpd.replyRedirect
 
@@ -834,10 +847,10 @@ Starts TLS over the current connection.
 ````
 ### ow.server.locks
 
-__ow.server.locks(justInternal, aCh)__
+__ow.server.locks(justInternal, aCh, aOptions)__
 
 ````
-Creates a lock managing object instance. You can optional make it internal (using a __openAFLocks::local simple channel) or global using a __openAFLocks:global ignite channel. Optional you can also provide an already created channel aCh.
+Creates a lock managing object instance. You can optional make it internal (using a __openAFLocks::local simple channel) or global using a __openAFLocks:global ignite channel. Optional you can also provide an already created channel aCh. aOptions is forwarded to new global Ignite channels.
 ````
 ### ow.server.locks.clear
 
@@ -855,10 +868,10 @@ Tries to extend the lock timeout (or adds a timeout if doesn't exist) with aTryT
 ````
 ### ow.server.locks.isLocked
 
-__ow.server.locks.isLocked(aLockName) : boolean__
+__ow.server.locks.isLocked(aLockName) : Map__
 
 ````
-Determines if aLockName is locked (true) or not (false).
+Returns the lock record; its value property indicates whether the lock is held. Storage errors propagate to the caller.
 ````
 ### ow.server.locks.lock
 
@@ -897,10 +910,17 @@ A wrapper for ow.server.locks.lock that will try to lock aLockName, execute the 
 ````
 ### ow.server.mcpStdio
 
-__ow.server.mcpStdio(initData, fnsMeta, fns, lgF)__
+__ow.server.mcpStdio(initData, fnsMeta, fns, lgF, opts)__
 
 ````
 Processes a MCP (Model Context Protocol) request using standard input/output. The initData is a map with initial data to be sent to the client, fnsMeta is an array of function metadata and fns is a map of functions to be executed. The lgF is a function that will be used to log messages. If not provided, it will default to a function that writes logs to a file named "log.ndjson". The initData should contain the server information and capabilities. The fnsMeta should contain metadata about the functions available, such as their names and descriptions. The fns should contain the actual functions that can be called by the client. The function will listen for incoming MCP requests on standard input and respond accordingly.
+
+opts.rawToolResults (default false) preserves MCP content/structuredContent/isError envelopes returned by tools.
+opts is an optional map: { modern: false } (default). When modern is true this also serves the 2026-07-28
+stateless/per-request MCP protocol era (per-request _meta protocol version, server/discover, resultType,
+ttlMs/cacheScope on list results, UnsupportedProtocolVersionError) side-by-side with the legacy
+initialize-handshake era used above, for any request that carries a modern _meta protocol version.
+When modern is false (the default) behavior is 100% unchanged from previous releases.
 
 Example usage:
 
@@ -1037,7 +1057,7 @@ Provides a REST JSON compliant HTTPServer request replier given a aBaseURI, aReq
 
 var hs = ow.loadServer().httpd.start(8080);
 ow.server.httpd.route(hs, ow.server.httpd.mapRoutesWithLibs(hs, {
-   "/rest": function(req) { 
+   "/rest": function(req) {
       return ow.server.rest.replyData("/rest", req, myData);
    });
 ow.server.daemon();
@@ -1163,4 +1183,92 @@ __ow.server.telemetry.send2Prometheus(aPrometheusGatewayURL, aPrefix, anArrayOfM
 
 ````
 Returns a function to be used with ow.server.telemetry.active to send metrics to a OpenMetrics/Prometheus gateway using the provided aPrometheusGatewayURL with aPrefix (e.g. "myjobname") and, optionally, an array of metrics (anArrayOfMetricsNames)
+````
+
+### ow.server.mcp
+
+__ow.server.mcp__
+
+````
+Shared Model Context Protocol version negotiation helpers used by ow.server.mcpStdio, ow.server.httpd.replyJSONRPC/replyMCP and OpenAF's oJob-based MCP servers (httpdMCP/stdioMCP shortcuts). Implements the 2026-07-28 "modern" stateless per-request protocol era alongside the legacy initialize-handshake eras (2024-11-05, 2025-06-18) without changing any default (legacy) behavior -- modern-era handling is only exercised by call sites that opt into it.
+````
+
+### ow.server.mcp.isModern
+
+__ow.server.mcp.isModern(aVersion) : boolean__
+
+````
+Returns true if aVersion is a protocol version string on or after the modern (stateless, 2026-07-28+) era. Protocol version strings are YYYY-MM-DD so lexicographic comparison is a valid chronological ordering.
+````
+
+### ow.server.mcp.requestMeta
+
+__ow.server.mcp.requestMeta(reqObj) : Map__
+
+````
+Returns the request's params._meta map (per the spec, _meta is nested inside params, not a top-level JSON-RPC envelope field), or __ if not present.
+````
+
+### ow.server.mcp.metaProtocolVersion
+
+__ow.server.mcp.metaProtocolVersion(reqObj) : String__
+
+````
+Extracts the modern per-request protocol version from a parsed JSON-RPC request's params._meta field (io.modelcontextprotocol/protocolVersion), or __ if not present.
+````
+
+### ow.server.mcp.metaClientCapabilities
+
+__ow.server.mcp.metaClientCapabilities(reqObj) : Map__
+
+````
+Extracts the per-request client capabilities from params._meta["io.modelcontextprotocol/clientCapabilities"], or __ if not present.
+````
+
+### ow.server.mcp.eraOf
+
+__ow.server.mcp.eraOf(reqObj) : String__
+
+````
+Classifies a parsed JSON-RPC request as "modern" (carries a modern params._meta protocol version), "legacy-initialize" (an initialize handshake request) or "legacy-stateless" (any other request, handled statelessly per today's default behavior).
+````
+
+### ow.server.mcp.unsupportedVersionError
+
+__ow.server.mcp.unsupportedVersionError(anId, aRequestedVersion) : Map__
+
+````
+Builds a JSON-RPC UnsupportedProtocolVersionError (-32022) response listing the versions this server supports.
+````
+
+### ow.server.mcp.invalidParamsError
+
+__ow.server.mcp.invalidParamsError(anId, aMessage, aData) : Map__
+
+````
+Builds a JSON-RPC Invalid Params (-32602) error response, used when a modern-era request is missing a required params._meta field (e.g. io.modelcontextprotocol/clientCapabilities).
+````
+
+### ow.server.mcp.wrapResult
+
+__ow.server.mcp.wrapResult(aBody, anEra, opts) : Map__
+
+````
+Wraps a MCP result body per the negotiated era. Legacy eras ("legacy-initialize"/"legacy-stateless") return aBody unchanged -- zero behavior change for existing callers. The "modern" era merges in the required resultType ("complete"), and, when opts.isList is true, CacheableResult fields (ttlMs, cacheScope) with sensible defaults (opts.ttlMs default 0, opts.cacheScope default "private"). When opts.serverInfo is given, it is advertised (SHOULD, per spec) as result._meta["io.modelcontextprotocol/serverInfo"].
+````
+
+### ow.server.mcp.discoverResult
+
+__ow.server.mcp.discoverResult(initData) : Map__
+
+````
+Builds the mandatory server/discover response (modern era) advertising this server's supported protocol versions, capabilities and identity.
+````
+
+### ow.server.httpd.oauth2
+
+__ow.server.httpd.oauth2(aOptions) : Object__
+
+````
+Creates a localhost OAuth2 authorization-code client. Requires authURL, tokenURL, clientId and an HTTP loopback redirectURI with an explicit port. authenticate() returns tokens, reusing or refreshing cached credentials; getAuthStatus() returns non-secret status; clearAuth() removes credentials; cancel() stops a pending login. Uses fresh state and S256 PKCE. Optional clientSecret, scope, audience, resource, extraAuthParams and extraParams configure the provider. authURL and tokenURL must use HTTPS unless they are loopback addresses or allowHTTP is true. interactive defaults to true, disableOpenBrowser to false, loginTimeoutMs to 300000, tokenTimeoutMs to 60000 and refreshWindowMs to 30000. onAuthorizationURL(url) receives the login URL after the listener is ready. tokenStore defaults to {type:"sec", repo:"oauth2", profile:"default"}; false disables persistence. Store options match $mcp's tokenStore (including synchronous custom stores). Tokens and expiry/identity metadata are encrypted using $sec; client secrets, codes, state and PKCE material are never persisted.
 ````

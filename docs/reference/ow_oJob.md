@@ -194,10 +194,10 @@ jobs:
 
 # Hello world after start processing
    - name	      : Hello world
-     deps          : 
+     deps          :
         - Start processing
      exec 	      : >
-        sprint(args);  
+        sprint(args);
         hello("nuno");
 
 # Bye world
@@ -218,7 +218,7 @@ jobs:
      exec        : >
         print(new Date());
 
-# List what to do 
+# List what to do
 todo:
    - Start processing
    - Say the time
@@ -314,4 +314,36 @@ __ow.oJob.showHelp(aHelpMap, args, showAnyway) : boolean__
 
 ````
 Given a job help map and the current arguments determines if there is a need to show help usage text and shows it on stdout. Returns true if help was output, false otherwise.
+````
+
+### ow.oJob.askOnHelp
+
+__ow.oJob.askOnHelp(aHelpMap, aUI) : Map__
+
+````
+Collects job arguments interactively. Pass an askConsole-compatible UI to borrow its terminal, or true to open an independent terminal and close it on completion. Without aUI, retains the default process console and output.
+````
+
+### oJob.runLanguageProcess
+
+__oJob.runLanguageProcess(aCommand, aOptions) : Map__
+
+````
+Runs an argv array locally with concurrent UTF-8 output capture. Options: pwd, env, timeout (positive milliseconds). Returns stdout, stderr, exitcode, timedOut and descendantTracking. Does not install runtimes or parse output.
+````
+
+### oJob.getLanguages
+
+__oJob.getLanguages(probe) : Array__
+
+````
+Lists registered languages, prerequisites and supported process options. With probe=true, performs local availability checks bounded to five seconds; never installs a runtime.
+````
+
+### oJob.registerLanguageCleanup
+
+__oJob.registerLanguageCleanup(aName, aFunction)__
+
+````
+Registers one cleanup per adapter, run after oJob workers stop. Replacing a name replaces its callback.
 ````

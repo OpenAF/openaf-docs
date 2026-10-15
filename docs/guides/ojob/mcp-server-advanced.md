@@ -244,7 +244,7 @@ jobs:
         args.result = {
           content: [{
             type: "text",
-            text: templify("Weather in {{city}}: {{temp}}°C, {{condition}}", weather)
+            text: templify("Weather in {% raw %}{{city}}{% endraw %}: {% raw %}{{temp}}{% endraw %}°C, {% raw %}{{condition}}{% endraw %}", weather)
           }]
         }
       } catch(e) {

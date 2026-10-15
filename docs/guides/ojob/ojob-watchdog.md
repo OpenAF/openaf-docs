@@ -343,7 +343,7 @@ jobs:
             // Check container status
             var containerName = "myapp-container";
 
-            var res = sh("docker ps --filter name=" + containerName + " --format '{{.Status}}'");
+            var res = sh("docker ps --filter name=" + containerName + " --format '{% raw %}{{.Status}}{% endraw %}'");
 
             if (res.stdout.indexOf("Up") < 0) {
               log("Container not running: " + containerName);
@@ -351,7 +351,7 @@ jobs:
             }
 
             // Check container health
-            var health = sh("docker inspect --format='{{.State.Health.Status}}' " + containerName);
+            var health = sh("docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' " + containerName);
 
             if (health.stdout.trim() == "unhealthy") {
               log("Container unhealthy: " + containerName);

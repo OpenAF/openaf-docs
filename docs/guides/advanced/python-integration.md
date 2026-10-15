@@ -5,907 +5,350 @@ parent: Advanced
 grand_parent: Guides
 ---
 
-# Python Integration with OpenAF
+# Python & OpenAF
 
-OpenAF provides seamless integration with Python, allowing you to execute Python code from within OpenAF scripts and oJobs, and vice versa. This enables you to leverage Python libraries and tools alongside OpenAF's automation capabilities.
+OpenAF can drive a Python interpreter as a subprocess and exchange data/code with it in several
+ways, ranging from one-off variable exchange to a persistent bidirectional bridge that lets Python
+call back into OpenAF. This guide covers every entry point, from JavaScript-side `ow.python` calls
+to running standalone `.py` files from the command line with real `sys.argv` arguments.
 
-## Table of Contents
-{: .no_toc .text-delta }
-
-1. TOC
-{:toc}
-
----
-
-## Overview
-
-OpenAF's Python integration enables:
-- **Execute Python code** from OpenAF/JavaScript
-- **Call Python functions** with parameter passing
-- **Use Python libraries** (NumPy, Pandas, scikit-learn, etc.)
-- **Bidirectional data exchange** between JavaScript and Python
-- **oJob Python execution** with language integration
-
-### Use Cases
-
-- Data science and machine learning workflows
-- Use Python libraries for specialized tasks
-- Integrate existing Python scripts into OpenAF automation
-- Leverage Python's scientific computing ecosystem
-- Cross-language data processing pipelines
+## Contents
+1. [How it fits together](#how-it-fits-together)
+2. [ow.python - the core module](#owpython---the-core-module)
+3. [Global shortcuts ($py, $pyExec, ...)](#global-shortcuts-py-pyexec-)
+4. [Running .py files from the command line (--py / pyoaf)](#running-py-files-from-the-command-line-py--pyoaf)
+5. [Passing command-line arguments to Python](#passing-command-line-arguments-to-python)
+6. [Calling back into OpenAF from independent Python code (--oafpy)](#calling-back-into-openaf-from-independent-python-code-oafpy)
+7. [Python inside oJob (lang: python)](#python-inside-ojob-lang-python)
+8. [Configuration (environment variables)](#configuration-environment-variables)
+9. [Choosing the right approach](#choosing-the-right-approach)
 
 ---
 
-## Prerequisites
+## How it fits together
 
-### Install Python
+There is no embedded Python runtime inside OpenAF (no Jython/GraalPy) - OpenAF always shells out to
+a real `python`/`python3` executable found on the `PATH` (or pointed at explicitly). What changes
+between the approaches below is **how code/data cross the process boundary**:
 
-Ensure Python 3.x is installed and accessible:
-
-```bash
-python3 --version
-# or
-python --version
-```
-
-### Install Required Packages
-
-For basic integration, Python 3.x is sufficient. For advanced features, install:
-
-```bash
-pip install numpy pandas
-```
+- **`ow.python.exec` / `execPM`** - short-lived `python -c ...` calls (or a persistent server for
+  fast repeats) that exchange JSON-encoded *variables*, not files or argv.
+- **`ow.python.execStandalone`** - runs a whole `.py` file/inline code as its own process, with a
+  small bridge injected so the Python code can call back into OpenAF (`_()`, `_oaf()`, `_g()`,
+  `_s()`). This is what backs the `--py` CLI option and the generated `pyoaf` launcher.
+- **`--oafpy`** - the inverse direction: generates a standalone `oaf.py` module you `import` from
+  Python code you run *yourself* (not via `oaf`), which spins up an OpenAF background process for
+  you to call back into.
 
 ---
 
-## Basic Python Execution
+## ow.python - the core module
 
-### Execute Python Code
-
-```javascript
-// Simple Python execution
-var result = af.runFromExternalClass("python", `
-print("Hello from Python!")
-print(2 + 2)
-`);
-
-print(result);
-```
-
-### Execute Python with Return Value
-
-```javascript
-// Python code that returns JSON
-var pythonCode = `
-import json
-
-data = {
-    "message": "Hello from Python",
-    "value": 42,
-    "items": [1, 2, 3, 4, 5]
-}
-
-print(json.dumps(data))
-`;
-
-var output = af.runFromExternalClass("python", pythonCode);
-var result = jsonParse(output);
-
-print("Message: " + result.message);
-print("Value: " + result.value);
-print("Items: " + result.items);
-```
-
----
-
-## Using ow.python Module
-
-### Load the Module
-
-```javascript
-ow.loadPython();
-```
-
-### Execute Python Scripts
+Load it once with `ow.loadPython()`, then use `ow.python`:
 
 ```javascript
 ow.loadPython();
 
-// Execute Python code
-var result = ow.python.exec(`
-def calculate(x, y):
-    return x ** y
+// Optional: point at a specific interpreter (default: "python", or $OAF_PYTHON)
+ow.python.setPython("/usr/bin/python3");
 
-result = calculate(2, 10)
-print(result)
-`);
-
-print("Result: " + result);
+print("Python version: " + ow.python.getVersion()); // 2 or 3
 ```
 
-### Python with Arguments
+### exec - inject variables, capture variables
+
+```javascript
+var result = ow.python.exec(
+  "c = a + b\nresult = c * 2",
+  { a: 5, b: 3 },      // input variables (JSON-encoded into Python)
+  ["c", "result"]      // names of Python variables to capture back
+);
+
+print(result.c);      // 8
+print(result.result); // 16
+```
+
+Each call spawns a fresh Python process unless a server is already running (see below), in which
+case it reuses it transparently. The full signatures are
+`exec(code, input, outputNames, throwExceptions, shouldFork)` and
+`execPM(code, input, throwExceptions, shouldFork)`. Inputs and outputs must be JSON-compatible;
+named variables use ASCII Python identifiers, excluding keywords and the reserved `__oaf_` prefix.
+Embedded code and JSON are encoded through UTF-8/base64, preserving escapes and Unicode.
+Forked calls use a temporary script, removed after execution, so large inputs do not exceed
+operating system command-line limits. They retain inline execution semantics, including imports
+from the current directory. User variables can shadow built-ins such as `eval`, `compile` and `dict`.
+
+`throwExceptions` defaults to `false`: errors are printed and a missing result returns `undefined`.
+Set it to `true` to throw on stderr (even with a successful exit), nonzero exit status, malformed
+responses or transport failures. Output produced before an error is retained. `shouldFork=true`
+uses a fresh process, even when an embedded server exists. Callbacks in forked calls require a
+running callback listener.
+
+### execPM - a persistent map instead of named in/out variables
+
+`execPM` is convenient when you want to keep evolving a single object across calls instead of
+naming inputs/outputs individually. The map is exposed as the Python variable `__pm`:
+
+```javascript
+var pythonMap = { counter: 0, data: [] };
+
+pythonMap = ow.python.execPM(`
+__pm["counter"] += 1
+__pm["data"].append("item_" + str(__pm["counter"]))
+__pm["total"] = len(__pm["data"])
+`, pythonMap);
+
+print(pythonMap.counter); // 1
+print(pythonMap.data);    // ["item_1"]
+print(pythonMap.total);   // 1
+```
+
+Note: `execPM` does not mutate `aInput` in place - it returns a **new** map with `__pm`'s final
+state, so reassign the result (as above) if you want the update to stick.
+
+### Server mode - fast repeated calls, state persists across calls
+
+Starting a server keeps a single Python process alive and dispatches each `exec`/`execPM` call to
+it over a local TCP socket, avoiding the cost of spawning a new interpreter each time. Top-level
+Python state (variables, imports, functions) persists between calls. Execution and stdout/stderr
+capture are serialized; streams are restored even after exceptions. Changes before a failure are
+not rolled back. User-created background threads should not write during another call. Example:
+
+```javascript
+ow.python.startServer();
+
+var r1 = ow.python.exec("x = 10\ny = x * 2", {}, ["y"]);
+var r2 = ow.python.exec("z = y + 5", {}, ["z"]); // y persists from the previous call
+print(r2.z); // 25
+
+ow.python.stopServer();
+```
+
+`startServer(aPort, aSendPort, aFn, isAlone)` accepts an optional receive port, send port, an event
+callback (`"connect"`, `"exec"`, `"error"`), and `isAlone` to start only in standalone mode (used
+internally by `execStandalone`, see below) without spawning a background Python listener.
+Every explicit start acquires a reference; `stopServer()` releases one and stops at zero.
+`stopServer(__, true)` forces cleanup; repeated stops return `false`. Implicit `$py` and
+`execStandalone` initialization starts only once. Stop before switching modes or interpreters.
+Each instance owns its child process and callback listener. Startup polls readiness for up to
+10 seconds and rolls back resources on failure; shutdown cleanup is registered for both modes.
+
+### execStandalone - run a whole script (or inline code) as its own process
+
+Unlike `exec`/`execPM`, `execStandalone` doesn't exchange variables with the caller. It runs a
+`.py` file (or inline code) as a **full, independent process**, with the OpenAF bridge code
+installed by a bootstrap so the script itself can call back into OpenAF. User code is compiled
+separately, preserving future imports, the original `__file__`, `sys.argv[0]`, `__name__="__main__"`
+and imports from the script directory. The signature is
+`execStandalone(codeOrFile, reservedInput, throwExceptions, argv)`; it returns a process result
+map containing `exitcode`, inherits stdin and streams stdout/stderr without adding newlines.
+The returned stdout/stderr strings are empty because output has already been streamed.
+`reservedInput` is currently unused.
+Temporary bootstrap files are removed on success and failure. Example:
 
 ```javascript
 ow.loadPython();
+ow.python.setPython("python3");
 
-var x = 5;
-var y = 3;
-
-var pythonCode = `
-import sys
-import json
-
-# Read arguments
-args = json.loads(sys.argv[1])
-x = args['x']
-y = args['y']
-
-# Calculate
-result = x + y
-
-# Return as JSON
-print(json.dumps({'sum': result}))
-`;
-
-var result = ow.python.exec(pythonCode, {
-    args: { x: x, y: y }
-});
-
-var data = jsonParse(result);
-print("Sum: " + data.sum);
+try {
+  var result = ow.python.execStandalone("/path/to/script.py", __, false, ["a b", "--help"]);
+  print(result.exitcode);
+} finally { ow.python.stopServer(__, true); }
 ```
+
+Inside `script.py`, the bridge injects these helper functions automatically:
+
+```python
+_oaf("2 + 2")              # evaluate an OpenAF/JS expression, get the result back
+_g("someVar")              # $get("someVar") from OpenAF
+_s("someVar", 123)         # $set("someVar", 123) in OpenAF
+```
+
+This is the mechanism behind the `--py` CLI flag and the generated `pyoaf` launcher script
+(see below) - including real command-line argument support.
 
 ---
 
-## Data Exchange Patterns
+## Global shortcuts ($py, $pyExec, ...)
 
-### JavaScript to Python
+For quick scripting, four global functions wrap the module above without an explicit `ow.loadPython()`:
+
+| Function | Equivalent to | Notes |
+|---|---|---|
+| `$pyStart()` | `ow.loadPython(); ow.python.startServer()` | Acquires an explicit server reference |
+| `$py(code, input, output, throwExceptions, shouldFork)` | `ow.python.exec(...)` | Starts once if needed; optional flags are forwarded |
+| `$pyExec(codeOrFile, reservedInput, throwExceptions, argv)` | `ow.python.execStandalone(...)` | Runs standalone; returns a process result with `exitcode` |
+| `$pyStop()` | `ow.python.stopServer(__, true)` | Forces cleanup of the global bridge |
 
 ```javascript
-ow.loadPython();
-
-// Prepare data in JavaScript
-var data = {
-    numbers: [1, 2, 3, 4, 5],
-    operation: "sum"
-};
-
-// Pass to Python
-var pythonCode = `
-import sys
-import json
-
-data = json.loads(sys.argv[1])
-numbers = data['numbers']
-operation = data['operation']
-
-if operation == 'sum':
-    result = sum(numbers)
-elif operation == 'product':
-    result = 1
-    for n in numbers:
-        result *= n
-else:
-    result = None
-
-print(json.dumps({'result': result}))
-`;
-
-var output = ow.python.exec(pythonCode, {
-    args: data
-});
-
-var result = jsonParse(output);
-print("Result: " + result.result);
-```
-
-### Python to JavaScript
-
-```javascript
-ow.loadPython();
-
-var pythonCode = `
-import json
-
-# Python data structure
-data = {
-    'users': [
-        {'name': 'Alice', 'age': 30},
-        {'name': 'Bob', 'age': 25},
-        {'name': 'Charlie', 'age': 35}
-    ],
-    'total': 3
-}
-
-# Return as JSON
-print(json.dumps(data))
-`;
-
-var output = ow.python.exec(pythonCode);
-var data = jsonParse(output);
-
-// Use in JavaScript
-data.users.forEach(user => {
-    print(user.name + " is " + user.age + " years old");
-});
+$pyStart();
+var res = $py("result = a * b", { a: 6, b: 7 }, ["result"]);
+print(res.result); // 42
+$pyStop();
 ```
 
 ---
 
-## oJob Python Integration
+## Running .py files from the command line (--py / pyoaf)
 
-### Execute Python in oJob
+`oaf --py <script.py> [args...]` runs a Python file directly through `ow.python.execStandalone`,
+with the OpenAF bridge (`_oaf`, `_g`, `_s`, ...) available inside the script.
 
-```yaml
-jobs:
-  - name: Python Job
-    lang: python
-    exec: |
-      # Python code in oJob
-      import json
+Running `oaf --install` (or any first-time setup) also generates a standalone launcher next to the
+other helper scripts (`oaf`, `ojob`, `opack`, ...):
 
-      # Access args from oJob
-      name = "{{name}}"
-      age = {{age}}
+- **`pyoaf`** on Linux/macOS
+- **`pyoaf.bat`** on Windows
 
-      # Python logic
-      message = f"Hello {name}, you are {age} years old"
-
-      # Return data (will be in args for next job)
-      result = {
-          "message": message,
-          "valid": age >= 18
-      }
-
-      print(json.dumps(result))
-
-  - name: Process Result
-    deps:
-      - Python Job
-    exec: |
-      // JavaScript job processing Python result
-      log("Python said: " + args.message);
-      log("Valid: " + args.valid);
-
-todo:
-  - name: Python Job
-    args:
-      name: Alice
-      age: 25
-  - Process Result
+```sh
+./pyoaf myscript.py
+```
+```bat
+pyoaf.bat myscript.py
 ```
 
-### Python with File Processing
-
-```yaml
-jobs:
-  - name: Process CSV with Python
-    lang: python
-    exec: |
-      import pandas as pd
-      import json
-
-      # Read CSV
-      df = pd.read_csv('{{csvFile}}')
-
-      # Process data
-      summary = {
-          'total_rows': len(df),
-          'columns': list(df.columns),
-          'numeric_summary': df.describe().to_dict()
-      }
-
-      # Return result
-      print(json.dumps(summary))
-
-  - name: Display Results
-    deps:
-      - Process CSV with Python
-    exec: |
-      log("Total rows: " + args.total_rows);
-      log("Columns: " + args.columns);
-
-todo:
-  - name: Process CSV with Python
-    args:
-      csvFile: ./data/sales.csv
-  - Display Results
-```
+Both are thin wrappers that just call `oaf --py`; use whichever is more convenient for your
+environment/shebang setup.
 
 ---
 
-## Common Patterns
+## Passing command-line arguments to Python
 
-### Pattern 1: Data Analysis with Pandas
+Both `--py` and the generated `pyoaf`/`pyoaf.bat` launcher forward everything after the script name
+as **real `sys.argv` entries** - exactly like invoking `python script.py arg1 arg2` directly:
 
-```yaml
-include:
-  - oJobBasics.yaml
-
-jobs:
-  - name: Analyze Sales Data
-    lang: python
-    exec: |
-      import pandas as pd
-      import json
-
-      # Load data
-      df = pd.read_csv('sales.csv')
-
-      # Analysis
-      total_sales = float(df['amount'].sum())
-      avg_sales = float(df['amount'].mean())
-      top_products = df.groupby('product')['amount'].sum().nlargest(5).to_dict()
-
-      # Return analysis
-      result = {
-          'total_sales': total_sales,
-          'average_sale': avg_sales,
-          'top_products': top_products
-      }
-
-      print(json.dumps(result))
-
-  - name: Generate Report
-    deps:
-      - Analyze Sales Data
-    exec: |
-      log("Sales Analysis Report");
-      log("===================");
-      log("Total Sales: $" + args.total_sales);
-      log("Average Sale: $" + args.average_sale);
-      log("Top Products:");
-
-      Object.keys(args.top_products).forEach(product => {
-        log("  " + product + ": $" + args.top_products[product]);
-      });
-
-todo:
-  - Analyze Sales Data
-  - Generate Report
+```sh
+./pyoaf greet.py "Ada Lovelace" --loud
 ```
-
-### Pattern 2: Machine Learning Predictions
-
-```yaml
-jobs:
-  - name: Train Model
-    lang: python
-    exec: |
-      from sklearn.linear_model import LinearRegression
-      import numpy as np
-      import pickle
-      import json
-
-      # Training data
-      X = np.array([[1], [2], [3], [4], [5]])
-      y = np.array([2, 4, 6, 8, 10])
-
-      # Train model
-      model = LinearRegression()
-      model.fit(X, y)
-
-      # Save model
-      with open('model.pkl', 'wb') as f:
-          pickle.dump(model, f)
-
-      print(json.dumps({'status': 'trained', 'score': model.score(X, y)}))
-
-  - name: Make Predictions
-    deps:
-      - Train Model
-    lang: python
-    exec: |
-      import pickle
-      import numpy as np
-      import json
-
-      # Load model
-      with open('model.pkl', 'rb') as f:
-          model = pickle.load(f)
-
-      # Make predictions
-      X_new = np.array([[6], [7], [8]])
-      predictions = model.predict(X_new).tolist()
-
-      result = {
-          'predictions': predictions
-      }
-
-      print(json.dumps(result))
-
-  - name: Display Predictions
-    deps:
-      - Make Predictions
-    exec: |
-      log("Predictions:");
-      args.predictions.forEach((pred, idx) => {
-        log("  Input " + (idx + 6) + ": " + pred);
-      });
-
-todo:
-  - Train Model
-  - Make Predictions
-  - Display Predictions
-```
-
-### Pattern 3: Image Processing
-
-```yaml
-jobs:
-  - name: Process Image
-    lang: python
-    exec: |
-      from PIL import Image
-      import json
-
-      # Open image
-      img = Image.open('{{inputImage}}')
-
-      # Get info
-      info = {
-          'width': img.width,
-          'height': img.height,
-          'format': img.format,
-          'mode': img.mode
-      }
-
-      # Resize
-      img_resized = img.resize((800, 600))
-      img_resized.save('{{outputImage}}')
-
-      print(json.dumps(info))
-
-todo:
-  - name: Process Image
-    args:
-      inputImage: ./photos/original.jpg
-      outputImage: ./photos/resized.jpg
-```
-
-### Pattern 4: Web Scraping
-
-```yaml
-jobs:
-  - name: Scrape Website
-    lang: python
-    exec: |
-      import requests
-      from bs4 import BeautifulSoup
-      import json
-
-      # Fetch page
-      response = requests.get('{{url}}')
-      soup = BeautifulSoup(response.content, 'html.parser')
-
-      # Extract data
-      titles = [h2.text.strip() for h2 in soup.find_all('h2')]
-
-      result = {
-          'url': '{{url}}',
-          'titles': titles,
-          'count': len(titles)
-      }
-
-      print(json.dumps(result))
-
-  - name: Process Scraped Data
-    deps:
-      - Scrape Website
-    exec: |
-      log("Found " + args.count + " titles from " + args.url);
-      args.titles.forEach(title => log("  - " + title));
-
-todo:
-  - name: Scrape Website
-    args:
-      url: https://example.com
-  - Process Scraped Data
-```
-
-### Pattern 5: API Integration
-
-```yaml
-jobs:
-  - name: Call Python API
-    lang: python
-    exec: |
-      import requests
-      import json
-
-      # API call
-      response = requests.post('{{apiUrl}}', json={{requestData}})
-
-      # Parse response
-      data = response.json()
-
-      # Return
-      print(json.dumps(data))
-
-todo:
-  - name: Call Python API
-    args:
-      apiUrl: https://api.example.com/predict
-      requestData:
-        features: [1.2, 3.4, 5.6]
-        model: v2
-```
-
----
-
-## Advanced Techniques
-
-### Streaming Data Processing
-
-```javascript
-ow.loadPython();
-
-// Process large dataset in chunks
-var pythonCode = `
-import pandas as pd
-import json
-
-# Read in chunks
-chunk_size = 1000
-chunks = pd.read_csv('large_file.csv', chunksize=chunk_size)
-
-results = []
-for chunk in chunks:
-    # Process chunk
-    chunk_sum = chunk['value'].sum()
-    results.append(chunk_sum)
-
-total = sum(results)
-print(json.dumps({'total': total, 'chunks': len(results)}))
-`;
-
-var result = ow.python.exec(pythonCode);
-var data = jsonParse(result);
-log("Processed " + data.chunks + " chunks, total: " + data.total);
-```
-
-### Virtual Environment Support
-
-```javascript
-// Use specific Python virtual environment
-var pythonCode = `
-import sys
-sys.path.insert(0, '/path/to/venv/lib/python3.9/site-packages')
-
-import custom_library
-# Use library
-`;
-
-var result = af.runFromExternalClass("python", pythonCode);
-```
-
-### Error Handling
-
-```yaml
-jobs:
-  - name: Safe Python Execution
-    exec: |
-      try {
-        var pythonCode = `
-import sys
-import json
-
-try:
-    # Risky operation
-    result = 10 / 0
-    print(json.dumps({'result': result}))
-except Exception as e:
-    print(json.dumps({'error': str(e)}))
-`;
-
-        var output = af.runFromExternalClass("python", pythonCode);
-        var result = jsonParse(output);
-
-        if (isDef(result.error)) {
-          logErr("Python error: " + result.error);
-          throw result.error;
-        }
-
-        log("Result: " + result.result);
-
-      } catch(e) {
-        logErr("Execution failed: " + e.message);
-      }
-```
-
----
-
-## Environment Variables
-
-### Pass Environment to Python
-
-```yaml
-jobs:
-  - name: Python with Env
-    lang: python
-    exec: |
-      import os
-      import json
-
-      # Access environment variables
-      api_key = os.getenv('API_KEY', 'default_key')
-      debug = os.getenv('DEBUG', 'false').lower() == 'true'
-
-      result = {
-          'api_key_set': api_key != 'default_key',
-          'debug': debug
-      }
-
-      print(json.dumps(result))
-
-todo:
-  - Python with Env
-```
-
-Run with:
-```bash
-API_KEY=mykey123 DEBUG=true ojob myjob.yaml
-```
-
----
-
-## Performance Considerations
-
-### Minimize Python Calls
-
-```javascript
-// Bad - multiple Python calls
-for (var i = 0; i < 100; i++) {
-  var result = af.runFromExternalClass("python", `print(${i} * 2)`);
-}
-
-// Good - single Python call
-var pythonCode = `
-results = [i * 2 for i in range(100)]
-import json
-print(json.dumps(results))
-`;
-var results = jsonParse(af.runFromExternalClass("python", pythonCode));
-```
-
-### Batch Processing
-
-```yaml
-jobs:
-  - name: Batch Process
-    lang: python
-    exec: |
-      import json
-
-      # Process all items at once
-      items = {{items}}
-
-      results = []
-      for item in items:
-          result = process_item(item)
-          results.append(result)
-
-      print(json.dumps(results))
-
-todo:
-  - name: Batch Process
-    args:
-      items: [1, 2, 3, 4, 5]
-```
-
----
-
-## Complete Example: Data Pipeline
-
-```yaml
-include:
-  - oJobBasics.yaml
-
-jobs:
-  # Extract data
-  - name: Extract Data
-    exec: |
-      ow.loadObj();
-
-      var data = $rest()
-        .get("https://api.example.com/data")
-        .getResponse().data;
-
-      // Save for Python processing
-      io.writeFileJSON("./temp/data.json", data);
-
-  # Transform with Python
-  - name: Transform Data
-    deps:
-      - Extract Data
-    lang: python
-    exec: |
-      import pandas as pd
-      import json
-
-      # Load data
-      with open('./temp/data.json') as f:
-          data = json.load(f)
-
-      # Convert to DataFrame
-      df = pd.DataFrame(data)
-
-      # Transform
-      df['processed'] = df['value'] * 2
-      df['category'] = df['value'].apply(lambda x: 'high' if x > 100 else 'low')
-
-      # Aggregate
-      summary = df.groupby('category').agg({
-          'value': ['sum', 'mean', 'count']
-      }).to_dict()
-
-      # Save results
-      result_data = df.to_dict('records')
-
-      with open('./temp/transformed.json', 'w') as f:
-          json.dump(result_data, f)
-
-      print(json.dumps({
-          'rows': len(df),
-          'summary': summary
-      }))
-
-  # Load to database
-  - name: Load Data
-    deps:
-      - Transform Data
-    exec: |
-      var data = io.readFileJSON("./temp/transformed.json");
-
-      log("Loading " + data.length + " rows");
-
-      // Load to database
-      data.forEach(row => {
-        // Insert into database
-        insertRow(row);
-      });
-
-      log("Data loaded successfully");
-
-  # Cleanup
-  - name: Cleanup
-    deps:
-      - Load Data
-    exec: |
-      io.rm("./temp/data.json");
-      io.rm("./temp/transformed.json");
-
-todo:
-  - Extract Data
-  - Transform Data
-  - Load Data
-  - Cleanup
-```
-
----
-
-## Troubleshooting
-
-### Python Not Found
-
-**Error:** `python: command not found`
-
-**Solutions:**
-1. Install Python 3
-2. Add Python to PATH
-3. Use full Python path:
-
-```javascript
-var result = af.runFromExternalClass("/usr/bin/python3", code);
-```
-
-### Module Import Errors
-
-**Error:** `ModuleNotFoundError: No module named 'pandas'`
-
-**Solutions:**
-```bash
-# Install module
-pip install pandas
-
-# Or use specific Python
-pip3 install pandas
-```
-
-### JSON Parsing Errors
-
-**Problem:** Invalid JSON from Python
-
-**Solution:** Always use `json.dumps()` in Python:
 
 ```python
-import json
-
-result = {"key": "value"}
-print(json.dumps(result))  # Correct
-
-# NOT: print(result)  # Wrong - won't parse as JSON
-```
-
-### Character Encoding Issues
-
-```python
-# Use UTF-8 encoding
-import sys
-import io
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-```
-
----
-
-## Best Practices
-
-### 1. Always Use JSON for Data Exchange
-
-```python
-import json
-result = {"data": [1, 2, 3]}
-print(json.dumps(result))
-```
-
-### 2. Handle Errors in Python
-
-```python
-import json
+# greet.py
 import sys
 
-try:
-    # Your code
-    result = process_data()
-    print(json.dumps({'success': True, 'data': result}))
-except Exception as e:
-    print(json.dumps({'success': False, 'error': str(e)}))
-    sys.exit(1)
+name = sys.argv[1]
+loud = "--loud" in sys.argv[2:]
+
+msg = "Hello, " + name + "!"
+print(msg.upper() if loud else msg)
 ```
 
-### 3. Use Type Hints in Python
-
-```python
-from typing import List, Dict
-
-def process_items(items: List[int]) -> Dict[str, int]:
-    return {'sum': sum(items)}
+```
+$ ./pyoaf greet.py "Ada Lovelace" --loud
+HELLO, ADA LOVELACE!
 ```
 
-### 4. Validate Inputs
+Generated launchers forward arguments directly (`"$@"` on Unix and `%*` on Windows).
+Everything after the script path belongs to Python, including `--help`, `-e`, empty strings and
+values containing spaces. Python's exit status becomes the launcher's exit status.
+The CLI honors `OAF_PYTHON`; when unset it tries `python` then `python3`.
+
+```sh
+./pyoaf process.py "path with spaces/file.csv" "key=value" "a;b;c"
+```
 
 ```python
-import json
 import sys
-
-data = json.loads(sys.argv[1]) if len(sys.argv) > 1 else {}
-
-if 'required_field' not in data:
-    print(json.dumps({'error': 'Missing required field'}))
-    sys.exit(1)
+print(sys.argv[1:])
+# ['path with spaces/file.csv', 'key=value', 'a;b;c']
 ```
 
-### 5. Clean Up Resources
-
-```python
-import json
-
-try:
-    with open('file.txt', 'r') as f:
-        data = f.read()
-
-    result = process(data)
-    print(json.dumps(result))
-finally:
-    # Cleanup if needed
-    pass
-```
+For API calls, the optional fourth `argv` array overrides `OAF_PY_ARGC`/`OAF_PY_ARG_<n>`,
+including when it is empty. Without an explicit array, `execStandalone` reads those environment
+variables for compatibility with older launchers. `oaf --py -e script.py` is retained; when no
+arguments follow that legacy form, it also reads the indexed environment variables. Direct
+`oaf --py script.py [args...]` always takes its arguments from the command line.
 
 ---
 
-## See Also
+## Calling back into OpenAF from independent Python code (--oafpy)
 
-- [oJob Reference](../../concepts/oJob.html)
-- [ow.python Reference](../../reference/ow_python.md)
-- [Language Integration](../ojob/language-access.md)
-- [Python Official Documentation](https://docs.python.org/)
+If you want to run Python entirely on your own (not via `oaf --py`) but still call back into
+OpenAF - e.g. from an existing Python codebase, a notebook, or a script launched by something
+else - generate the companion `oaf.py` module:
+
+```sh
+oaf --oafpy > oaf.py
+```
+
+Then, from your own Python script (in the same directory, or as `oaf/__init__.py` in a package):
+
+```python
+import oaf
+from oaf import _, _d, _oaf, _g, _s
+
+print(_oaf("2 + 2"))          # 4, evaluated by OpenAF
+_s("myVar", {"a": 1})         # $set("myVar", {"a": 1}) in OpenAF
+print(_g("myVar"))            # {"a": 1}
+```
+
+Importing `oaf` transparently starts an `oaf -c "ow.loadPython().startServer(...)"` background
+process, waits up to 15 seconds for initialization, and registers an `atexit` hook to terminate
+it when your Python script exits. Startup failure also cleans up that owned child.
+
+---
+
+## Python inside oJob (lang: python)
+
+oJob jobs can be written in Python directly with `lang: python`. Under the hood this uses `$py`
+(server mode), so `args` is a Python dictionary and `id` is also supplied and any keys your Python
+code writes back to `args` are merged back into the oJob execution context:
+
+```yaml
+jobs:
+- name: "Python Job"
+  lang: python
+  exec: | #python
+    import json
+    print("Python is running")
+    args['pythonResult'] = 'success'
+
+# Or point at an existing .py file instead of inline code
+- name: "Python File Job"
+  typeArgs:
+    execPy: "/path/to/script.py"
+```
+
+Both entry points request `throwExceptions=true`, so Python exceptions, nonzero exits and stderr
+propagate to oJob's error handling. The oJob engine owns the shared Python session and stops it
+at engine shutdown; individual jobs should not stop it. Calls are serialized but scheduling still
+determines their order. Use `typeArgs.noTemplate: true` for code containing literal template syntax.
+
+See `ojob.md` (Job Languages section) for the full list of supported `lang` values.
+
+---
+
+## Configuration (environment variables)
+
+| Variable | Purpose | Default |
+|---|---|---|
+| `OAF_PYTHON` | Path/command of the Python interpreter to use | `python` |
+| `OAF_PYTHON_VER` | Major version to assume until explicit detection; CLI detects the actual interpreter | `3` |
+| `OAF_PY_ARGC`, `OAF_PY_ARG_<n>` | Legacy/API argv fallback when no explicit argv array is provided | unset |
+
+`ow.python.setPython(aPython)` / `ow.python.reset(noException, tryOthers)` let you change or
+re-detect the interpreter and version at runtime instead of using the environment variables.
+
+---
+
+## Choosing the right approach
+
+| I want to... | Use |
+|---|---|
+| Run a couple of Python expressions and get values back into JS | `ow.python.exec` / `$py` |
+| Keep a Python "session" alive across many small calls (state persists) | `ow.python.startServer()` + `exec`, or `$pyStart`/`$pyStop` |
+| Evolve one object across calls without naming in/out vars each time | `ow.python.execPM` |
+| Run an existing `.py` file as-is, optionally calling back into OpenAF | `ow.python.execStandalone` / `oaf --py` / `pyoaf` |
+| Give a Python script real CLI arguments (`sys.argv`) | `pyoaf`/`pyoaf.bat` launcher |
+| Call OpenAF from Python code you run independently (not via `oaf`) | `oaf --oafpy > oaf.py`, then `import oaf` |
+| Write an oJob step in Python | `lang: python` (or `typeArgs.execPy`) |
+
+For the raw wire protocol used between the Python bridge process and OpenAF (if you're implementing
+a custom client), see `dev/python-oaf-server.md`.
+
+## Runtime compatibility
+
+This guide describes the repaired bridge in this source tree. Older installed JARs may not
+preserve sessions, forward exception flags or support the fourth standalone argv parameter.
+Check `getVersion()` and the installed API help, or rebuild/install the matching revision before
+relying on these contracts. Python 2 syntax compatibility is retained; Python 2 and Windows
+require separate platform validation.

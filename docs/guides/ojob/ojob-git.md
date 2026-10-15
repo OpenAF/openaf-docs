@@ -143,8 +143,8 @@ jobs:
     args:
       giturl: https://github.com/myorg/private-repo
       gittarget: ./private-code
-      gituser: "{{gitUsername}}"
-      gitpass: "{{gitPassword}}"
+      gituser: "{% raw %}{{gitUsername}}{% endraw %}"
+      gitpass: "{% raw %}{{gitPassword}}{% endraw %}"
 
 todo:
   - name: Clone Private Repo
@@ -216,7 +216,7 @@ jobs:
     args:
       giturl: https://github.com/myorg/myapp
       gittarget: /opt/myapp
-      gitbranch: "{{version}}"
+      gitbranch: "{% raw %}{{version}}{% endraw %}"
 
   # Verify deployment
   - name: Verify Deployment
@@ -371,8 +371,8 @@ jobs:
     args:
       giturl: https://github.com/myorg/private-repo
       gittarget: ./repo
-      gituser: "{{env.GIT_USER}}"
-      gitpass: "{{env.GIT_TOKEN}}"
+      gituser: "{% raw %}{{env.GIT_USER}}{% endraw %}"
+      gitpass: "{% raw %}{{env.GIT_TOKEN}}{% endraw %}"
 ```
 
 ```bash
@@ -613,11 +613,11 @@ jobs:
       - Backup Current Version
     to: GIT Copy Repository
     args:
-      giturl: "{{config.repository.url}}"
+      giturl: "{% raw %}{{config.repository.url}}{% endraw %}"
       gittarget: /opt/myapp
-      gitbranch: "{{version}}"
-      gituser: "{{config.repository.user}}"
-      gitpass: "{{config.repository.token}}"
+      gitbranch: "{% raw %}{{version}}{% endraw %}"
+      gituser: "{% raw %}{{config.repository.user}}{% endraw %}"
+      gitpass: "{% raw %}{{config.repository.token}}{% endraw %}"
 
   # Post-deployment configuration
   - name: Post-Deploy Config
@@ -695,16 +695,16 @@ jobs:
       - Verify Deployment
     to: oJob Send email
     args:
-      server: "{{config.email.server}}"
+      server: "{% raw %}{{config.email.server}}{% endraw %}"
       from: "deployments@example.com"
       to: ["team@example.com"]
-      subject: "Deployment successful: {{version}}"
+      subject: "Deployment successful: {% raw %}{{version}}{% endraw %}"
       output: |
         Deployment completed successfully.
 
-        Version: {{version}}
-        Time: {{ow.format.fromDate(new Date(), "yyyy-MM-dd HH:mm:ss")}}
-        Server: {{getEnv("HOSTNAME")}}
+        Version: {% raw %}{{version}}{% endraw %}
+        Time: {% raw %}{{ow.format.fromDate(new Date(), "yyyy-MM-dd HH:mm:ss")}}{% endraw %}
+        Server: {% raw %}{{getEnv("HOSTNAME")}}{% endraw %}
 
   # Rollback on failure
   - name: Rollback
@@ -799,4 +799,4 @@ Don't hardcode credentials in oJob files.
 
 - [oJob Basics](common-browse.md)
 - [oJob Reference](../../concepts/oJob.html)
-- [Git Plugin Documentation](../../reference/plugins/git.md)
+- [Package documentation and discovery](../advanced/opacks.md)

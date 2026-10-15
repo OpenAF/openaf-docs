@@ -5,6 +5,7 @@ parent: oafp
 grand_parent: Guides
 ---
 
+{% raw %}
 # OpenAF processor
     
 **Usage**: _oafp [file] [options]_
@@ -22,9 +23,12 @@ Takes an input, usually a data structure such as json, and transforms it to an e
 | -h     | Show this document |
 | help   | Alternative way to show this document or others (e.g. filters, template) |
 | file   | The file to parse (if not provided stdin is used) |
+| ingzip | Decompress file input with OpenAF gzip streams. Auto-detected from `.gz` (case-insensitive); `true` forces decompression and `false` disables it. The preceding extension selects the input format. |
 | cmd    | Alternative to file and stdin to execute a command (e.g. kubectl, docker) to get the file contents |
 | data   | Alternative to file, stdin and cmd to provide data input |
 | out    | The output format (default: ctree) |
+| idescsource | `loaded` (default) or `stream`. `stream` enables file-backed JSON browsing with `out=idesc`. |
+| idescrecipe | Replay a saved idesc selection/query recipe with the supplied source; use `out=idesc` to reopen interactively. |
 | in     | The input type (if not provided it will try to be auto-detected) |
 | ifrom | An OpenAF nLinq expression to filter input data |
 | isql | A SQL expression to filter input data |
@@ -38,8 +42,10 @@ Takes an input, usually a data structure such as json, and transforms it to an e
 | outkey | If defined the map/list output will be prefixed with the provided key |
 | outfile | If defined all output will be written to the provided file |
 | outfileappend | If 'true' and outfile=true the output will be appended on the provided file |
-| parallel | If 'true' and input supports parallel processing it will try to process the input in parallel disregarding input order |
-| pause  | If 'true' will try to pause contents in alternative to _less -r_ |
+| parallel | `auto` (default), `true`, or `false`. Auto measures eligible pure work before using bounded workers. Record output stays ordered; explicit `true` also enables supported specialized parallel operations. `false` overrides `OAFP_PARALLEL`. |
+| progress | `auto` (default) or `off`. Shows a delayed wait animation on interactive stderr only. |
+| stream | With `in=json`, processes a top-level array one element at a time using record-level filters and output. Default `false`. |
+| pause  | If 'true' (or `-p`) will try to pause contents in alternative to _less -r_ |
 | color  | If 'true' will force colored output if available |
 | url    | Retrieves data from the provided URL |
 | urlmethod | If 'url' is provided defines the http method to use if different from GET | 
@@ -72,6 +78,17 @@ Takes an input, usually a data structure such as json, and transforms it to an e
 
 ---
 
+Gzip file input works with both positional filenames and `file=`:
+
+```sh
+oafp file=records.json.gz out=json
+oafp records.ndjson.gz out=json
+oafp file=records.json.gz stream=true out=json
+oafp file=compressed.dat ingzip=true in=csv out=json
+```
+
+Decompression streams directly into text and record readers; whole-document formats still buffer the decompressed text. Path-only readers (`jsonprefix`, `jsondesc`, JFR and hsperf) use a temporary decompressed file that is removed after reading. `ingzip` applies to file input, not stdin, commands or URLs. Use `ingzip=false` for an uncompressed file whose name ends in `.gz`.
+
 ## ⬇️  Input types
 
 List of data input types that can be auto-detected (through the file extension or through its contents). You can always override it by using the _in_ option:
@@ -86,7 +103,7 @@ List of data input types that can be auto-detected (through the file extension o
 | gb64json | Equivalent to in=base64 and base64gzip=true |
 | hsperf | A Java hsperfdata* file (requires file=hsperfdata_user/123) |
 | ini | INI/Properties format |
-| javas | Tries to list java processes running locally (javainception=true to include itself) |
+| javas | Tries to list java processes running locally (javasinception=true to include itself). Adds the hsperf file path when the process id matches ow.java.getLocalJavaPIDs() |
 | javagc | The Java GC log lines text format |
 | javathread | The Java Thread stack dump lines text format |
 | jfr | The Java Flight Recorder format |
@@ -96,6 +113,7 @@ List of data input types that can be auto-detected (through the file extension o
 | jwt | Decodes and/or verifies a JSON Web Token (JWT) |
 | lines | A given string/text to be processed line by line |
 | llm | A large language model input (uses 'llmenv' or 'llmoptions') |
+| llmdecide | Stateless decisions over a whole state and named questions using OpenAF $llm().decide() |
 | llmmodels | Lists the large language models available (using 'llmenv' or 'llmoptions') |
 | ls | Returns a list of files and folders for a given directory path or zip or tar or tgz file |
 | md | A Markdown format |
@@ -116,6 +134,7 @@ List of data input types that can be auto-detected (through the file extension o
 | snmp | A SNMP device source |
 | sql | One or more SQLs statements to AST (Abstract Syntax Tree) or beautified SQL |
 | toml | TOML format |
+| toon | TOON format |
 | xls | A XLSx compatible file (requires file=abc.xlsx) |
 | xml | An XML format (auto-detected) |
 | yaml | A YAML format (auto-detected) |
@@ -142,13 +161,15 @@ These options will change the parsed input data included any filters provided.
 | field2str | String | A comma delimited list of fields whose value should be converted to a string representation |
 | field4map | Boolean | A comma delimited list of fields whose value should be converted from JSON/SLON string representation to a map |
 | flatmap | Boolean | If true a map structure will be flat to just one level (optionally flatmapsep=[char] to use a different separator that '.') |
-| getlist | Number | If true will try to find the first array on the input value (if number will stop only after the number of checks) |
+| getlist | Boolean/Number | If true, selects the first nested array; a positive number selects the nth nested array in traversal order. If disabled or no matching array is found, preserves the input, including scalar values. |
 | forcearray | Boolean | If true and if the input is a map it will force it to be an array with that map as the only element |
 | jsonschema | String | The JSON schema file to use for validation returning a map with a boolean valid and errors if exist |
 | jsonschemacmd | String | Alternative option to 'jsonschema' to retrieve the JSON schema data to use for validation returning a map with a boolean valid and errors if exist |
+| jsonschemaoptions | String/Map | JSON/SLON Ajv options for jsonschema or jsonschemacmd, merged with allErrors=true; see [JSON Schema](json-schemas.md) |
 | jsonschemagen | Boolean | If true will taken the provided input map as an example to generate an output json schema |
 | kmeans | Number | Given an array of 'normalized' data will cluster data into the number of centroids provided |
 | llmcontext | String | If 'llmprompt' is defined provides extra context to the model regarding the input data |
+| llmdecide | String/Map | Per-entry stateless decisions; inline JSON/SLON configuration or JSON/YAML/SLON file. See [Decision enrichment](#decision-enrichment). |
 | llmprompt | String | A large language model prompt to transform the input data to json (uses the same input options 'llmenv' and 'llmoptions') |
 | maptoarray | Boolean | If true will try to convert the input map to an array (see maptoarraykey) |
 | maptoarraykey | String | If maptoarray=true defines the name of the map property that will hold the key for each map in the new array |
@@ -157,13 +178,13 @@ These options will change the parsed input data included any filters provided.
 | numformat | String | For all number values applies a java.util.Formatter format (e.g. %,d) |
 | oaf | String | An OpenAF scripting code or OpenAF scripting file to execute taking input as 'data' and returning the transformed data |
 | regression | String | Performs a regression (linear, log, exp, poly or power) over a provided list/array of numeric values |
-| removedups | Boolean | If true will try to remove duplicates from an array |
+| removedups | Boolean | Removes duplicate array entries, retaining the first occurrence. Map key order is ignored recursively; array order and the distinction between arrays and maps are preserved. |
 | removeempty | Boolean | If true will remove array/list entries that are either null or undefined |
 | removenulls | Boolean | If true will try to remove nulls and undefined values from a map or array |
 | searchkeys | String | Will return a map with only keys that match the provided string |
 | searchvalues | String | Will return am map with only values that match the provided string |
-| set | String | Performs set operations (intersection by default) over an 'a' and 'b' path to an array defined in a JSON/SLON map |
-| sortmapkeys | Boolean | If true the resulting map keys will be sorted |
+| set | String | Performs set operations (intersection by default) over an 'a' and 'b' path to an array defined in a JSON/SLON map. Comparisons ignore map key order recursively while preserving array order and distinguishing arrays from maps. |
+| sortmapkeys | Boolean | Recursively sorts map keys, including maps inside arrays. Preserves arrays, their element order, and scalar values. |
 | spacekeys | String | Replaces spaces in keys with the provided string (for example, helpful for XML output) |
 | trim | Boolean | If true all the strings of the result map/list will be trimmed |
 | val2icon | String | If defined will transform undefined, null and boolean values to emoticons (values can be 'default' or 'simple') |
@@ -183,6 +204,9 @@ List of available formats to use with the _output_ option:
 | Output format | Description |
 |---------------|-------------|
 | base64 | A base64 text format |
+| bstable | A borderless Unicode table with separators between records and wrapping to the terminal width (for lists or maps) |
+| btable | A borderless Unicode table without separators between records and with wrapping to the terminal width (for lists or maps) |
+| btree | A tree-like format without ANSI colors, using plain-text branch characters |
 | ch | An OpenAF channel format |
 | chart | A line-chart style chart (useful together with 'loop') |
 | cjson | A JSON forcely colored format |
@@ -195,12 +219,15 @@ List of available formats to use with the _output_ option:
 | ckyaml | A Kubernetes YAML colored format |
 | cyaml | An YAML colored format |
 | db | Output to a JDBC database |
+| dsv | A delimiter-separated values format with configurable separator, quoting and headers (for lists or maps; see DSV output options) |
 | envs | Tries to output the input data as OS environment variables setting commands |
 | gb64json | Equivalent to out=base64 and base64gzip=true |
 | grid | A multiple output ascii grid (useful together with 'loop') |
 | html | An HTML format |
+| idesc | Interactive full-screen tree browser for maps, arrays and scalar values; expand/collapse, zoom, filter, queries, previews, bookmarks, comparison and export |
 | ini | A INI/Properties format (arrays are not supported) |
 | json | A JSON format without spacing |
+| jsmap | OpenAF's HTML representation of structured data, printed directly without opening a browser |
 | jwt | Signs map data into a JSON Web Token (JWT) |
 | key | Stores data into an OpenAF global (used inside OpenAF) |
 | kyaml | A Kubernetes YAML format |
@@ -211,6 +238,7 @@ List of available formats to use with the _output_ option:
 | md | A Markdown format |
 | mdtable | A Markdown table format (only for list outputs) |
 | mdyaml | A multi document YAML format (only for list outputs) |
+| mtree | A tree-like format without ANSI colors, using Unicode branch characters (falls back to ctree on older OpenAF versions without TREE.mono support) |
 | ndjson | A NDJSON (new-line delimited JSON) format |
 | ndslon | A NDSLON (new-line delimited SLON) format |
 | ndcslon | A NDSLON (new-line delimited SLON) format forcely colored |
@@ -230,10 +258,13 @@ List of available formats to use with the _output_ option:
 | template | A Handlebars template format |
 | text | A string text format |
 | toml | A TOML format (arrays will have outkey=list) |
+| toon | A TOON format |
 | tree | A tree-like format |
 | xls | A XLSx output format |
 | xml | An XML format |
 | yaml | A YAML format |
+
+> `bstable`, `btable` and `jsmap` are passed through to OpenAF and are not listed by `out="?"`. They require an OpenAF version that supports the corresponding format. The OpenAF `btable` options `__width` and `__rowsep` are not forwarded by oafp; use `bstable` to enable separators between records.
 
 > For 'template' check https://docs.openaf.io/docs/guides/oafp/oafp-template.html
 
@@ -296,12 +327,20 @@ List of options to use when _in=dsv_:
 | indsvquote | String | The quote character to use (default is '"') |
 | indsvescape | String | The escape character to use for double-quotes |
 | indsvcomment | String | The comment character to use (default is '#') |
-| indsvheader | Boolean | If true will try to use the first line as header (default is true) |
-| indsvtrim | Boolean | If true will trim all values (default is true) |
-| indsvjoin | Boolean | If true it will return an array with each processed line |
-| indsvfields | String | Comma separated list of fields to use as header (overrides indsvheader) |
+| indsvheader | Boolean | Uses the first non-comment line as column names (default is true). When false, provide indsvfields. |
+| indsvtrim | Boolean | Trims header names and values (default is true). Set false to preserve leading and trailing whitespace. |
+| indsvjoin | Boolean | Returns one array of records when true; otherwise emits each record once (default is false). Applies to stdin, file, cmd and data input. |
+| indsvfields | String | Comma separated column names. When provided, every non-comment line is data, including the first; no input header is consumed. |
 
-> Support parallel=true if indsvjoin=false or not defined
+DSV input splits each physical line on `indsvsep` (or `indsvsepre`) before removing surrounding quotes. Embedded separators and multiline quoted fields are not supported; use `in=csv` for CSV records with quoted separators.
+
+For a headerless semicolon-separated file:
+
+```bash
+oafp in=dsv file=data.txt indsvsep=';' indsvfields=name,score indsvheader=false indsvjoin=true out=json
+```
+
+> DSV parsing and header inference stay sequential. Supplying indsvfields avoids inferred field names. Filters, transforms and output run on the calling thread.
 
 ---
 
@@ -326,6 +365,18 @@ List of options to use when _in=javathread_:
 > (*) This requires running openaf/oafp with a Java JDK. Keep in mind that it will interrupt the target application to dump the necessary data.
 
 > You can extract the input text data by executing ```kill -3 pid```
+
+---
+
+### 🧾 HSPERF input options
+
+List of options to use when _in=hsperf_:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| hsperfmetadata | Boolean | With in=hsperf, returns {values, header, entries}, including header and per-counter metadata. Defaults to false; requires an updated OpenAF runtime. |
+
+Use _file=_ or _cmd=_ with _hsperfmetadata=true_. Select _path=header_ or _path=entries_ for metadata and _path=values.java_ for Java counters; without metadata, use _path=java_. Counter longs are exact decimal strings. Missing counter groups are omitted, timers require the reported frequency, and nonzero header overflow indicates counters the JVM could not store.
 
 ---
 
@@ -370,7 +421,7 @@ List of options to use when _in=json_:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| jsondesc | Boolean | If true the output will be a list of JSON paths of the original json.  |
+| jsondesc | Boolean | If true the output will be a list of JSON paths of the original json. Uses metadata-only scanning when OpenAF provides `io.scanJSON`, avoiding scalar-value loading; older runtimes and lenient JSON use the compatible reader. |
 | jsonprefix | String | Given the 'jsondesc=true' output list you can use each to filter big json files by prefix. |
 
 ---
@@ -400,7 +451,63 @@ List of options to use when _in=lines_:
 | linesvisualsepre | String | Regular expression representing the separator between columns when linesvisual=true (defaults to ' \\s+') | 
 | linesvisualheadsep | Boolean | If true will try to process the second line as header separator aiding on column position determination (if linesvisualsepre is not defined it will default to '\\s+') |
 
-> Supports parallel=true if linesjoin=false or not defined
+> Lines and visual-header processing stay sequential.
+
+---
+
+### 🧾 LLM input options
+
+List of options to use when _in=llm_:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| llmenv | String | Environment variable containing the model configuration (defaults to OAFP_MODEL, falling back to OAF_MODEL when absent). |
+| llmoptions | String/Map | Model configuration as a JSON/SLON string or map; overrides llmenv. See the shared LLM input/transform options below. |
+| llmconversation | String | JSON file to load an existing conversation from and save the updated conversation to. |
+| llmimage | String | Image file path or HTTP(S) URL to use with a visual model. |
+
+The input text is the prompt. Use _out=md_, _out=mdtable_ or _out=raw_ for a text response; other formats request JSON. Normal filters and output formats apply.
+
+```sh
+echo "Summarize this text" | oafp in=llm llmoptions="(type:ollama,model:llama3)" out=raw
+```
+
+---
+
+### 🧾 LLM Decide input options
+
+List of options to use when _in=llmdecide_:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| llmenv | String | Environment variable containing the model configuration (defaults to OAFP_MODEL, falling back to OAF_DECIDE_MODEL and then OAF_MODEL when absent). |
+| llmoptions | String/Map | Model configuration as a JSON/SLON string or map; overrides llmenv. Supports the shared sBucket options below. |
+| llmdecidesample | String | Emit a gemini or ollama request sample without input, credentials or inference. Use out=yaml or out=json. |
+| llmimage | String | Local PNG/JPEG/WebP image file to encode as options.images for Ollama native decisions. Cannot be combined with options.images. |
+| llmdecidestats | Boolean | Return {response, stats} from one decideWithStats() execution (defaults to false). |
+
+Requires an updated OpenAF runtime with `$llm().decide()` support (`decideWithStats()` when _llmdecidestats=true_). Supply JSON, SLON or YAML via _file=_, stdin or _data=_ containing `{state, questions, options?}`:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| state | String/Map/Array | Entire state to evaluate once, including arrays. |
+| questions | Map | Nonempty map of named question definitions, each with type and instructions: choice with named criteria, boolean, or score with ordered criteria. |
+| options | Map | Optional OpenAF decision settings: strategy (auto by default, native or structured), model override, requireProbabilities, providerOptions and images (ordered raw base64 image array for Ollama native decisions). |
+
+OpenAF validates questions and options; unknown request fields are rejected. _llmconversation_, _llmcontext_ and _llmprompt_ are unsupported. No conversation is saved; failures propagate without retry or fallback.
+
+Images require an updated OpenAF runtime, Ollama v0.35.1+ and CLEF/CLEF Flash vision weights. All questions share the images in order; state remains required. Supply a nonempty `options.images` array of raw base64 strings (no URLs, data URLs or paths), or use _llmimage=screenshot.png_ for one local file. OpenAF validates image options; Ollama validates image contents and model vision support. The serialized UTF-8 request limit is 32 MiB with images (including base64 and JSON), or 64 KiB without images.
+
+Output is `{contractVersion, provider, model, strategy, answers}`, or `{response, stats}` with _llmdecidestats=true_. Normal filters and output formats apply: use _path=answers.route.value out=raw_ (or _path=response.answers.route.value_ with stats). Score levels are zero-based; selectedProbability is the selected alternative's probability, providerConfidence is separate provider confidence, and expectedScore is the ordinal expectation. Structured probability fields are null.
+
+Generate a request, edit its state and questions, then run it with _file=_ and your model configuration:
+
+```sh
+oafp in=llmdecide llmdecidesample=gemini out=yaml > gemini-request.yaml
+oafp in=llmdecide llmdecidesample=ollama out=json > ollama-request.json
+```
+
+> See _help=examples_ for complete request files and provider requirements. Samples use common OpenAF question definitions with provider-specific strategy options.
 
 ---
 
@@ -478,7 +585,7 @@ List of options to use when _in=ndjson_:
 | ndjsonjoin | Boolean | If true will join the ndjson records to build an output array |
 | ndjsonfilter | Boolean | If true each line is interpreted as an array before filters execute (this allows to filter json records on a ndjson) |
 
-> Supports parallel=true if ndjsonjoin=false or not defined
+> With ndjsonjoin=false, eligible JSON parsing supports bounded workers through parallel=auto or parallel=true. Framing, filters, other transforms and output stay on the calling thread.
 
 ---
 
@@ -491,7 +598,7 @@ List of options to use when _in=ndslon_:
 | ndslonjoin | Boolean | If true will join the ndslon records to build an output array |
 | ndslonfilter | Boolean | If true each line is interpreted as an array before filters execute (this allows to filter slon records on a ndslon) |
 
-> Supports parallel=true if ndslonjoin=false or not defined
+> NDSLON framing and parsing stay sequential.
 
 ---
 
@@ -676,14 +783,58 @@ List of options to use when _diff=..._:
 
 ### 🧾 LLM input/transform options
 
-List of options to use when _in=llm_ or _llmprompt=..._:
+### Decision enrichment
+
+Use _llmdecide=<configuration or file>_ as a transform to classify each array entry and add fields before normal output filtering and rendering. A single map or string produces one decision; arrays produce one decision per entry, including array-valued entries. Without `assign`, entries are replaced by full decision responses.
+
+Configuration accepts a map, an inline JSON/SLON expression, or a regular JSON/YAML/SLON file. For a path-like string, an existing file is read first; a missing file falls back to parsing the original string as JSON/SLON. Existing unreadable or malformed files fail without fallback.
+
+| Configuration field | Type | Description |
+|---------------------|------|-------------|
+| questions | Map | Required named OpenAF decision questions, as for in=llmdecide. |
+| options | Map | Optional OpenAF decision options. |
+| statePath | String | Optional $path expression evaluated against each entry. Defaults to the entire entry; the result must be text, a map or an array. |
+| assign | Map | Optional map of literal destination field names to $path expressions evaluated against the decision response. Requires map entries. Multiple fields use the same decision call. |
+| overwrite | Boolean | Allow assign to replace existing own fields; defaults to false. |
+
+Example `classify.yaml`:
+
+```yaml
+questions:
+  category:
+    type: choice
+    instructions: Classify the ticket.
+    criteria:
+      billing: Payments, charges, and refunds
+      technical: Software errors and outages
+options:
+  strategy: structured
+statePath: description
+assign:
+  classification: answers.category.value
+```
+
+```sh
+oafp file=tickets.json llmdecide=classify.yaml out=table
+oafp file=tickets.json llmdecide=classify.yaml parallel=true out=csv
+```
+
+Input `[{"id":1,"description":"I was charged twice"}]` becomes `[{"id":1,"description":"I was charged twice","classification":"billing"}]`. Destination names are literal: `class.name` adds one field named `class.name`. Missing result paths that return null are assigned as null; expressions returning undefined or throwing fail with the entry index.
+
+The transform reuses _llmoptions_, _llmenv_, secrets, _llmimage_ and _llmdecidestats_ from _in=llmdecide_, including decision model fallback. With stats enabled, use `response.answers.category.value` in `assign`. Conversational parameters are unsupported. State types and field collisions are checked before inference. Empty arrays produce no inference. Provider failures propagate with the entry index and original error code; no retries or conversation persistence occur.
+
+LLM decision execution is sequential by default, including _parallel=auto_. _parallel=true_ or _OAFP_PARALLEL=true_ enables OpenAF's adaptive parallel processing with an isolated client for each entry and preserved result order. Older runtimes without pForEach process sequentially. Parallel failures are raised after workers finish; already dispatched requests may complete.
+
+Input filters (_path_, _ifrom_, _isql_) select data before transforms; output filters (_opath_, _from_, _sql_) can select or filter the enriched results. Transform order follows the existing transform registry, rather than CLI argument order. Streaming inputs process each dispatched record/batch separately; join records when one collected array result is needed.
+
+List of options to use when _in=llm_, _in=llmdecide_, _llmdecide=..._ or _llmprompt=..._:
 
 | Option | Type | Description |
 |--------|------|-------------|
 | llmenv | String | The environment variable containing the value of 'llmoptions' (defaults to OAFP_MODEL) |
-| llmoptions | String | A JSON or SLON string with OpenAF's LLM 'type' (e.g. openai/ollama), 'model' name, 'timeout' in ms for answers, 'url' for the ollama type or 'key' for openai type | 
+| llmoptions | String/Map | A JSON/SLON string or map with OpenAF's LLM 'type' (e.g. openai/ollama), 'model' name, 'timeout' in ms for answers, 'url' for the ollama type or 'key' for openai type; maps are supported by in=llm, in=llmdecide and the llmdecide transform, while llmprompt requires a string |
 | llmconversation | String | File to keep the LLM conversation |
-| llmimage | String | For visual models you can provide a base64 image or an image file path or an URL of an image |
+| llmimage | String | With in=llm, image file path or HTTP(S) URL to use with a visual model. |
 
 > OpenAF sBuckets are supported in llmoptions. You can set any of the environment variables OAFP_SECREPO, OAFP_SECBUCKET, OAFP_SECPASS, OAFP_SECMAINPASS and OAFP_SECFILE OR set the corresponding map values secRepo, secBucket, secPass, secMainPass and secFile.
 
@@ -725,6 +876,103 @@ List of options to use when _set=..._:
 
 ---
 
+### 🧭 IDesc output options
+
+`out=idesc` opens a full-screen tree browser (in the style of `out=ctree`) over maps, arrays and scalar values. Containers start collapsed and show their length (`{3}` for a map, `[40]` for an array); scalars are shown inline. The current location is always visible and quoted path segments preserve literal keys such as `a.b`, `a[0]`, numeric strings and empty names.
+
+| Option | Type | Description |
+|--------|------|-------------|
+| idescsource | String | `loaded` (default) browses the normal processed result. `stream` scans UTF-8 JSON on demand without loading the whole document. |
+| idescrecipe | String | File containing a saved version-1 selection/query recipe and named bookmarks. The source is supplied separately. |
+| idescpage | Number | Entries loaded per expand/"more" step in the tree browser (and per page in the numbered fallback and previews). Default `20`. |
+| idescrecords | Number | Batch size for line-oriented input (NDJSON, NDSLON, lines, DSV) or `in=json stream=true`. Each batch of processed records opens one explorer session; press `n` (or `:next`) to drop it and read the next batch, `q` to stop reading. Only one batch is held in memory. A selection/query is carried over to the next batch when it still applies. Positive integer, default `100`. CSV and explicit join options still browse the whole result. |
+| idescdepth | Number | Maximum preview depth. Default `3`. |
+| idescstring | Number | Maximum displayed characters per preview string. Default `200`. Oversized file-backed scalars may be omitted with a byte-size label. |
+| idescbytes | Number | Maximum selected JSON bytes admitted for file-backed queries/slices. Default `16777216` (16 MiB). |
+| idescnodes | Number | Maximum value nodes admitted for file-backed queries/slices and preview traversal. Default `100000`. |
+
+All numeric options must be positive integers. These loading limits do not bound intermediate allocations inside existing query engines.
+
+```sh
+# Explore the normal input after standard filters/transforms.
+oafp file=response.json path=response out=idesc
+oafp file=events.ndjson in=ndjson out=idesc idescrecords=50
+
+# Explore JSON too large to load in memory.
+oafp file=large.json out=idesc idescsource=stream
+cat large.json | oafp in=json out=idesc idescsource=stream
+oafp cmd='some-command --json' in=json out=idesc idescsource=stream
+oafp url=https://example.org/data.json in=json out=idesc idescsource=stream
+
+# Replay a saved selection/query without an interactive terminal.
+oafp file=large.json idescrecipe=selection.json out=json outfile=selected.json
+```
+
+```text
+ oafp ⌂ › inventory                                      │ 💾 file · 1 ops
+──────────────────────────────────────────────────────────────────────────
+ ▾ inventory {3}                                                       map
+ ╭ ▾ items [3]                                                       table
+ │ id│name │ok
+ │ ──┼─────┼────
+▌│ 1 │alpha│true
+ │ 22│beta │null
+ │ 3 │gamma│
+ ├ ▸ tags [12]                                                       array
+ ╰ ▸ owner {2} 1.2 KB                                                  map
+──────────────────────────────────────────────────────────────────────────
+items[0]  5/9    🔍 name
+←↑↓→ hjkl move · ⏎ zoom · ⌫ up · ~ top · / filter · t table/tree · : cmd · q quit
+```
+
+The current root is the left-aligned top line; its children hang from it with the same `╭ ├ ╰ ─` lines as `out=ctree`. Like `out=ctree`, an expanded array whose entries are all flat maps is shown as a table (one line per entry, with `Enter` zooming into the entry); `t` switches the focused array back to a tree (and back again) and `T` turns tables off or on everywhere. Arrays of scalars, mixed arrays and arrays with nested values always stay trees. The screen has a header (breadcrumbs, source badge and operation count), the tree, a status line (the focused path in a reusable `path=` form, the row position and the active filter, or messages and prompts) and a key hint line. Colors follow OpenAF's `__colorFormat` theme, so the browser matches `out=ctree`/`out=ctable` and your customizations: `key` (property names), `number`/`string`/`boolean`/`date`/`default` (values by type), `tree.lines` (tree lines, dividers and secondary text), `table.title`/`table.lines`/`table.bandRow` (tables: header, lines and every second row, unless `__flags.TABLE.bandRows` is false; cells take their value-type color), `askChoose` (the cursor row), `askPre`/`askQuestion`/`askChooseFilter`/`askPos` (prompts, header, filter and confirmations) and `md.heads.h3` (help headings); entries that are missing or empty fall back to built-in colors. Quoted names and `[index]` rows keep data distinct from commands. Containers whose size is not yet known in file-backed mode show `?` plus their size in bytes until expanded or counted. The browser uses the alternate screen: your scrollback is untouched and restored on exit, and nothing is written to stdout unless you export.
+
+| Key | Action |
+|-----|--------|
+| `↑`/`k`, `↓`/`j` | Move the cursor. `PgUp`/`PgDn` (or `Ctrl-U`/`Ctrl-D`) page, `g`/`G` or `Home`/`End` jump to the first/last row |
+| `→`/`l` | Expand the focused container (already expanded: move to its first child; on a "more" row: load more) |
+| `←`/`h` | Collapse; if already collapsed or a scalar, jump to the parent row; on the root row, zoom out |
+| `Space` | Toggle expand. `*` expands all children of the focused container one level |
+| `t` / `T` | Switch the focused array between table and tree / turn tables off or on for every array |
+| `Enter` | Zoom: make the focused container the root (recorded). On a scalar opens it in the preview; on a "more" row loads the next `idescpage` entries |
+| `Backspace`/`u` | Zoom out one level. `~` or `0` goes back to the original root. `U` undoes the last zoom or query |
+| `/` | Filter the child names of the current root as you type (`Enter` keeps, `Esc` clears) |
+| `p` | Scrollable bounded preview of the focused node (`f` cycles `ctree`/`ctable`/`cyaml`) |
+| `y` | Show the reusable `path=` expression for the focused node |
+| `:` | Command line (`Tab` completes, `↑`/`↓` recall history) |
+| `?` | Help overlay. `q` or `Ctrl-C` quits |
+
+Expanding, collapsing, moving and filtering only change the view: they are never part of a recipe. Zooming, queries and slices are recorded as ordered operations, so a session can be saved and replayed. Queries and slices act on the focused node (zooming to it first); preview, count, field summary, comparison, bookmarks and exports act on the focused node without moving the view.
+
+| Command | Description |
+|---------|-------------|
+| `path <expr>`, `from <expr>`, `sql <expr>` | Query the focused node with the existing engines (also `query path\|from\|sql <expr>`). Examples: `path [?status == 'active']`, `from equals(status, active)`, `sql select id where status = 'active'` |
+| `slice a:b` | Keep array entries `a` to `b` (end exclusive) |
+| `jump <path>` | Zoom to an exact property/index path from the current root (e.g. `items[2].nested`) |
+| `count` / `fields` | Entry count / field summary (samples up to the first 100 records) in an overlay |
+| `bm [name]`, `bm go <name>`, `bm rm <name>` | List, save (the focused node) and replay/remove bookmarks |
+| `compare <bookmark> [values]` | Diff the focused node with a bookmark (structure by default, bounded values with `values`) |
+| `recipe [print]`, `recipe save <file>`, `recipe load <file>` | Show, save or load the recipe |
+| `export json\|yaml <file>` | Write the focused node to a file (asks before replacing). `export json -` leaves the screen, writes only the selected data to stdout and exits |
+| `format ctree\|ctable\|cyaml\|auto` | Preview format (remembered) |
+| `quit` | Leave without emitting data |
+
+Errors (bad queries, missing paths, unknown commands) appear in the status line and leave the view unchanged. A changed source file clears cached locations and bookmarks and restarts at the root. Scans report progress in the status line and `Ctrl-C` cancels them. The terminal is resized live. Narrow terminals clip rows instead of wrapping.
+
+Terminals without ANSI support (for example `TERM=dumb`) automatically get a numbered, line-oriented menu with the same capabilities: Preview, Query, Export, Navigate (Parent, Original root, Undo, Next/Previous page, Filter names, Jump to path) and Tools (Slice array, Count entries, Field summary, Bookmarks, Compare with bookmark, Recipe).
+
+Preview uses the existing `ctable`, `ctree` and `cyaml` renderers on bounded data. Automatic format starts with `ctable` for arrays of maps and `ctree` otherwise; an explicit choice is remembered. Preview truncation markers are display-only and are never exported as selected data. A simple selection prints a reusable `path=` expression; compound selections use `idescrecipe=` replay. Replay uses the same source mode and operation order, including slices. Supply equivalent startup processing again when replaying a loaded-result recipe. Imported query expressions execute through the normal query engines; review recipes from others before replaying them. Saved recipes contain operations/bookmarks rather than source data, credentials or temporary-file paths.
+
+Export writes JSON or YAML to a file, or emits only selected data to stdout and exits. Interactive screens use a separate controlling terminal, including when stdin/stdout are redirected. JSON export of an untransformed file-backed selection streams the original byte range; YAML and derived queries use bounded loading. `outfile=` with noninteractive recipe replay explicitly replaces the destination after successful export. Quit without exporting emits no data.
+
+File-backed mode accepts local JSON, `.json.gz`/`ingzip`, stdin, command output and URL input. Non-file sources are streamed to a temporary file before browsing; source commands/requests run once. Temporary files are removed on session exit. Startup filters, transforms, record-streaming options and loops are rejected in this mode: use its Query action after narrowing or the normal loaded mode. Loaded NDJSON exploration should use `ndjsonjoin=true` to browse one combined result.
+
+Navigation rescans on demand and caches up to 64 page summaries. Exact counts may require reading the selected container; use Count explicitly. Scans/large JSON copies report progress and Ctrl-C cancels them. Early-stopped scans do not validate the unread suffix. File changes clear cached navigation/bookmarks and restart at root. A persistent index and full disk-backed sorting/aggregation are outside this mode.
+
+Requires OpenAF with `askConsole` (including `read`, `size`, `raw` and `altScreen`), `askKey`, `ow.format.string.ansiClip`/`ansiPad`, injectable `askChoose`/`ask`, `io.scanJSON` and `io.copyJSONRange`; missing capabilities report an update/rebuild requirement. The controlling-terminal implementation uses JLine's `/dev/tty` provider on macOS/Linux (requires `stty`) and independent `CONIN$`/`CONOUT$` handles on Windows. No interactive terminal is required for recipe replay to an ordinary output format.
+
+---
+
 ### 🧾 CH output options
 
 List of options to use when _out=ch_:
@@ -748,11 +996,17 @@ List of options to use when _out=chart_:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| chart  | String | Chart definition in the format "<unit> <path:color:legend>... [-min:0] [-max:100]". The 'unit' used should be either 'int', 'dec1', 'dec2', 'dec3', 'dec', 'bytes' or 'si'. The 'path' is equivalent to the 'path=' jmespath filter (quotes should be used for non-basic 'path' expressions; and '@' should be used for the current value). The 'color' should be one of the basic color names. The 'legend' should be the label of the value (in quotes if includes spaces) |
-| chartcls | Boolean | If true the screen will be cleared for each execution |
+| chart  | String | Chart definition in the format `"<unit> <path:color:legend>... [-min:<n>] [-max:<n>] [-hsize:<n>] [-vsize:<n>]"`. The 'unit' must be one of: `int`, `dec1`, `dec2`, `dec3`, `dec4`, `dec`, `bytes` or `si`. The 'path' is a JMESPath expression equivalent to the `path=` filter (use quotes for non-basic expressions; use `@` for the current root value). The 'color' should be one of the basic ANSI color names. The 'legend' is the series label (quote it if it contains spaces). The `-min` and `-max` flags set the Y-axis range; `-hsize` and `-vsize` override the default chart width and height in terminal columns/rows. |
+| chartcls | Boolean | If true the screen will be cleared before rendering each update (alternative to `loopcls=true`) |
 
-Example: 
-```oafp cmd="curl -s http://api.open-notify.org/iss-now.json" out=chart chartcls=true chart="dec3 iss_position.latitude:blue:lat iss_position.longitude:red:long" loop=5```
+Examples:
+```oafp cmd="curl -s http://api.open-notify.org/iss-now.json" out=chart loopcls=true chart="dec3 iss_position.latitude:blue:lat iss_position.longitude:red:long" loop=5```
+
+```oafp cmd="uptime" in=raw path="replace(trim(@), '.+ ([\d\.]+),? ([\d\.]+),? ([\d\.]+)$', '', '$1|$2|$3').split(@,'|')" out=chart chart="dec2 [0]:green:load1m [1]:yellow:load5m [2]:red:load15m -min:0" loop=1 loopcls=true```
+
+```oafp cmd="ps -p 12345 -o %cpu,%mem" in=lines linesvisual=true linesvisualsepre="\\s+" out=chart chart="int '\"%CPU\"':red:cpu '\"%MEM\"':blue:mem -min:0 -max:100" loop=1 loopcls=true```
+
+```HOST=1.1.1.1 && PORT=53 && oafp in=oaf data="data=ow.loadNet().testPortLatency('$HOST',$PORT)" out=chart chart="int @:red:latencyMS -min:0" loop=1 loopcls=true```
 
 ---
 
@@ -804,11 +1058,17 @@ List of options to use when _out=dsv_:
 | Option | Type | Description |
 |--------|------|-------------|
 | dsvsep | String | The separator to use (default is ',') |
-| dsvquote | String | The quote character to use (default is '"') |
-| dsvfields | String | Comma separated list of fields to use as header (overrides dsvheader) |
+| dsvquote | String | Replacement for double quotes inside serialized object/array cells (default is a backslash followed by a double quote). String cells and headers always use double quotes, with embedded quotes doubled. |
+| dsvfields | String | Comma separated output columns in the requested order. Defaults to the first row's keys for the whole table. Missing values are empty; additional keys in later rows are omitted. Does not override dsvheader=false. |
 | dsvuseslon | Boolean | If true the output of value objects will be in SLON format (default is false) |
 | dsvheader | Boolean | If true will try to output the first line as header (default is true) |
 | dsvnl | String | Newline sequence to use (default is '\n') |
+
+`dsvsep` applies to both the header and data rows. Column order remains fixed even if later objects list their keys in a different order. Specify `dsvfields` to include columns that are absent from the first row.
+
+```bash
+oafp in=json file=records.json out=dsv dsvsep=';' dsvfields=name,score
+```
 
 ---
 
@@ -865,15 +1125,35 @@ List of options to use when _out=grid_:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| grid   | String | A JSON/SLON configuration composed of an array with another array per grid line. Each line array should have a map per column (see below for the map options) | 
+| grid   | String | A JSON/SLON configuration structured as an array of row arrays. Each row array contains one map per column cell (see column cell options below). |
 
-Each map should be composed of a:
+Each column cell map supports:
 
-  * 'title'
-  * 'type' (tree, map, chart, bar, table, area, text and md)
-  * a 'path' to select the data (for non chart types) 
-  * an 'obj' (for chart type the format is the same of chart=...) 
-  * or 'cmd' (to run a command that outputs json on stdout)
+| Field | Type | Description |
+|-------|------|-------------|
+| title | String | Label displayed as a bold header above the cell content. Auto-set from `path` if not provided. |
+| type  | String | Rendering type: `tree` (default for maps/arrays), `map`, `table`, `chart`, `bar`, `area`, `text`, `md`, `func`, or `empty` |
+| path  | String | JMESPath expression to select data from the pipeline input (use `@` for root). Auto-sets `title` if not provided. |
+| obj   | String | Data or format string to render. For `chart`: same format as `chart=`; for `bar`: same format as `bar=`; for `func`: JS function body with `mx` (height) and `my` (width) args returning a string. |
+| cmd   | String | Shell command whose JSON stdout is used as cell data instead of the pipeline input. |
+| xspan | Number | Number of columns this cell spans (default: 1). |
+| yspan | Number | Number of rows this cell spans (default: 1). |
+
+Extra fields for `bar` type cells:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| max   | Number | Maximum value for the bar scale |
+| min   | Number | Minimum value for the bar scale |
+| indicator | String | Bar fill character (default: `━`) |
+| space | String | Background character (default: ` `) |
+
+Examples:
+```oafp cmd="cat /sys/fs/cgroup/cpu.stat | sed 's/ /: /g'" in=yaml out=grid grid="[[(title:cpu.stat,type:tree)|(title:chart,type:chart,obj:'int nr_throttled:red:throttled nr_bursts:blue:bursts -min:0 -vsize:10')]]" loop=1 loopcls=true```
+
+```HSPERF=/tmp/hsperfdata_user/12345 && oafp $HSPERF in=hsperf path=java out=grid grid="[[(title:Threads,type:chart,obj:'int threads.live:green:live threads.livePeak:red:peak threads.daemon:blue:daemon -min:0')|(title:ClassLoaders,type:chart,obj:'int cls.loadedClasses:blue:loaded cls.unloadedClasses:red:unloaded')]|[(title:Heap,type:chart,obj:'bytes __mem.total:red:total __mem.used:blue:used -min:0')|(title:Metaspace,type:chart,obj:'bytes __mem.metaTotal:blue:total __mem.metaUsed:green:used -min:0')]]" loop=1 loopcls=true```
+
+```NS=my-namespace && POD=my-pod-123 && oafp cmd="kubectl top -n $NS pod $POD" in=lines linesvisual=true path="[].{name:NAME,cpu:from_siAbbr(\"CPU(cores)\"),mem:from_bytesAbbr(\"MEMORY(bytes)\")}" out=grid grid="[[(title:cpu,type:chart,obj:'dec3 cpu:blue:cpu -min:0')|(title:mem,type:chart,obj:'bytes mem:green:mem -min:0')]]" loop=2 loopcls=true```
 
 ---
 
@@ -908,6 +1188,7 @@ List of options to use when _out=md_:
 | Option | Type | Description |
 |--------|------|-------------|
 | mdtemplate | Boolean | If true will apply a template output without any input data |
+| mdformat | String | For map or array values: `structured` (default) renders headings, scalar tables, and lists; `json` or `yaml` emits the value in a fenced code block. |
 
 ---
 
@@ -952,10 +1233,12 @@ List of options to use when _out=schart_:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| schart  | String | Chart definition in the format "<unit> <path:color:legend>... [-min:0] [-max:100]". Unit is either 'int', 'dec1', 'dec2', 'dec3', 'dec', 'bytes' or 'si'. Path is equivalent to the 'path' filter (quotes should be used for non-basic 'path' expressions). |
+| schart  | String | Chart definition in the format `"<unit> <path:color:legend>... [-min:<n>] [-max:<n>] [-hsize:<n>] [-vsize:<n>]"`. Unit must be one of: `int`, `dec1`, `dec2`, `dec3`, `dec4`, `dec`, `bytes` or `si`. Path is a JMESPath expression equivalent to the `path=` filter (use quotes for non-basic expressions). The `-min` and `-max` flags set the Y-axis range; `-hsize` and `-vsize` override the default chart width and height in terminal columns/rows. Unlike `out=chart` (which accumulates values over time), `schart` renders a fixed snapshot from the current input array. |
 
-Example: 
+Examples:
 ```oafp data="[(x:1,y:2)|(x:2,y:5)|(x:1,y:4)|(x:2,y:5)|(x:1,y:5)]" in=slon out=schart schart="int '[].x':red:x '[].y':blue:y -min:0 -vsize:8"```
+
+```URL="http://localhost:9090" && METRIC="go_memstats_alloc_bytes" && echo "{query:'max($METRIC)',start:'2024-06-18T20:00:00Z',end:'2024-06-18T20:15:00Z',step:5}" | oafp in=ch inch="(type:prometheus,options:(urlQuery:'$URL'))" inchall=true out=json | oafp path="[].{timestamp:to_date(mul([0],\`1000\`)),value:to_number([1])} | []" out=schart schart="bytes '[].value':green:$METRIC -min:0"```
 
 ---
 
@@ -1091,7 +1374,33 @@ pipe:
 | help=filters | Provides more details regarding the use of "path=", "from=" and "sql=" |
 | help=template | Provides more details regarding the use of "output=template" |
 | help=examples | Provide several examples |
+| help=jsonschema | JSON Schema validation, options, drafts and sample generation |
+| `help=in:<format>` | Input format options, for example `oafp help=in:csv` |
+| `help=out:<format>` | Output format options, for example `oafp help=out:sql` |
 | help=readme | Returns this document |
+
+Format help includes shared input/output options. Format names ignore case, spacing and punctuation (for example `help=in:llmdecide` and `help=in:mini-a`). Use `out=raw` for Markdown or `pause=true` to page the selected help.
 
 > You can use [OpenAI's ChatGPT oAFp GPT](https://chatgpt.com/g/g-uBUaPluLw-oafp) to generate commands
 
+## Processing large inputs
+
+NDJSON, NDSLON, DSV and lines are processed incrementally when their join option is false (the default), for files, stdin and commands. CSV still produces a complete array. Joined input, sorting across records, SQL over a complete dataset, and whole-document output require memory proportional to their data.
+
+Use `in=json stream=true` to process a top-level JSON array incrementally:
+
+```sh
+oafp file=large.json in=json stream=true out=json parallel=auto
+cat large.json | oafp in=json stream=true out=json path='[].name'
+```
+
+Each element is processed independently, like an NDJSON record; `out=json` emits one JSON value per record rather than a single array. Nulls, scalars, nested arrays and empty containers are supported. Whole-document queries require the default `stream=false`. Streaming does not support `jsonprefix` or `jsondesc`. Malformed input can fail after earlier records have already been emitted.
+
+Automatic workers only parse framed JSON records or sort independent map keys. Other transforms, record framing, header inference and rendering stay sequential. Work queues are bounded by record count and input size; one oversized record still requires memory proportional to that record. `parallel=false` disables these workers, and an explicit CLI value overrides `OAFP_PARALLEL`. Stateful readers may remain sequential even with `parallel=true`.
+
+The wait animation starts after 250 ms, refreshes every 150 ms, and clears before output. Use `progress=off` to disable it. Redirected stderr, nested processing and full-screen outputs do not animate.
+{% endraw %}
+
+## October source additions
+
+See [decisions and interactive JSON exploration](october-features.md) for worked examples. This option reference was synchronized with the bundled `20261014 nightly` processor.

@@ -116,7 +116,7 @@ Executes aSQL on the current DB object returning only the first row and column. 
 __DB.qs(aQuery, arrayOfBindVariables, keepStatement) : Map__
 
 ````
-Performs aQuery (SQL) on the current DB object instance using the bind variables from the arrayOfBindVariables. It returns a Map with a results array that will have an element per result set line. In case of error an  exception will be thrown. Optionally you can specify to keepStatement (e.g. boolean) to keep from closing the prepared statement used for reuse in another qs call. If you specify to use keepStatement do close this query, as soon as possible, using DB.closeStatement(aQuery) (where you provide an exactly equal statement to  aQuery) or DB.closeAllStatements.
+Performs aQuery (SQL) on the current DB object instance using the bind variables from the arrayOfBindVariables. It returns a Map with a results array that will have an element per result set line. In case of error an  exception will be thrown. Optionally you can specify to keepStatement (e.g. boolean) to keep from closing the prepared statement used for reuse in another qs call. If you specify to use keepStatement do close this query, as soon as possible, using DB.closeStatement(aQuery) (where you provide an exactly equal statement to  aQuery) or DB.closeAllStatements. Cached statements remain open until explicitly closed, including when later calls use keepStatement=false. Every execution requires a complete set of bind values.
 ````
 ### DB.qsRS
 
@@ -165,19 +165,17 @@ Executes a SQL statement on the current DB object instance that can have CLOB or
 __DB.us(aSQL, anArray, keepStatement) : Number__
 
 ````
-Executes a SQL statement on the current DB object instance that can have bind variables that  can be specified on anArray. On success it will return the number of rows affected. In case of error an exception will be thrown. Optionally you can specify to keepStatement (e.g. boolean) to keep from closing the prepared statement used for reuse in another us call. If you specify to use keepStatement do close this query, as soon as possible, using DB.closeStatement(aQuery) (where you provide an exactly equal statement to  aQuery) or DB.closeAllStatements.
+Executes a SQL statement on the current DB object instance that can have bind variables that  can be specified on anArray. On success it will return the number of rows affected. In case of error an exception will be thrown. Optionally you can specify to keepStatement (e.g. boolean) to keep from closing the prepared statement used for reuse in another us call. If you specify to use keepStatement do close this query, as soon as possible, using DB.closeStatement(aQuery) (where you provide an exactly equal statement to  aQuery) or DB.closeAllStatements. Cached statements remain open until explicitly closed, including when later calls use keepStatement=false. Every execution requires a complete set of bind values.
 ````
 ### DB.usArray
 
 __DB.usArray(aSQL, anArrayOfArrays, aBatchSize, keepStatement) : Number__
 
 ````
-Executes, and commits, a batch of a SQL statement on the current DB object instance that can have bind variables that  can be specified on an array, for each record, as part of anArrayOfArrays. On success it will return the number of rows  affected. In case of error an exception will be thrown. Optionally you can specify to keepStatement (e.g. boolean) to keep from closing the prepared statement used for reuse in another usArray call. If you specify to use keepStatement do close this query, as soon as possible, using DB.closeStatement(aQuery) (where you provide an exactly equal statement to  aQuery) or DB.closeAllStatements. You can also specify aBatchSize (default is 1000) to indicate when a commit should be performed while executing aSQL for each array of bind variables in anArrayOfArrays.
+Executes, and commits, a batch of a SQL statement on the current DB object instance that can have bind variables that  can be specified on an array, for each record, as part of anArrayOfArrays. On success it will return the number of rows  affected. In case of error an exception will be thrown. Optionally you can specify to keepStatement (e.g. boolean) to keep from closing the prepared statement used for reuse in another usArray call. If you specify to use keepStatement do close this query, as soon as possible, using DB.closeStatement(aQuery) (where you provide an exactly equal statement to  aQuery) or DB.closeAllStatements. Cached statements remain open until explicitly closed, including when later calls use keepStatement=false. Every execution requires a complete set of bind values. You can also specify aBatchSize (default is 1000) to indicate when a commit should be performed while executing aSQL for each array of bind variables in anArrayOfArrays.
 
 Example:
 
 var values = [ [1,2], [2,2], [3,3], [4,5]];
 db.usArray("INSERT INTO A (c1, c2) VALUES (?, ?)", values, 2);
-
-
 ````

@@ -211,5 +211,9 @@ oafp in=llm data='What is in this image?' llmimage="/path/to/image.jpg"
 
 ## Further Reading
 
-- [oJob LLM Integration](../ojob.md#job-llm)
-- [OpenWrap AI API Reference](../api/openaf.md#owai-gpt)
+- [oJob LLM Integration](../guides/ojob/ojob-yaml-reference.md)
+- [OpenWrap AI API Reference](../reference/ow_ai.md#owaigpt)
+
+## Stateless decisions and schema output
+
+Use [LLM decisions](../guides/advanced/llm-decisions.md) for named choice, boolean, and ordinal score questions without conversation history. `getCapabilities()` reports supported strategies without a network request. Gemini and OpenAI support explicit schema-constrained output; see the [provider wrappers](../guides/advanced/ow-ai-gpttypes.md). Model/account availability requires separate verification.

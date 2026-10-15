@@ -1,0 +1,467 @@
+---
+layout: default
+title: "OpenAF AI GPT Types Reference Guide"
+parent: Advanced
+grand_parent: Guides
+---
+
+# OpenAF AI GPT Types Reference Guide
+
+This document provides a comprehensive reference guide for implementing LLM service API wrappers in OpenAF's `ow.ai` library. The `OpenWrap.ai.prototype.__gpttypes` object contains standardized wrappers for various LLM services, providing a unified interface for chat, tooling, image processing, model listing, and image generation capabilities.
+
+See also: `openaf-advanced.md` (AI Helpers section) for higher-level usage patterns and integration tips.
+
+## Overview
+
+The GPT types system provides a consistent API across different LLM providers through standardized wrapper implementations. Each wrapper normalizes provider-specific APIs into a common interface, handling authentication, conversation management, tool calling, and various prompt types.
+
+### Capability Matrix
+
+| Provider  | Chat | Tooling | Image | Model List | Image Gen |
+|-----------|------|---------|-------|------------|-----------|
+| openai    | ✔    | ✔       | ✔     | ✔          | ✔         |
+| gemini    | ✔    | ✔       | ✔     | ✔          | ✖         |
+| ollama    | ✔    | ✔       | ✔     | ✔          | ✖         |
+| anthropic | ✔    | ✔       | ✖     | ✔          | ✖         |
+
+### OpenAI-Compatible Transport Modes
+
+The `openai` provider can target OpenAI, Azure OpenAI, and Azure AI Foundry model inference endpoints through `aOptions.mode`.
+
+| Mode | Auth Default | Chat URL Shape |
+|------|--------------|----------------|
+| `openai` | `Authorization: Bearer <key>` | `{url}/{apiVersion}/chat/completions` |
+| `azure-openai-v1` | `api-key: <key>` | `{url}/openai/{apiVersion}/chat/completions` |
+| `azure-openai-legacy` | `api-key: <key>` | `{url}/openai/deployments/{deployment}/chat/completions?api-version={apiVersion}` |
+| `foundry` with `apiVersion: "v1"` | `api-key: <key>` | `{url}/openai/v1/chat/completions` |
+| `foundry` with a dated `apiVersion` | `api-key: <key>` | `{url}/chat/completions?api-version={apiVersion}` when `url` ends with `/models`; otherwise `{url}/models/chat/completions?api-version={apiVersion}` |
+
+Native decision calls additionally accept `decisionApi: "openai"` (default), `"openrouter"`, or `"microsoft"`, and an optional absolute HTTP(S) `decisionUrl`. Microsoft requires Foundry mode, API version `v1`, and an explicit deployment name in `model`. It calls `{resource-root}/providers/microsoft/v1/systemone` using the existing authentication and timeout settings; bearer tokens are supported through `authType: "bearer"`. See [Microsoft native decisions](llm-decisions.md#microsoft-decision-1-native-decisions-through-foundry) for examples, URL rules, and supported inputs.
+
+Aliases are also accepted: `azure-v1`, `azure-legacy`, and `azure-foundry`.
+
+Common options:
+
+- `url`: Base service URL. OpenAI examples commonly use `https://api.openai.com` or `https://api.openai.com/v1`.
+- `apiVersion`: Defaults to `v1`. Azure legacy mode emits this as the `api-version` query parameter. Foundry mode uses `/openai/v1` when `apiVersion` is `v1`; dated versions are emitted as the `api-version` query parameter on the `/models` route.
+- `deployment`: Azure OpenAI legacy deployment name. If omitted, the selected `model` is used.
+- `authType`: Overrides generated auth header style. Supported values are `bearer`, `api-key`, and `none`.
+- `headers`: Extra headers. Values here override generated headers with the same names.
+
+Examples:
+
+```javascript
+// OpenAI
+var openai = new ow.ai.gpt("openai", {
+  key  : "sk-...",
+  url  : "https://api.openai.com/v1",
+  model: "gpt-4o-mini"
+});
+
+// Azure OpenAI v1 compatible endpoint
+var azureV1 = new ow.ai.gpt("openai", {
+  key  : "your-azure-api-key",
+  url  : "https://RESOURCE.openai.azure.com",
+  mode : "azure-openai-v1",
+  model: "your-deployment-name"
+});
+
+// Azure OpenAI legacy deployment endpoint
+var azureLegacy = new ow.ai.gpt("openai", {
+  key       : "your-azure-api-key",
+  url       : "https://RESOURCE.openai.azure.com",
+  mode      : "azure-openai-legacy",
+  deployment: "your-deployment-name",
+  apiVersion: "2024-10-21"
+});
+
+// Azure AI Foundry v1 endpoint
+var foundry = new ow.ai.gpt("openai", {
+  key       : "your-foundry-api-key",
+  url       : "https://RESOURCE.services.ai.azure.com",
+  mode      : "foundry",
+  model     : "your-deployment-name"
+});
+
+// Azure AI Foundry dated model inference endpoint
+var foundryPreview = new ow.ai.gpt("openai", {
+  key       : "your-foundry-api-key",
+  url       : "https://RESOURCE.services.ai.azure.com/models",
+  mode      : "foundry",
+  apiVersion: "2024-05-01-preview",
+  model     : "your-deployment-name"
+});
+```
+
+## Architecture
+
+Each GPT type implementation follows this structure:
+
+```javascript
+OpenWrap.ai.prototype.__gpttypes = {
+    [providerName]: {
+        create: (aOptions) => {
+            // Return wrapper object with standardized interface
+        }
+    }
+}
+```
+
+## Wrapper Interface Specification
+
+Every wrapper must implement the following standardized interface:
+
+### Core Properties
+
+- `conversation`: Array - Stores the conversation history
+- `tools`: Object/Array - Stores available tools/functions
+
+### Required Methods
+
+#### Configuration Methods
+
+##### `getConversation() : Array`
+Returns the current conversation history in a standardized format.
+
+##### `setConversation(aConversation) : Object`
+Sets the conversation history. Must handle format normalization between provider formats and the standard format.
+
+##### `setTool(aName, aDesc, aParams, aFn) : Object`
+Registers a tool/function for use in conversations.
+- `aName`: String - Tool name
+- `aDesc`: String - Tool description
+- `aParams`: Object - JSON schema for parameters
+- `aFn`: Function - Function to execute when tool is called
+
+#### Core Prompt Methods
+
+##### `prompt(aPrompt, aModel, aTemperature, aJsonFlag, tools) : String`
+Main prompting method that returns processed response text.
+- `aPrompt`: String/Array - The prompt(s) to send
+- `aModel`: String - Model to use (optional, defaults to configured model)
+- `aTemperature`: Number - Temperature setting (optional)
+- `aJsonFlag`: Boolean - Whether to request JSON response
+- `tools`: Array - Tools to make available for this prompt
+
+##### `rawPrompt(aPrompt, aModel, aTemperature, aJsonFlag, aTools) : Object`
+Returns the raw API response without processing.
+
+##### `promptImage(aPrompt, aImage, aDetailLevel, aRole, aModel, aTemperature, aJsonFlag) : String`
+Prompts with image input (if supported by provider).
+- `aImage`: String - File path or base64 encoded image
+- `aDetailLevel`: String - Image analysis detail level
+
+#### Conversation Management
+
+##### `addPrompt(aRole, aPrompt) : Object`
+Adds a message to the conversation.
+
+##### `addUserPrompt(aPrompt) : Object`
+Adds a user message to the conversation.
+
+##### `addSystemPrompt(aPrompt) : Object`
+Adds a system message to the conversation.
+
+##### `addDeveloperPrompt(aPrompt) : Object`
+Adds a developer message to the conversation (provider-specific).
+
+##### `cleanPrompt() : Object`
+Clears the conversation history.
+
+#### Image Generation (Optional)
+
+##### `rawImgGen(aPrompt, aModel) : Object`
+Generates images, returns raw API response.
+
+##### `promptImgGen(aPrompt, aModel) : Array`
+Generates images, returns array of image data.
+
+#### Model Information
+
+##### `getModels() : Array`
+Returns list of available models from the provider.
+
+#### HTTP Communication
+
+##### `_request(aURI, aData, aVerb) : Object`
+Internal method for making HTTP requests to the provider API.
+
+## Implementation Guidelines
+
+### 1. Options Validation
+
+Always validate and set defaults for configuration options:
+
+```javascript
+create: (aOptions) => {
+    ow.loadObj()
+    aOptions = _$(aOptions, "aOptions").isMap().$_()
+    aOptions.params = _$(aOptions.params, "aOptions.params").isMap().default({})
+    aOptions.key = _$(aOptions.key, "aOptions.key").isString().$_()
+    aOptions.timeout = _$(aOptions.timeout, "aOptions.timeout").isNumber().default(15 * 60000)
+    aOptions.model = _$(aOptions.model, "aOptions.model").isString().default("default-model")
+    aOptions.temperature = _$(aOptions.temperature, "aOptions.temperature").isNumber().default(0.7)
+    aOptions.url = _$(aOptions.url, "aOptions.url").isString().default("https://api.provider.com")
+    aOptions.headers = _$(aOptions.headers, "aOptions.headers").isMap().default({})
+    aOptions.mode = _$(aOptions.mode, "aOptions.mode").isString().default("openai")
+    aOptions.authType = _$(aOptions.authType, "aOptions.authType").isString().default("bearer")
+    // Provider-specific options...
+}
+```
+
+### 2. Conversation Format Normalization
+
+Handle conversion between the standard conversation format and provider-specific formats:
+
+**Standard Format:**
+```javascript
+[
+    { role: "system", content: "System message" },
+    { role: "user", content: "User message" },
+    { role: "assistant", content: "Assistant response" }
+]
+```
+
+**Provider-specific Format Handling:**
+- Convert role names (e.g., "assistant" ↔ "model")
+- Handle content structure differences
+- Manage system message placement variations
+
+### 3. Tool/Function Calling
+
+Implement tool calling support where available:
+
+```javascript
+setTool: (aName, aDesc, aParams, aFn) => {
+    _r.tools[aName] = {
+        type: "function",
+        function: {
+            name: aName,
+            description: aDesc,
+            parameters: aParams
+        },
+        fn: aFn
+    }
+    return _r
+}
+```
+
+Handle tool execution in `rawPrompt`:
+- Detect tool calls in responses
+- Execute registered functions
+- Continue conversation with tool results
+
+**Gemini 2.5/3 notes**
+- Tool calls arrive as `functionCall` parts; send tool results back as `functionResponse` parts on a follow-up `user` message.
+- `functionCall.args` may be an object or a JSON string depending on the model/version.
+- When requesting JSON output, prefer `generationConfig.responseMimeType = "application/json"` and only set `responseSchema` when it has non-empty `properties`.
+
+### 4. Authentication Patterns
+
+#### Bearer/API-Key Headers (OpenAI-Compatible, Anthropic)
+```javascript
+// Bearer token style
+requestHeaders: merge({
+    Authorization: "Bearer " + Packages.openaf.AFCmdBase.afc.dIP(_key),
+    Accept: "*/*"
+}, aOptions.headers)
+
+// Azure OpenAI and Azure AI Foundry API-key style
+requestHeaders: merge({
+    "api-key": Packages.openaf.AFCmdBase.afc.dIP(_key),
+    Accept: "*/*"
+}, aOptions.headers)
+```
+
+#### API Key in URL Parameter (Gemini)
+```javascript
+case "GET" : return _fnh($rest(__m).get2Stream(aOptions.url + "/" + aURI + "?key=" + Packages.openaf.AFCmdBase.afc.dIP(_key)))
+case "POST": return _fnh($rest(__m).post2Stream(aOptions.url + "/" + aURI + "?key=" + Packages.openaf.AFCmdBase.afc.dIP(_key), aData))
+```
+
+#### No Authentication (Ollama)
+```javascript
+requestHeaders: {
+    Accept: "*/*"
+}
+```
+
+### 5. Error Handling
+
+Implement robust error handling in `_request` method:
+
+```javascript
+var _fnh = r => {
+    var _r
+    if ("function" !== typeof r.getClass) {
+        _r = (isDef(r.error) ? jsonParse(r.error, __, __, true) : r)
+    } else {
+        _r = jsonParse(af.fromBytes2String(r.readAllBytes()))
+    }
+    if (typeof _r.response !== "undefined") {
+        return jsonParse(_r.response)
+    } else {
+        return _r
+    }
+}
+```
+
+### 6. Image Handling
+
+For providers supporting image input:
+
+```javascript
+promptImage: (aPrompt, aImage, aDetailLevel, aRole, aModel, aTemperature, aJsonFlag) => {
+    aRole = _$(aRole, "aRole").isString().default("user")
+    aDetailLevel = _$(aDetailLevel, "aDetailLevel").isString().default("low")
+
+    var base64 = ""
+    if (io.fileExists(aImage)) {
+        base64 = af.fromBytes2String(af.toBase64Bytes(io.readFileBytes(aImage)))
+    } else {
+        if (isString(aImage)) {
+            base64 = aImage
+        }
+    }
+
+    // Provider-specific image format handling
+}
+```
+
+### 7. JSON Response Handling
+
+Implement JSON-specific prompting:
+
+```javascript
+if (aJsonFlag) {
+    // Provider-specific JSON response configuration
+    // Examples:
+    // OpenAI: response_format: { type: "json_object" }
+    // Ollama: format: "json"
+    // Anthropic: Add "output json" to messages
+}
+```
+
+## Provider-Specific Implementation Notes
+
+### OpenAI
+- Uses `Bearer` token authentication
+- Supports comprehensive tool calling
+- Has dedicated image generation endpoints
+- Supports structured JSON responses via `response_format`
+
+### Gemini
+- Uses API key in URL parameters
+- Has unique conversation format with `parts` arrays
+- System instructions handled separately
+- Tool calling uses `functionDeclarations` format
+
+### Ollama
+- No authentication required (local/self-hosted)
+- OpenAI-compatible message format
+- Uses `/api/chat` and `/api/tags` endpoints
+- JSON format specified in request body
+
+### Anthropic
+- Uses `x-api-key` header with `anthropic-version`
+- System messages handled via dedicated `system` field
+- Limited tool calling support
+- No native image generation
+
+## Testing Your Implementation
+
+1. **Basic Chat**: Test simple prompt/response
+2. **Conversation**: Verify conversation history maintenance
+3. **System Messages**: Test system prompt handling
+4. **JSON Mode**: Verify JSON response parsing
+5. **Image Input**: Test image processing (if supported)
+6. **Tool Calling**: Test function execution (if supported)
+7. **Model Listing**: Verify model enumeration
+8. **Error Handling**: Test with invalid inputs
+
+## Error Patterns to Avoid
+
+1. **Authentication Leakage**: Always use `Packages.openaf.AFCmdBase.afc.dIP()` for sensitive data
+2. **Format Inconsistency**: Ensure conversation format normalization
+3. **Missing Defaults**: Always provide sensible defaults for optional parameters
+4. **Resource Leaks**: Properly close HTTP connections with `_h.close()`
+5. **Tool Security**: Validate tool parameters before execution
+
+## Example Minimal Implementation
+
+```javascript
+newprovider: {
+    create: (aOptions) => {
+        ow.loadObj()
+        aOptions = _$(aOptions, "aOptions").isMap().$_()
+        aOptions.key = _$(aOptions.key, "aOptions.key").isString().$_()
+        aOptions.url = _$(aOptions.url, "aOptions.url").isString().$_()
+        aOptions.model = _$(aOptions.model, "aOptions.model").isString().default("default-model")
+        aOptions.timeout = _$(aOptions.timeout, "aOptions.timeout").isNumber().default(15 * 60000)
+
+        var _r = {
+            conversation: [],
+            tools: {},
+
+            getConversation: () => _r.conversation,
+            setConversation: (aConversation) => {
+                if (isArray(aConversation)) _r.conversation = aConversation
+                return _r
+            },
+
+            prompt: (aPrompt, aModel, aTemperature, aJsonFlag, tools) => {
+                var result = _r.rawPrompt(aPrompt, aModel, aTemperature, aJsonFlag, tools)
+                // Extract text from provider-specific response format
+                return result.message.content
+            },
+
+            rawPrompt: (aPrompt, aModel, aTemperature, aJsonFlag, aTools) => {
+                // Implementation specific to provider API
+                var body = {
+                    model: aModel || aOptions.model,
+                    messages: _r.conversation.concat([{role: "user", content: aPrompt}])
+                }
+                return _r._request("chat/completions", body)
+            },
+
+            _request: (aURI, aData, aVerb) => {
+                // HTTP request implementation
+            },
+
+            // ... other required methods
+        }
+        return _r
+    }
+}
+```
+
+This guide should provide sufficient information for implementing new LLM service wrappers that integrate seamlessly with the OpenAF AI ecosystem.
+
+## Optional decision and structured-output hooks
+
+The additive version 1 decision API is described in [Stateless LLM decisions](llm-decisions.md), with [verified contract records](llm-decisions-contracts.md). Existing third-party adapters do not need these hooks for chat or other established operations.
+
+| Hook on the created provider adapter | Contract |
+| --- | --- |
+| `getCapabilities(model)` | Returns a fresh capability map for that model; no HTTP by default |
+| `resetDecisionStats()` | Clears built-in legacy last-call statistics before preflight validation |
+| `rawDecide(request)` | Native isolated execution; returns `{ raw, stats }` from one request |
+| `normalizeDecisionResponse(raw, request)` | Parses native semantics into the canonical named answer map |
+| `rawStructuredPrompt(request)` | Isolated schema-constrained execution; returns `{ raw, stats }` |
+| `normalizeStructuredResponse(raw, request)` | Parses finalized provider text, rejects blocked/truncated/refused output, validates it, and returns canonical answers |
+| `structuredSchemaPrompt(prompt, descriptor, model, temperature, tools)` | Optional conversational schema helper; returns `{ response, stats }` and allows provider-specific parsing without an OpenAI envelope |
+
+The validated decision request contains copied `state`, copied `questions`, `model`, selected `strategy`, `requireProbabilities`, allowlisted `providerOptions`, compiled `schema`, and trusted `instructions`. Provider adapters retain HTTP/authentication/timeout and response-envelope responsibilities. The shared layer owns input validation, strategy eligibility, schema compilation, normalized result validation, and facade forwarding. Decisions never call chat's conversation/tool loop or mutable `cleanPrompt` path.
+
+Capabilities contain `contractVersion: 1`, `inputTypes: ["text", "json"]`, `streaming: false`, and `native`/`structured` objects. Each strategy object contains `implemented`, `contract`, `questionTypes`, `probabilities`, and `availability`. Verified documentation and implementation support do not establish model, endpoint, tenant, or account availability. Use unknown availability when no authoritative evidence is present. Do not infer native support from the generic `openai` provider type or from a compatible chat gateway.
+
+| Adapter | Native | Structured | Probability information |
+| --- | --- | --- | --- |
+| Ollama | System One; implemented, contract verified | Unsupported | Provider distributions/P(true), separate expectation/confidence |
+| Gemini | Unsupported | GenerateContent; implemented | Null probability/expectation fields |
+| OpenAI | Contract unverified; no outbound native request | Responses or explicit Chat; implemented | Null probability/expectation fields |
+| Legacy third-party adapters | Unsupported absent hooks | Unsupported absent hooks | Existing methods remain available |
+
+`rawDecide()` returns `{ contractVersion, provider, model, strategy, raw }`; it does not require a second inference. `decideWithStats()` receives statistics from the execution result rather than rereading mutable shared state. Last-call statistics remain compatible but are not a concurrency-safe result channel. A failed native request never triggers structured generation, and an OpenAI structured request never uses the legacy chat fallback cache.
+
+Gemini's explicit schema helper defaults to `structuredOutputProfile: "response-format"`, using `generationConfig.responseFormat.text.{mimeType,schema}` with `APPLICATION_JSON`. Explicit `legacy-schema` uses the older responseMimeType/responseSchema representation. The new helper rejects inherited schema/MIME conflicts; legacy chat pass-through behavior remains intact. Only the declared supported schema subset is translated, and output validation does not depend on global Ajv coercion/default settings.

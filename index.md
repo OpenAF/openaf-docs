@@ -14,6 +14,10 @@ OpenAF (_pronounced open-a-f_) is a Java & Javascript based "swiss-army knife" s
 * __[How to](docs/howto/index.md)__ - core functionality exemplified.
 * __[Guides](docs/guides/index.md)__ - guides with example code from beginner to advanced topics.
 
+## October 2026 source updates
+
+Explore [what changed since July](docs/guides/advanced/october-2026.md): stateless LLM decisions, MCP OAuth, JSON query engines, instrumentation, and new script-to-oJob tutorials. This documentation covers the October source snapshot and the local `20261014 nightly` runtime; it does not announce a published stable release.
+
 ## Installing/Setup
 
 ### Docker
@@ -128,9 +132,9 @@ Follow the link for [specific architectures installations](installing.md).
 
 ### Nightly build
 
-If you want to install the nightly build follow these [instructions](installing-nightly).
+If you want to install the nightly build follow these [instructions](installing-nightly.md).
 
 ### Older versions
 
-To install older versions please follow these [instructions](docs/howto/Download-older-versions).
+To install older versions please follow these [instructions](docs/howto/Download-older-versions.md).
 You can also check the [GitHub releases list](https://github.com/OpenAF/openaf/releases)

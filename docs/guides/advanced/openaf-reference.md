@@ -7,11 +7,11 @@ grand_parent: Guides
 
 # OpenAF Reference Guide
 
-[oJob YAML Reference](../ojob/ojob-yaml-reference.md) | [oJob Security](../ojob/ojob-security.md) | [oJob Recipes](../ojob/ojob-recipes.md) | [Advanced Guide](./openaf-advanced-guide.md) | [LLM Guide](../ojob/llm-guide.md)
+[Index](../../../index.md) | [oJob Reference](../ojob/ojob-yaml-reference.md) | [Security](../ojob/ojob-security.md) | [Flags](openaf-flags.md) | [Recipes](../ojob/ojob-recipes.md) | [Advanced](openaf-advanced-guide.md)
 
 ## Overview
 
-OpenAF is a comprehensive JavaScript framework that extends the Mozilla Rhino JavaScript interpreter with powerful helper functions, wrappers, and utilities for Java environments. This reference guide covers the core extensions and helper libraries provided by OpenAF.
+OpenAF is a comprehensive JavaScript framework that extends the Mozilla Rhino JavaScript interpreter with powerful helper functions, wrappers, and utilities for Java environments. This reference guide covers the core extensions and helper libraries provided by OpenAF. See [Additional OpenAF `$` Functions](openaf-dollar-functions.md) for helpers not covered here, including caching, synchronization, argument conversion, JSON-RPC, and output.
 
 ## Table of Contents
 
@@ -27,9 +27,10 @@ OpenAF is a comprehensive JavaScript framework that extends the Mozilla Rhino Ja
 10. [Data Validation](#data-validation)
 11. [Additional Core Shortcuts & Utilities](#additional-core-shortcuts--utilities)
 12. [Metrics API (ow.metrics)](#metrics-api-owmetrics)
-13. [$path - JMESPath Inspired Query & Transform](#$path--jmespath-inspired-query--transform)
-14. [Additional ow.* Highlights](#additional-ow-highlights)
-15. [Putting It Together: Authoring a New oJob from Scratch](#putting-it-together-authoring-a-new-ojob-from-scratch)
+13. [$path – JMESPath Inspired Query & Transform](#path--jmespath-inspired-query--transform)
+14. [Terminal Visualization & Live Dashboards](#terminal-visualization--live-dashboards)
+15. [Additional ow.* Highlights](#additional-ow-highlights)
+16. [Putting It Together: Authoring a New oJob from Scratch](#putting-it-together-authoring-a-new-ojob-from-scratch)
 
 ---
 
@@ -185,6 +186,16 @@ ow.format.toBytesAbbreviation(1048576);   // "1 MB"
 
 // Network utilities
 ow.format.testPort("127.0.0.1", 8080, 5000);  // Test if port is open
+
+// Terminal capabilities and palettes
+var caps = ow.format.term.getCapabilities();   // { width, height, colorMode, unicode, isTTY, ... }
+var pal = ow.format.term.getPalette("auto");   // Semantic colors resolved for the current terminal
+
+// Terminal widgets
+print(ow.format.printBullet({ label: "disk", value: 5368709120, max: 10737418240, target: 8589934592 }, {
+  width: 48,
+  valueFormat: "bytes"
+}));
 ```
 
 ### ow.obj - Object Utilities and REST Client
@@ -233,6 +244,15 @@ print("Moving average: " + values.movingAverage());
 //   type: "openai",
 //   model: "gpt-3.5-turbo",
 //   messages: [ { role: "user", content: "Hello!" } ]
+// })
+//
+// OpenAI-compatible Azure/Foundry endpoints can use ow.ai.gpt:
+// ow.ai.gpt({
+//   type: "openai",
+//   key: "YOUR_AZURE_API_KEY",
+//   url: "https://RESOURCE.openai.azure.com",
+//   mode: "azure-openai-v1",
+//   model: "DEPLOYMENT_NAME"
 // })
 ```
 
@@ -490,6 +510,7 @@ ow.sec.closeMainSBuckets();
 ow.loadServer();
 
 // Process management
+// Note: The PID file path can be overridden by setting the OAF_PIDFILE environment variable
 var isRunning = ow.server.checkIn("server.pid", 
   function(existingPid) {
     log("Server already running with PID: " + existingPid);
@@ -524,7 +545,7 @@ ow.server.processArguments(function(param) {
 ow.loadTemplate();
 
 // Basic templating
-var template = "Hello {% raw %}{{name}}, you are {{age}}{% endraw %} years old!";
+var template = "Hello {% raw %}{{name}}{% endraw %}, you are {% raw %}{{age}}{% endraw %} years old!";
 var data = { name: "John", age: 25 };
 var result = ow.template.execTemplate(template, data);
 // Result: "Hello John, you are 25 years old!"
@@ -536,7 +557,7 @@ ow.template.addHelpers("my", {
 });
 
 // Use custom helpers in templates
-var template2 = "Welcome {% raw %}{{my_upper name}} on {{my_formatDate today}}{% endraw %}";
+var template2 = "Welcome {% raw %}{{my_upper name}}{% endraw %} on {% raw %}{{my_formatDate today}}{% endraw %};
 var result2 = ow.template.execTemplate(template2, { 
   name: "john", 
   today: new Date() 
@@ -606,6 +627,10 @@ print("Tests failed: " + ow.test.getCountFail());
 
 ## Python Integration
 
+> For the full picture - `execStandalone`, the `--py`/`pyoaf` CLI launchers with real `sys.argv`
+> support, `--oafpy` for calling back into OpenAF from independent Python code, and `lang: python`
+> in oJob - see `python.md`.
+
 ### ow.python - Python Interoperability
 
 ```javascript
@@ -629,10 +654,10 @@ print(result.result); // 16
 
 // Execute with persistent map
 var pythonMap = { counter: 0, data: [] };
-ow.python.execPM(`
-counter += 1
-data.append("item_" + str(counter))
-total = len(data)
+pythonMap = ow.python.execPM(`
+__pm["counter"] += 1
+__pm["data"].append("item_" + str(__pm["counter"]))
+__pm["total"] = len(__pm["data"])
 `, pythonMap);
 
 print(pythonMap.counter); // 1
@@ -695,6 +720,8 @@ var parsedQuery = nLinqParse(query);
 
 ### Schema Validation
 
+See [JSON Schema validation](json-schema.md) for the `ow.obj.schema*` API, defaults that modify data, draft selection, references, and Ajv v8 migration. For boolean validation, use `ow.loadObj(); ow.obj.schemaCompile(schema)(data)`.
+
 ```javascript
 // JSON Schema validation
 var schema = {
@@ -709,7 +736,7 @@ var schema = {
 
 var user = { name: "John", age: 25, email: "john@example.com" };
 
-// Validate using $$
+// Returns true on success; throws on invalid data
 var isValid = $$(user).isSchema(schema);
 
 // Validate using _$ with error throwing
@@ -765,6 +792,65 @@ Convenience getters:
 - `getJsSlon(i)` parse SLON
 - `getYaml(i)` parse YAML
 
+### $ftp - FTP / FTPS Client
+
+`$ftp(aMap)` creates an FTP or FTPS client connection. `aMap` can be a URL string or a configuration map.
+
+**URL format:**
+```
+ftp://user:pass@host:port/?timeout=5000&passive=true&binary=true
+ftps://user:pass@host:port/?timeout=5000&passive=true&implicit=false&protocol=TLS
+```
+
+**Map format:**
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `host` | – | Remote hostname or IP |
+| `port` | `21` / `990` | Port (990 for implicit FTPS) |
+| `login` | – | Username |
+| `pass` | – | Password |
+| `secure` | `false` | Enable FTPS (explicit TLS) |
+| `implicit` | `false` | Use implicit TLS mode (port 990) |
+| `protocol` | `"TLS"` | TLS protocol name |
+| `passive` | `true` | Use passive mode |
+| `binary` | `true` | Binary transfer mode |
+| `timeout` | – | Connection timeout in ms |
+
+**Available methods (all return `$ftp` for chaining except where noted):**
+
+| Method | Description |
+|--------|-------------|
+| `cd(aPath)` | Change remote working directory |
+| `pwd()` | Return current remote working directory (String) |
+| `mkdir(aDir)` | Create remote directory |
+| `getFile(src, dst)` | Download remote `src` to local `dst` |
+| `putFile(src, dst)` | Upload local `src` (path or stream) to remote `dst` |
+| `rename(src, dst)` | Rename / move remote file |
+| `listFiles(aPath)` | Return array of file-info maps for `aPath` |
+| `rm(aFilePath)` | Delete remote file |
+| `rmdir(aFilePath)` | Delete remote directory |
+| `passive(bool)` | Toggle passive mode |
+| `binary(bool)` | Toggle binary transfer mode |
+| `timeout(ms)` | Set connection timeout |
+| `close()` | Close the connection |
+
+**Examples:**
+```javascript
+// Plain FTP via URL
+var ftp = $ftp("ftp://user:secret@ftp.example.com/");
+ftp.cd("/uploads")
+   .putFile("/local/report.csv", "report.csv")
+   .close();
+
+// FTPS via map
+var ftps = $ftp({ host: "ftp.example.com", secure: true,
+                   login: "user", pass: "secret" });
+var files = ftps.listFiles("/data");
+ftps.getFile("/data/report.csv", "/tmp/report.csv");
+ftps.close();
+```
+
 ### $tb - Thread Box (Timeout / Stop Controller)
 
 Run a function with enforced timeout or stop condition:
@@ -781,7 +867,7 @@ $tb(taskFn)
 
 Integrates with periodic jobs (`typeArgs.timeout`) internally.
 
-### $do / $doV - Asynchronous oPromise Helpers
+### $do / $doV – Asynchronous oPromise Helpers
 
 Use `$do(fn, onReject?)` to execute work asynchronously on OpenAF's managed thread pool while receiving an `oPromise` back immediately. Inside `fn` you may either return a value or call the provided `resolve` / `reject` callbacks; chaining works with `.then` and `.catch` just like standard Promises.
 
@@ -847,7 +933,7 @@ ow.metrics.startCollecting(); // start default collection (mem,cpu,...)
 
 Within an oJob `ojob.metrics.add` simply injects functions into `ow.metrics.add` before collection starts. Use `ow.metrics.startCollecting(ch, period, some)` to push periodic snapshots to a channel for historical analysis.
 
-## $path - JMESPath Inspired Query & Transform
+## $path – JMESPath Inspired Query & Transform
 
 `$path(obj, expr, customFns?)` extracts / transforms data using an extended JMESPath syntax including slicing, filters, projections, pipes, object construction and custom functions.
 
@@ -869,6 +955,92 @@ var custom = {
 };
 $path(10, "inc(@)", custom); // 11
 ```
+
+OpenAF also ships built-in custom functions for channel-aware expressions. The recent addition is `chq(name, op, max, value)`, which gives `$path(...)` queue semantics backed by a named channel:
+
+```javascript
+$path({ id: 1 }, "chq('__events', 'push', `3`, @)");  // push into queue, keep at most 3 entries
+$path({}, "chq('__events', 'size', `3`, @)");         // current queue size
+$path({}, "chq('__events', 'get', `3`, @)");          // full queue contents
+$path({}, "chq('__events', 'shift', `3`, @)");        // remove oldest entry
+$path({}, "chq('__events', 'pop', `3`, @)");          // remove newest entry
+```
+
+Use `chq(...)` when an expression needs a lightweight rolling buffer or event queue without dropping down into imperative channel code.
+
+## Terminal Visualization & Live Dashboards
+
+The formatting work on `ow.format` added a terminal-focused visualization layer intended for CLI dashboards, status views, quick exploratory output and streaming monitors.
+
+### Terminal capability and palette helpers
+
+```javascript
+ow.loadFormat();
+
+var caps = ow.format.term.getCapabilities();
+// caps.isTTY, caps.width, caps.height, caps.unicode, caps.colorMode
+
+var palette = ow.format.term.getPalette("auto");
+// palette.accent, palette.warning, palette.positive, palette.negative, palette.muted, palette.gridLine
+```
+
+`getCapabilities()` auto-detects width, height, ANSI color depth (`none`, `16`, `256`, `truecolor`) and Unicode support. `getPalette()` resolves semantic colors for the current terminal and supports overrides.
+
+### Compact renderers
+
+```javascript
+print(ow.format.printHeatmap([[1, 2, 3], [3, 2, 1]], { width: 20, legend: true }));
+// or a GitHub-style contribution calendar from a map keyed by date/time/date-time:
+print(ow.format.printHeatmap({ "2026-01-15": 3, "2026-01-16": 0, "2026-01-17": 7 }, { legend: true }));
+print(ow.format.printScatter([[0, 0], [1, 2], [2, 1]], { width: 24, height: 8, xLabel: "x" }));
+print(ow.format.printTimeline([
+  { label: "build", start: "2026-04-23T10:00:00Z", end: "2026-04-23T10:02:00Z", status: "ok" },
+  { label: "test",  start: "2026-04-23T10:02:00Z", end: "2026-04-23T10:05:00Z", status: "warn" }
+], { width: 48 }));
+```
+
+Available renderers:
+
+- `printSparkline(series, options)` for inline trends
+- `printHistogram(values, options)` for distributions
+- `printHeatmap(values, options)` for matrix intensity views, or (given a date/time/date-time keyed map) a time-bucketed view such as a contribution calendar or hour×weekday punch-card, via `xAxis`/`yAxis` (`year`, `month`, `week`, `weekday`, `day`, `hour`)
+- `printBullet(values, options)` for KPI/goal tracking, including `valueFormat: "raw" | "si" | "bytes"`
+- `printScatter(points, options)` for XY points
+- `printBoxplot(values, options)` for spread and outliers
+- `printTimeline(events, options)` for interval/event ranges
+- `printStatusMatrix(values, options)` for compact health/status grids
+- `printDashboard(widgets, options)` for multi-widget layouts
+
+### Dashboard composition
+
+`ow.format.string.grid(...)` now forwards terminal widget cell options to `ow.format.printDashboard(...)`, so dashboards can be composed either directly or through grid cells:
+
+```javascript
+print(ow.format.printDashboard([
+  [
+    { type: "bullet", title: "Storage", data: { value: 5368709120, max: 10737418240, target: 8589934592 }, options: { valueFormat: "bytes" } },
+    { type: "sparkline", title: "Latency", data: [12, 14, 10, 18, 11, 9] }
+  ],
+  [
+    { type: "statusMatrix", title: "Services", data: { values: [["ok", "warn"], ["ok", "error"]], xLabels: ["a", "b"], yLabels: ["api", "db"] } }
+  ]
+], { width: 80, border: true }));
+```
+
+### Live updates
+
+```javascript
+var live = ow.format.viz.live(function(ctx) {
+  return ow.format.printDashboard([
+    { type: "sparkline", title: "frame", data: [ctx.frame % 10, (ctx.frame + 3) % 10, (ctx.frame + 6) % 10] }
+  ], { width: ctx.size.width, height: 6 });
+}, { fps: 4 });
+
+// later
+live.stop();
+```
+
+Use `ow.format.viz.diffFrames(...)` for patch generation, `ow.format.viz.watchResize(...)` to react to terminal size changes, and `ow.format.viz.createCanvas(...)` / `ow.format.viz.layout` when building custom renderers.
 
 ## Additional ow.* Highlights
 

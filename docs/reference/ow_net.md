@@ -13,7 +13,7 @@ grand_parent: OpenAF docs
 __ow.net.doh(aAddr, aType, aProvider, aCache, aCacheTimeout) : String__
 
 ````
-Performs a DNS over HTTPs query with aAddr. Optionally you can provide the aType of record (defaults to 'a') and the DNS over HTTPs aProvider between 'google', 'cloudflare', 'nextdns' and 'local' (that doesn't use DoH but fallbacks to  Java's DNS resolver). Returns the first IP address found. If aCache is provided (optionally with aCacheTimeout in ms) the results will be cached.
+Performs a DNS over HTTPs query with aAddr. Optionally you can provide the aType of record (defaults to 'a') and the DNS over HTTPs aProvider between 'google', 'cloudflare', 'nextdns' and 'local' (that doesn't use DoH but fallbacks to  Java's DNS resolver), or a custom DoH endpoint URL. Returns the first IP address found. If aCache is provided (optionally with aCacheTimeout in ms) the results will be cached.
 ````
 ### ow.net.getActualTime
 
@@ -55,7 +55,7 @@ Given aName will do a DNS search for aType (defaults to "a") optionally using dn
 __ow.net.getDoH(aAddr, aType, aProvider) : Array__
 
 ````
-Performs a DNS over HTTPs query with aAddr. Optionally you can provide the aType of record (defaults to 'a') and the DNS over HTTPs aProvider between 'google', 'cloudflare', 'nextdns' and 'local' (that doesn't use DoH but fallbacks to  Java's DNS resolver).
+Performs a DNS over HTTPs query with aAddr. Optionally you can provide the aType of record (defaults to 'a') and the DNS over HTTPs aProvider between 'google', 'cloudflare', 'nextdns' and 'local' (that doesn't use DoH but fallbacks to  Java's DNS resolver). You can also provide aProvider as the URL of a custom DNS over HTTPS endpoint.
 ````
 ### ow.net.getHost2IP
 

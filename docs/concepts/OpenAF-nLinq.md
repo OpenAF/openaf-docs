@@ -328,5 +328,9 @@ var result = $from(inData).select(r => {
 
 # Other libraries in OpenAF
 
-* _$path_ - Based on the [JMESPath library](http://jmespath.org) ([see more](OpenAf-path.md))
+* _$path_ - Based on the [JMESPath library](http://jmespath.org) ([see more](OpenAF-path.md))
 * _$stream_ - Based on the old [StreamJS library](https://github.com/winterbe/streamjs)
+
+## Other query engines
+
+Compare nLinq with [JMESPath and the Java `$path` backend](../guides/advanced/path-java.md), or [jq through `$jq`](../guides/advanced/jq.md). The APIs have different syntax, ordering, and value semantics.

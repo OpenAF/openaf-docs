@@ -198,13 +198,13 @@ jobs:
         alert: true
 
       rules:
-        - rule: "{{temperature}} > 80"
+        - rule: "{% raw %}{{temperature}}{% endraw %} > 80"
           job: "High Temperature Alert"
 
-        - rule: "{{pressure}} > 100 && {{alert}}"
+        - rule: "{% raw %}{{pressure}}{% endraw %} > 100 && {% raw %}{{alert}}{% endraw %}"
           job: "Pressure Warning"
 
-        - rule: "{{temperature}} > 100 || {{pressure}} > 150"
+        - rule: "{% raw %}{{temperature}}{% endraw %} > 100 || {% raw %}{{pressure}}{% endraw %} > 150"
           job: "Critical Alert"
 
   - name: High Temperature Alert
@@ -246,11 +246,11 @@ jobs:
   - name: Send Email Job
     to: oJob Send email
     args:
-      server: "{{emailServer}}"
-      from: "{{emailFrom}}"
-      to: "{{emailTo}}"
-      subject: "{{emailSubject}}"
-      output: "{{emailBody}}"
+      server: "{% raw %}{{emailServer}}{% endraw %}"
+      from: "{% raw %}{{emailFrom}}{% endraw %}"
+      to: "{% raw %}{{emailTo}}{% endraw %}"
+      subject: "{% raw %}{{emailSubject}}{% endraw %}"
+      output: "{% raw %}{{emailBody}}{% endraw %}"
 
   # API endpoint that queues emails
   - name: Email API
@@ -320,24 +320,24 @@ jobs:
   - name: Process Sensor Rules
     to: oJob Queue Rules
     args:
-      data: "{{@}}"  # Pass all incoming args
+      data: "{% raw %}{{@}}{% endraw %}"  # Pass all incoming args
       rules:
         # Temperature alerts
-        - rule: "{{temperature}} > 30"
+        - rule: "{% raw %}{{temperature}}{% endraw %} > 30"
           job: "Temperature Alert"
 
-        - rule: "{{temperature}} < 10"
+        - rule: "{% raw %}{{temperature}}{% endraw %} < 10"
           job: "Low Temperature Alert"
 
         # Humidity alerts
-        - rule: "{{humidity}} > 80"
+        - rule: "{% raw %}{{humidity}}{% endraw %} > 80"
           job: "High Humidity Alert"
 
-        - rule: "{{humidity}} < 20"
+        - rule: "{% raw %}{{humidity}}{% endraw %} < 20"
           job: "Low Humidity Alert"
 
         # Combined conditions
-        - rule: "{{temperature}} > 28 && {{humidity}} > 70"
+        - rule: "{% raw %}{{temperature}}{% endraw %} > 28 && {% raw %}{{humidity}}{% endraw %} > 70"
           job: "Heat Index Warning"
 
   # Alert jobs
@@ -782,18 +782,18 @@ jobs:
   - name: Evaluate Order Rules
     to: oJob Queue Rules
     args:
-      data: "{{@}}"
+      data: "{% raw %}{{@}}{% endraw %}"
       rules:
         # All orders go through validation
         - rule: "true"
           job: "Validate Order"
 
         # High-value orders
-        - rule: "{{total}} > 1000"
+        - rule: "{% raw %}{{total}}{% endraw %} > 1000"
           job: "Flag High Value Order"
 
         # Bulk orders
-        - rule: "{{items}}.length > 10"
+        - rule: "{% raw %}{{items}}{% endraw %}.length > 10"
           job: "Flag Bulk Order"
 
   # Processing jobs

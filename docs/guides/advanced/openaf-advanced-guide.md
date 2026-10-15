@@ -7,7 +7,7 @@ grand_parent: Guides
 
 # OpenAF Advanced Guide
 
-[OpenAF Reference](./openaf-reference.md) | [oJob YAML Reference](../ojob/ojob-yaml-reference.md) | [oJob Security](../ojob/ojob-security.md) | [LLM Guide](../ojob/llm-guide.md)
+[Index](../../../index.md) | [oJob Reference](../ojob/ojob-yaml-reference.md) | [Security](../ojob/ojob-security.md) | [Flags](openaf-flags.md) | [Recipes](../ojob/ojob-recipes.md) | [Advanced](openaf-advanced-guide.md)
 
 Deeper coverage of selected modules and patterns.
 
@@ -30,7 +30,7 @@ var info = ow.format.cron.howManyAgo("*/5 * * * * *", Date.now() - 20000);
 Useful for custom reliability checks beyond built-in `cronCheck`.
 
 ## 3. Channels as Distributed Data Fabric
-- `mem` in-memory
+- `mem` in‑memory
 - `mvs` persistent (MapDB / storage engine)
 - `big` peer-synchronizable
 
@@ -86,11 +86,11 @@ var result = $tb(() => {
 
 ## 9. Template Customization
 Add namespaced helpers:
-{% raw %}```javascript
+```javascript
 ow.loadTemplate();
 ow.template.addHelpers('x', { upper: s => s.toUpperCase() });
-print(templify('Hi {{x_upper name}}', { name:'dev' }));
-```{% endraw %}
+print(templify('Hi {% raw %}{{x_upper name}}{% endraw %}', { name:'dev' }));
+```
 
 ## 10. Structured Logging Strategies
 Set `ojob.log.format: json` or env `OJOB_JSONLOG=true`. Combine with external log forwarder reading stderr. Include correlation IDs by inserting into `args` early and referencing in templates.
@@ -109,9 +109,10 @@ Favor built-in job shortcuts `(if)`, `(repeat)`, `(each)`, `(parallel)` to minim
 
 ## 14. Asynchronous Execution with oPromise
 
-- **$do** - queue work on the standard ForkJoin-backed pool and receive an `oPromise` for fluent `.then` / `.catch` composition. The resolver passed into your function can resolve with returned values or explicit `resolve()` calls, while thrown errors or `reject()` calls route to the rejection chain.
-- **$doV** - same contract as `$do` but targets a virtual-thread-per-task executor so launching many concurrent tasks will not consume native threads when the JVM supports Project Loom virtual threads.
-- **Coordination helpers** - mix `$doAll` / `$doFirst` (wrappers over `oPromise.all()` / `.race()`) to wait for all tasks or the first completion, enabling fan-out/fan-in patterns without manual synchronization primitives.
+- **$do** – queue work on the standard ForkJoin-backed pool and receive an `oPromise` for fluent `.then` / `.catch` composition. The resolver passed into your function can resolve with returned values or explicit `resolve()` calls, while thrown errors or `reject()` calls route to the rejection chain.
+- **$doV** – same contract as `$do` but targets a virtual-thread-per-task executor so launching many concurrent tasks will not consume native threads when the JVM supports Project Loom virtual threads.
+- **Coordination helpers** – mix `$doAll` / `$doFirst` (wrappers over `oPromise.all()` / `.race()`) to wait for all tasks or the first completion, enabling fan-out/fan-in patterns without manual synchronization primitives.
+- **Cancellation** – call `.cancel()` on any `$do` / `$doV` promise to interrupt the associated thread (mirroring the Threads plugin) and drive the chain into the rejection path for cleanup.
 
 Example fan-out flow using virtual threads:
 
@@ -285,7 +286,102 @@ jobs:
     }
 ```
 
-## 16. AI and Machine Learning Integration
+## 16. Terminal Visualization Patterns
+
+The `ow.format` terminal visualization layer is useful for CLIs, live status pages and compact operational output.
+
+### Capability-aware rendering
+
+```javascript
+ow.loadFormat();
+
+var caps = ow.format.term.getCapabilities();
+var pal  = ow.format.term.getPalette("auto");
+
+log("TTY=" + caps.isTTY + ", color=" + caps.colorMode + ", unicode=" + caps.unicode);
+```
+
+Renderers automatically degrade for non-TTY, low-color and non-Unicode environments, so prefer the semantic palette instead of hard-coded ANSI sequences.
+
+### Customizing colors with `__colorFormat`
+
+`__colorFormat` is the global map holding the ANSI colors/styles used by `colorify`, `cprint*`, `printTable`, `printTree`, the `ask*` prompts and markdown rendering (`ow.format.withMD`). Each value is a comma-separated list of `ansiColor` attributes (e.g. `"BOLD,CYAN"`).
+
+| Entry | Purpose |
+|-------|---------|
+| `key`, `number`, `string`, `boolean`, `date`, `default` | Colors per data type (maps, trees, tables) |
+| `askPre`, `askQuestion`, `askChoose`, `askChooseFilter`, `askPos` | Colors for `ask`, `askChoose` and `askChooseMultiple` |
+| `askChooseChars` | Characters for choose prompts (`chooseMultipleSelected`, `chooseMultipleUnselected`, `chooseUp`, `chooseDown`, `chooseLine`) |
+| `table` | `{ lines, value, title, bandRow, format }`; `format` (`table`, `stable`, `ctable`, `btable`, `bstable`) is the default table renderer for `$output` when no global/explicit format is set |
+| `tree` | `{ lines }` color of tree connectors |
+| `md` | Markdown theme: `codeBlock`, `codeInline`, `heads` (`h1`–`h4`), `line`, `link`, `bullets`, `list`, `strike`, `note` (missing entries get defaults on first use) |
+
+```javascript
+__colorFormat.string = "GREEN";
+__colorFormat.table.title = "BOLD,UNDERLINE";
+__colorFormat.md.heads.h1 = "CYAN,BOLD";
+cprint({ name: "openaf", ok: true, n: 1 });
+```
+
+### Side-line themes (`ow.format.withSideLineThemes`)
+
+`ow.format.withSideLine(text, width, lineColor, textColor, theme, extra)` wraps text with a side line or box; `ow.format.withSideLineThemes()` returns the available themes by name (also used by `__colorFormat.md.*.theme`).
+
+A theme is a map of characters: `ltop`, `tmiddle`, `rtop` (top border), `lmiddle`, `rmiddle` (sides), `lbottom`, `bmiddle`, `rbottom` (bottom border) and `tab` (tab replacement, default 3 spaces). Borders are only drawn when the corner characters are defined.
+
+| Family | Themes |
+|--------|--------|
+| Plain sides | `simpleOneSpace`, `simpleLine`, `doubleOneSpace`, `doubleLine`, `doubleLineBothSides` |
+| Sides with tips | `simpleLineWithTips`, `simpleLineWithTopTip`, `simpleLineWithBottomTip`, `simpleLineWithCTips`, `simpleLineWithCTopTip`, `simpleLineWithCBottomTip`, `simpleLineWithRTips`, `simpleLineWithRTopTip`, `simpleLineWithRBottomTip`, `doubleLineWithRTips` |
+| Closed boxes | `closedOneSpace`, `closedRect`, `closedDoubleRect`, `closedCurvedRect` |
+| Open boxes | `openTopRect`, `openBottomRect`, `openRect`, `openTopCurvedRect`, `openBottomCurvedRect`, `openCurvedRect`, `openCurvedSpace`, `blockCurvedSpace` |
+
+```javascript
+ow.loadFormat();
+var t = ow.format.withSideLineThemes();
+print(ow.format.withSideLine("Hello\nworld", 40, "YELLOW", __, t.closedCurvedRect, { header: " note ", headerAlign: "center" }));
+```
+
+For closed themes, `extra` accepts `header`, `footer`, `headerAlign` and `footerAlign` (`left`, `center`, `right`). Add your own themes (names that clash with built-in ones keep the built-in definition) by setting `__flags.sideLineCustomThemes` before calling `withSideLineThemes()`:
+
+```javascript
+__flags.sideLineCustomThemes = { arrow: { lmiddle: ">" } };
+print(ow.format.withSideLine("custom", __, "GREEN", __, ow.format.withSideLineThemes().arrow));
+```
+
+### Dashboard composition
+
+```javascript
+print(ow.format.printDashboard([
+  [
+    { type: "bullet", title: "Storage", data: { value: 72, max: 100, target: 80 } },
+    { type: "timeline", title: "Pipeline", data: [
+      { label: "build", start: Date.now() - 120000, end: Date.now() - 60000, status: "ok" },
+      { label: "test",  start: Date.now() - 60000, end: Date.now(),          status: "warn" }
+    ] }
+  ],
+  [
+    { type: "statusMatrix", title: "Fleet", data: { values: [["ok", "ok"], ["warn", "down"]], xLabels: ["a", "b"], yLabels: ["api", "db"] } }
+  ]
+], { width: 90, border: true }));
+```
+
+Use `printDashboard(...)` for explicit layouts and `ow.format.string.grid(...)` when you want a grid of cells that can mix classic renderers (`map`, `tree`, `table`, `chart`) with newer terminal widgets (`sparkline`, `histogram`, `heatmap`, `bullet`, `scatter`, `boxplot`, `timeline`, `statusMatrix`, `progress`, `md`, `text`).
+
+### Live loops
+
+```javascript
+var live = ow.format.viz.live(function(ctx) {
+  return ow.format.printDashboard([
+    { type: "sparkline", title: "load", data: [ctx.frame % 7, 3, 5, 2, 6] },
+    { type: "text", title: "size", data: stringify(ctx.size) }
+  ], { width: ctx.size.width, height: 8 });
+}, { fps: 5, diff: true });
+```
+
+The controller returned by `viz.live(...)` exposes `start()`, `stop()`, `update()` and `stats()`. Combine it with `viz.watchResize(...)` or the context `size` argument to keep output responsive.
+
+## 17. AI and Machine Learning Integration
 
 OpenAF provides comprehensive AI capabilities through `ow.ai` for both traditional ML and modern LLM integration.
 
@@ -322,7 +418,7 @@ var data = [[0,1],[1,3],[2,5],[3,7]];  // x,y pairs
 
 var linear = regression.linear(data);
 log("Equation: " + linear.string);     // y = 2x + 1
-log("R^2: " + linear.r2);               // Correlation coefficient
+log("R²: " + linear.r2);               // Correlation coefficient
 
 // Other regression types
 var polynomial = regression.polynomial(data, { order: 2 });
@@ -361,6 +457,49 @@ var llm = ow.ai.gpt({
 var response = llm.prompt("Explain quantum computing in simple terms");
 log(response);
 
+// Azure OpenAI v1 compatible endpoint
+var azureV1 = ow.ai.gpt({
+  type: "openai",
+  key : "your-azure-api-key",
+  url : "https://RESOURCE.openai.azure.com",
+  mode: "azure-openai-v1",
+  model: "your-deployment-name"
+});
+
+// Azure OpenAI legacy deployment endpoint
+var azureLegacy = ow.ai.gpt({
+  type       : "openai",
+  key        : "your-azure-api-key",
+  url        : "https://RESOURCE.openai.azure.com",
+  mode       : "azure-openai-legacy",
+  deployment : "your-deployment-name",
+  apiVersion : "2024-10-21"
+});
+
+// Azure AI Foundry v1 endpoint
+var foundry = ow.ai.gpt({
+  type       : "openai",
+  key        : "your-foundry-api-key",
+  url        : "https://RESOURCE.services.ai.azure.com",
+  mode       : "foundry",
+  model      : "your-deployment-name"
+});
+
+// Azure AI Foundry dated model inference endpoint
+var foundryPreview = ow.ai.gpt({
+  type       : "openai",
+  key        : "your-foundry-api-key",
+  url        : "https://RESOURCE.services.ai.azure.com/models",
+  mode       : "foundry",
+  apiVersion : "2024-05-01-preview",
+  model      : "your-deployment-name"
+});
+
+// Azure and Foundry modes default to api-key authentication.
+// Standard OpenAI mode defaults to Authorization: Bearer.
+// Use authType only for compatible proxies or custom authentication:
+// authType: "bearer" | "api-key" | "none"
+
 // Conversation
 llm.addSystemPrompt("You are a helpful coding assistant");
 llm.addUserPrompt("How do I sort an array in JavaScript?");
@@ -395,7 +534,7 @@ var ollama = ow.ai.gpt({
 var gemini = ow.ai.gpt({
   type: "gemini",
   key : process.env.GEMINI_KEY,
-  model: "gemini-1.5-flash"
+  model: "gemini-2.5-flash"
 });
 ```
 
@@ -519,8 +658,151 @@ function robustLLMCall(prompt, maxRetries = 3) {
 }
 ```
 
-## 17. Safe Dynamic Includes
+## 18. Safe Dynamic Includes
 Combine integrity hashes + authorized domains + change auditing flags. For local development disable with environment variable toggles but keep production strict.
 
+## 19. HTTP Path Prefix Support (ow.server.httpd)
+
+OpenAF's embedded HTTP server supports serving all resources and routes under a configurable path prefix. This is useful when deploying behind a reverse proxy that forwards requests under a subpath (e.g. `/app`).
+
+### Setting a prefix
+
+Set the `HTTPD_PREFIX` flag before starting any server. Key `"0"` is the global default for all ports; use a specific port number string to override per port:
+
+```javascript
+// Set global prefix /app for all HTTP servers
+__flags.HTTPD_PREFIX = { "0": "/app" };
+
+// Or different prefixes per port
+__flags.HTTPD_PREFIX = { "0": "", "8080": "/api", "9090": "/gui" };
+```
+
+Via oJob YAML:
+```yaml
+ojob:
+  flags:
+    HTTPD_PREFIX:
+      "0": /app
+```
+
+### Prefix utility functions
+
+`ow.server.httpd` provides helper functions to work with prefixes:
+
+| Function | Description |
+|----------|-------------|
+| `ow.server.httpd.getPrefix(httpdOrPort)` | Returns the normalized prefix for the given server or port |
+| `ow.server.httpd.withPrefix(httpdOrPort, uri)` | Prepend the prefix to `uri` (skips absolute URLs) |
+| `ow.server.httpd.stripPrefix(httpdOrPort, uri)` | Remove the prefix from a URI for internal routing |
+| `ow.server.httpd.normalizePrefix(aPrefix)` | Normalize a raw prefix string (ensures leading `/`, no trailing `/`) |
+
+```javascript
+ow.loadServer();
+__flags.HTTPD_PREFIX = { "0": "/app" };
+
+var httpd = ow.server.httpd.start(8080);
+
+// Build a prefixed URL
+var link = ow.server.httpd.withPrefix(httpd, "/about"); // "/app/about"
+
+// Strip prefix for internal route matching
+ow.server.httpd.route(httpd, ow.server.httpd.mapWithExistingFn(httpd, {
+  "/about": function(req) {
+    return httpd.replyOKText("About page");
+  }
+}), function(req) {
+  var internalURI = ow.server.httpd.stripPrefix(httpd, req.uri);
+  return httpd.replyNotFound();
+});
+```
+
+All built-in GUI pages and static-file handlers automatically respect the configured prefix.
+
+## 20. MCP Client ($mcp)
+
+`$mcp(aOptions)` creates a Model Context Protocol (MCP) client for communicating with LLM tool servers.
+
+### Connection types
+
+| `type` | Description |
+|--------|-------------|
+| `stdio` (default) | Spawn a local process; communicate over stdin/stdout |
+| `remote` / `http` | HTTP JSON-RPC endpoint |
+| `sse` | HTTP endpoint with Server-Sent Events responses |
+| `ojob` | In-process oJob jobs exposed as MCP tools |
+| `dummy` | Local in-memory stub for testing |
+
+```javascript
+// stdio MCP server
+var client = $mcp({ type: "stdio", cmd: "my-mcp-server" });
+client.initialize();
+var tools = client.listTools();
+var result = client.callTool("myTool", { param: "value" });
+
+// Remote HTTP MCP server
+var remote = $mcp({ type: "remote", url: "https://mcp.example.com/mcp" });
+remote.initialize();
+```
+
+### Authentication (`auth` option)
+
+For `remote`/`http`/`sse` connections:
+
+```javascript
+// Static bearer token
+var client = $mcp({
+  type: "remote",
+  url: "https://mcp.example.com/mcp",
+  auth: { type: "bearer", token: "my-token" }
+});
+
+// OAuth2 client credentials
+var client = $mcp({
+  type: "remote",
+  url: "https://mcp.example.com/mcp",
+  auth: {
+    type: "oauth2",
+    tokenURL: "https://auth.example.com/oauth/token",
+    clientId: "my-client",
+    clientSecret: "my-secret",
+    scope: "mcp:read mcp:write"
+  }
+});
+
+// OAuth2 authorization_code (opens browser)
+var client = $mcp({
+  type: "remote",
+  url: "https://mcp.example.com/mcp",
+  auth: {
+    type: "oauth2",
+    grantType: "authorization_code",
+    authURL: "https://auth.example.com/authorize",
+    tokenURL: "https://auth.example.com/oauth/token",
+    clientId: "my-client",
+    redirectURI: "http://localhost:8080/callback",
+    disableOpenBrowser: false  // set true to suppress browser launch
+  }
+});
+```
+
+OAuth2 token URLs can also be auto-discovered from the MCP server's OAuth 2.0 Protected Resource Metadata when `tokenURL`/`authURL` are omitted.
+
+To retain OAuth credentials across sessions, opt in with `auth.tokenStore: { type: "sec", profile: "alice" }`. The built-in adapter uses an encrypted SBucket and coordinates token refresh across local processes. Custom synchronous stores are also supported. See [persistent OAuth, callback login and token stores](mcp-oauth.md) for configuration, failure behavior and storage limitations.
+
+### Tool blacklist
+
+Prevent specific tools from appearing in `listTools()` or being called via `callTool()`:
+
+```javascript
+var client = $mcp({
+  type: "stdio",
+  cmd: "my-mcp-server",
+  blacklist: ["dangerousTool", "internalTool"]
+});
+client.initialize();
+// listTools() will not include blacklisted tools
+// callTool("dangerousTool", {}) throws an error
+```
+
 ---
-See also: [oJob Security](../ojob/ojob-security.md), [Flags Cheat Sheet](../cheat-sheet/oaf-flags.md), and the rest of the advanced references.
+See also: `ojob-security.md`, `openaf-flags.md`, and main references.

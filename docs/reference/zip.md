@@ -20,7 +20,7 @@ Will clean all internal data regarding any previously ZIP contents handled by th
 __ZIP.close()__
 
 ````
-Will close the ZIP file associated with this object.
+Closes the loaded ZIP file and all outstanding entry streams associated with this object.
 ````
 ### ZIP.generate
 
@@ -53,7 +53,7 @@ Will generate a ZIP into aFile given the provided options (a map where you can s
 __ZIP.getFile(aFilename) : anArrayOfBytes__
 
 ````
-Will uncompress the corresponding aFilename from the ZIP contents into an arrays of bytes.
+Will uncompress the corresponding aFilename from the ZIP contents into an array of bytes. Returns null if the entry is absent.
 ````
 ### ZIP.gunzip
 
@@ -123,14 +123,14 @@ Creates aFolder on aFilePath ZIP file. Returns true if the folder was created or
 __ZIP.streamGetFile(aFilePath, aName) : anArrayOfBytes__
 
 ````
-Retrieves aName file from aFilePath zip file without loading the zip file contents into memory returning the  file contents as an array of bytes.
+Retrieves aName file from aFilePath zip file without loading the zip file contents into memory returning the  file contents as an array of bytes, or null if the entry is absent. Uses an independent archive handle.
 ````
 ### ZIP.streamGetFileStream
 
 __ZIP.streamGetFileStream(aFilePath, aName) : JavaInputStream__
 
 ````
-Retrieves aName file from aFilePath zip file without loading the zip file contents into memory returning a  Java InputStream.
+Retrieves aName file from aFilePath zip file without loading the zip file contents into memory returning a  Java InputStream, or null if the entry is absent. Each stream owns an independent archive handle. Close the stream after use to release that handle. ZIP.close() also closes outstanding streams.
 ````
 ### ZIP.streamPutFile
 

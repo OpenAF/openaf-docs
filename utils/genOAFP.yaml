@@ -33,7 +33,9 @@ init:
     grand_parent: Guides
     ---
 
+    {% raw %}
     {{{content}}}
+    {% endraw %}
 
 jobs:
 # ------------------------------
@@ -48,6 +50,6 @@ jobs:
       var outPath = args.output + "/oafp-" + f.replace("src/docs/", "").replace(".md", "").toLowerCase() + ".md"
       io.writeFileString(outPath, $t(args.init.tmpl, { 
         doc    : f.replace("src/docs/", "").replace(".md", "").toLowerCase(), 
-        content: io.readFileString(inPath) 
+        content: io.readFileString(inPath).replace(/\]\(JSON-SCHEMA\.md\)/g, "](json-schemas.md)")
       }))
     })

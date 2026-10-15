@@ -5,6 +5,10 @@ title: OpenAF docs
 description: OpenAF guides, concepts and how-tos documentation.
 eading_anchors: true
 nav_sort: case_sensitive
+exclude:
+  - utils
+plugins:
+  - jekyll-relative-links
 
 ga_tracking: G-VC702B2LH6
 ga_tracking_anonymize_ip: true

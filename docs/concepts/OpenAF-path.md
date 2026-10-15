@@ -278,3 +278,7 @@ $path({}, "chq('__events', 'pop', `3`, @)");          // remove newest entry
 
 * _$from_ - See more in [$from](OpenAF-nLinq.md)
 * _$stream_ - Based on the old [StreamJS library](https://github.com/winterbe/streamjs)
+
+## Java backend and jq queries
+
+The October source uses the [Java `$path` engine](../guides/advanced/path-java.md) by default. Existing extension/custom functions remain available; `__flags.ALTERNATIVES.path = false` selects the JavaScript backend. For jq expressions, use the separate [`$jq` helper](../guides/advanced/jq.md).

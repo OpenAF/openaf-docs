@@ -1,0 +1,207 @@
+---
+layout: default
+title: "OpenAF Command-Line Interface Reference"
+parent: Advanced
+grand_parent: Guides
+---
+
+# OpenAF Command-Line Interface Reference
+
+[Index](../../../index.md) | [oJob Reference](../ojob/ojob-yaml-reference.md) | [Flags](openaf-flags.md) | [Advanced](openaf-advanced-guide.md)
+
+Complete reference for the `openaf` (alias `oaf`) command-line binary. For runtime `__flags` and environment variables, see [openaf-flags.md](openaf-flags.md).
+
+## Synopsis
+
+```
+openaf [options] [script-file]
+oaf   [options] [script-file]
+```
+
+With no arguments, OpenAF launches the interactive GUI if a desktop is available, otherwise prints help.
+
+## Global options
+
+| Flag | Argument | Description |
+|:-----|:---------|:-------------|
+| `-h` | – | Show help and exit. |
+| `-v` | – | Print version and distribution, then exit. |
+| `-helpscript [term]` | optional term | Display scripting help for a search term (loads `js/example.js`). |
+
+## Running code
+
+| Flag | Argument | Description |
+|:-----|:---------|:-------------|
+| `-c <code>` | JS code | Execute the given JavaScript code string (prepended before any script input). |
+| `-e <expr>` | expression | Provide input directly (exposed to scripts as the `expr` global). |
+| `-f <file>` | script path | Execute a JavaScript file. Runs in silent mode. |
+| `--script <file>` | script/opack path | Execute a script or opack file (sets input type to script). |
+| `--daemon <file>` | script/opack path | Execute a script or opack as a daemon (wraps with `ow.server.simpleCheckIn` + `ow.server.daemon`). |
+| `-p` | – | Read streaming input from stdin (pipe mode). |
+| `-o` | – | Output mode — display `__pmOut` as JSON on stdout. |
+| `-s` | – | Silent mode (suppress JSON output). Default for most modes. |
+| `-i <type>` | type string | Set the input type for the current run. |
+| `--i` | – | Interpret mode — set Rhino optimization level to -1 (disables JIT compilation). Note: this is `--i`, distinct from `-i`. |
+
+## Debugging
+
+| Flag | Argument | Description |
+|:-----|:---------|:-------------|
+| `-d <file>` | script path | Console-debug mode: load the given file via `loadDebug('<file>')`. Implies silent mode. |
+| `-debug` | – | Enable DEBUG log level (`SimpleLog`). Does not consume a script file. |
+
+## Install, update, and maintenance
+
+| Flag | Argument | Description |
+|:-----|:---------|:-------------|
+| `--install [args=<jvm-args>] [--noopacks]` | see description | Generate wrapper scripts (`oaf`, `opack`, `ojob`, `oafp`, `pyoaf`, etc.) in the current directory. `args=<jvm-args>` embeds extra JVM arguments (e.g. `-Xmx2g`) into every generated launcher and saves them to `.openaf-javaargs`. `--noopacks` skips auto-installing any `.opack` files found in the current directory during install. |
+| `--check` | – | Check if this is the latest released version. |
+| `--update [--force]` | – | Update OpenAF to the latest version (downloads a new `openaf.jar`, backs up the old one as `openaf.jar.old`, then re-`--repack`s). `--force` re-downloads even if already on the latest version. Disabled when the `noHomeComms` flag is set. See [Update process](#update-process) below. |
+| `--repack` | – | Repack `openaf.jar` for faster startup. |
+| `--console` | – | Launch the interactive OpenAF REPL console. |
+
+## Subsystem entry points
+
+| Flag | Argument | Description |
+|:-----|:---------|:-------------|
+| `--ojob` | – | Execute an oJob (loads the oJob engine). Use with `-e` to pass a YAML file or expression. |
+| `--opack` | – | Execute the opack package-manager CLI. Use with `-e` to pass sub-commands. |
+| `--py <file> [args...]` | script path and Python arguments | Run a Python script with bridge support and propagate its exit status. All following arguments belong to Python. The legacy `--py -e <file>` form is retained. |
+| `--oafpy` | – | Emit the `oaf.py` bridge module for use from standalone Python scripts. See [python.md](python-integration.md). |
+| `--sb <file>` | file path | Generate or prepend an OpenAF/oJob/oafp shebang line, chosen by the file's extension. See [Shebang scripts](#shebang-scripts) below. |
+| `--bashcompletion <arg>` | arg | Generate bash completion script. |
+| `--zshcompletion <arg>` | arg | Generate zsh completion script. |
+
+## Generated wrapper commands
+
+After running `--install`, the following wrapper scripts are created in the install directory. These are separate binaries (not flags of `openaf`), but are the most common way to invoke the subsystems:
+
+| Command | Equivalent | Purpose |
+|:--------|:----------|:--------|
+| `oaf` / `openaf` | `openaf` | Main binary. |
+| `ojob` | `openaf --ojob -e "$ARGS"` | oJob CLI. |
+| `opack` | `openaf --opack -e "$ARGS"` | oPack package manager CLI. |
+| `oafp` | `openaf -c "load(getOpenAFJar()+'::js/oafp.js')" -e "$ARGS"` | OpenAF data processor. See [oafp.md](../oafp/oafp-reference.md). |
+| `pyoaf` | `openaf --py "$@"` | Python runner. See [python.md](python-integration.md). |
+| `oafc` / `openaf-console` | `openaf --console` | Interactive REPL. See [console.md](console.md). |
+| `update` / `update.sh` / `update.bat` | `openaf --update` (plus a JRE refresh step) | Update shortcut. See [Update process](#update-process) below. |
+| `oaf-sb` / `openaf-sb` / `ojob-sb` / `oafp-sb` | `openaf -f "$SCRIPT" -e "$ARGS"` (resp. `--ojob`/oafp variants) | Shebang-line interpreters, invoked by the OS when a script starting with `#!/usr/bin/env oaf-sb` (etc.) is executed directly. See [Shebang scripts](#shebang-scripts) below. |
+
+## Shebang scripts
+
+`--sb <file>` turns a plain file into a self-executing script by prepending an interpreter line,
+similar to `#!/usr/bin/env python3` for Python. It picks the right interpreter from the file
+extension:
+
+| File type | Shebang line added | Runtime interpreter |
+|:----------|:--------------------|:---------------------|
+| `.js` | `#!/usr/bin/env <install-dir>/oaf-sb` | `openaf -f "$SCRIPT" -e "$ARGS"` |
+| `.yaml` / `.yml` / `.json` | `#!/usr/bin/env <install-dir>/ojob-sb` | `openaf --ojob -e "$SCRIPT $ARGS"` |
+| anything else (including no extension) | `#!/usr/bin/env -S <install-dir>/oafp-sb` | `openaf -c "load(...oafp.js)" -e "_shebang=true $OAFP_ARGS $ARGS"` |
+
+(As of this writing, the extension check only applied when prepending to an *existing* file —
+generating a brand-new `.yaml`/`.json`/non-`.js` file via `--sb` incorrectly fell back to the
+`.js`/`oaf-sb` template. This has been fixed in `js/genSB.js` so the extension is honored whether
+or not the file already exists.)
+
+If the target file doesn't exist, `--sb` creates it with just the shebang line (plus, for `.js`
+files, a starter `var params = processExpr(" ");`). If it exists and doesn't already start with
+`#!`, the shebang line is prepended to its current contents. Running `--sb` again on a file that
+already has a shebang is a no-op (it logs a warning and leaves the file untouched).
+
+```bash
+# Generate an OpenAF (.js) shebang script and make it executable
+openaf --sb hello.js
+chmod +x hello.js
+./hello.js abc=123 xyz=aaa
+```
+
+Inside `hello.js`, `oaf-sb` sets `__expr` from the trailing command-line tokens, so
+`var params = processExpr(" ");` yields `{ abc: "123", xyz: "aaa" }` — the same mechanism `ojob`
+and `oafp` use to parse `key=value` arguments.
+
+```bash
+# Generate an oJob shebang file and run it directly
+openaf --sb myjob.yaml
+chmod +x myjob.yaml
+./myjob.yaml env=prod
+```
+
+Once generated, these files no longer need the `openaf`/`ojob`/`oafp` command at all — the shebang
+line resolves `oaf-sb`/`ojob-sb`/`oafp-sb` from the same directory as the other generated wrapper
+scripts (via `/usr/bin/env`), so the install directory must be on `PATH` (or referenced with an
+absolute path) for this to work.
+
+## Update process
+
+`--update` (and the generated `update`/`update.sh`/`update.bat` wrapper) checks the OpenAF home
+servers for a newer release, and if one is found (or `--force` is given):
+
+1. Backs up the *current* `openaf.jar` to `openaf.jar.old` next to the install.
+2. Downloads the new release in two forms: a plain build and a pre-`--repack`ed one.
+3. Installs the pre-repacked build as the new `openaf.jar` (keeping the plain build as
+   `openaf.jar.orig`, which a later `--repack` needs if modules are ever added/excluded), then
+   restarts with `--repack` for fast startup.
+
+The `update.sh`/`update.bat` wrapper additionally refreshes the bundled JRE before touching the
+jar: it runs `./ojob ojob.io/oaf/javaUpdate`, and if that produces a `jre.tgz` (Unix) or `jre.zip`
+(Windows), the old `jre/` directory is moved to `jre.old` and the archive is extracted as the new
+`jre/`. This step — and `--update`/`--check` in general — is skipped entirely when the `noHomeComms`
+flag is set (e.g. restricted/offline installs), which is also why `--install` won't generate
+`update.sh`/`update.bat` at all in that mode.
+
+```bash
+# Update in place
+update
+# or
+openaf --update
+
+# Force re-download even if already current
+openaf --update --force
+```
+
+## Common usage examples
+
+```bash
+# Inline JavaScript
+openaf -c 'print("Hello World!");'
+
+# Execute a script file
+openaf -f hello.js
+
+# Run an oJob (two equivalent forms)
+openaf --ojob -e 'myjob.yaml'
+ojob myjob.yaml
+
+# Exchange embedded code with standalone files (local YAML/JSON)
+ojob myjob.yaml -exportcode dir=myjob-code
+ojob myjob.yaml -importcode dir=myjob-code output=myjob.updated.yaml
+
+# Run the opack package manager
+opack list
+openaf --opack -e 'list'
+
+# OpenAF data processor: JSON to YAML
+cat data.json | oafp in=json out=yaml
+
+# Interactive REPL
+openaf --console
+
+# Run a Python script with OpenAF bridge
+pyoaf script.py
+
+# Check version
+openaf -v
+```
+
+For API lookup use `openaf -helpscript <term>` or `searchHelp()`; see [ODoc](odoc.md). Loading `odoc.js` loads a library, not a command dispatcher.
+
+## See also
+
+- [openaf-flags.md](openaf-flags.md) — runtime `__flags` and environment variables.
+- [ojob.md](../ojob/ojob-yaml-reference.md) — oJob YAML reference.
+- [oafp.md](../oafp/oafp-reference.md) — OpenAF data processor.
+- [opacks.md](opacks.md) — oPack package manager.
+- [python.md](python-integration.md) — Python integration.
+- [odoc.md](odoc.md) — documentation engine.
+- [console.md](console.md) — interactive REPL commands, aliases, and profile/history files.

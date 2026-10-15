@@ -18,10 +18,10 @@ or you can check it here:
 
 | Document |
 |----------|
-| [oafp usage documentation](../guides/oafp/oafp-usage) |
-| [oafp filters documentation](../guides/oafp/oafp-filters) |
-| [oafp templates documentation](../guides/oafp/oafp-template) |
-| [oafp basic examples](../guides/oafp/oafp-basic-examples) |
+| [oafp usage documentation](../guides/oafp/oafp-usage.md) |
+| [oafp filters documentation](../guides/oafp/oafp-filters.md) |
+| [oafp templates documentation](../guides/oafp/oafp-template.md) |
+| [oafp basic examples](../guides/oafp/oafp-basic-examples.md) |
 
 If you have internet access you can also access a library of examples:
 
@@ -87,3 +87,7 @@ Start with path to normalize the data → then use from or sql depending on pref
 ---
 
 You can check more examples of usage in the [oafp guides](../guides/oafp/).
+
+## October processing features
+
+See [decisions and interactive JSON exploration](../guides/oafp/october-features.md) for `in=llmdecide`, per-entry decision enrichment, and `out=idesc` with loaded or file-backed JSON. The [processor reference](../guides/oafp/oafp-reference.md) provides an overview of the wider pipeline.
