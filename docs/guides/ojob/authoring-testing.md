@@ -1,13 +1,16 @@
 ---
 layout: default
-title: "Test and troubleshoot your automation"
+title: Test and troubleshoot your automation
 parent: oJob
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/authoring-testing.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # Test and troubleshoot your automation
 
-[Tutorial](script-to-ojob.md) | [Recipes](authoring-recipes.md) | [Contributor tests](testing-with-ow-test.md)
+[Tutorial](script-to-ojob.md) | [Recipes](authoring-recipes.md) | [Contributor tests](testing-openaf.md)
 
 Test a user script without an OpenAF source checkout or oJob-common: call `ow.loadTest()`, then `ow.test.assert(actual, expected, message)`. The complete [test-filter.js](../../examples/authoring/test-filter.js) runs alongside [records.json](../../examples/authoring/records.json):
 
@@ -42,7 +45,7 @@ Repository maintainers can run the end-to-end fixtures with:
 python3 tools/docs/test_examples.py --jar openaf.jar
 ```
 
-The runner requires Python 3 and Java, uses the chosen JAR, loopback HTTP, scratch directories, and process deadlines, and reports runtime version and JAR hash. On POSIX it kills timed-out process groups. `--integration` additionally tests already-installed Badgen; it never installs packages. CI runs the default suite against its build artifact. See [coverage](https://github.com/OpenAF/openaf/blob/a5181af6/docs/documentation-coverage.md) for reports and static checks.
+The runner requires Python 3 and Java, uses the chosen JAR, loopback HTTP, scratch directories, and process deadlines, and reports runtime version and JAR hash. On POSIX it kills timed-out process groups. `--integration` additionally tests already-installed Badgen; it never installs packages. CI runs the default suite against its build artifact. See [coverage](../advanced/documentation-coverage.md) for reports and static checks.
 
 ## Test an embedded module from a file
 
@@ -89,3 +92,4 @@ java -jar openaf.jar -f tests/runOJobCode.js
 | Inspecting YAML causes activity | `-compile`, `-jobs`, and related commands load dependencies; plain parsing is a different check. |
 
 For AI-assisted debugging provide the command, version, small input, expected output, and actual diagnostics with secrets removed. Ask for source-backed APIs and a clear distinction between static inspection and execution.
+{% endraw %}

@@ -1,55 +1,30 @@
-# Author: Nuno Aguiar
+# Compatibility entry point. Run from the documentation repository root.
 help:
-  text   : Copies documentation from oAFp.
-  expects: 
-  - name     : oafp
-    desc     : Path to the oafp folder
-    example  : the/oafp
+  text: Regenerate pinned source documentation with utils/sync_docs.py.
+  expects:
+  - name: sources
+    desc: Directory prepared by utils/prepare_sources.py
     mandatory: true
-  - name     : output
-    desc     : Path to the output folder
-    example  : output
-    mandatory: true
+  - name: output
+    desc: Site repository root (not a section directory); defaults to current directory
+  - name: runtime
+    desc: OpenAF executable or JAR used to parse source ODoc; defaults to oaf
 
 todo:
-- Copy oAFp documentation
-
-ojob:
-  opacks      :
-  - openaf: 20250315
-  catch       : printErrnl("[" + job.name + "] "); if (isDef(exception.javaException)) exception.javaException.printStackTrace(); else printErr(exception)
-  logToConsole: true   # to change when finished
-        
-init:
-  docs:
-  - src/docs/USAGE.md
-  - src/docs/TEMPLATE.md
-  - src/docs/FILTERS.md
-  tmpl: | #handlebars
-    ---
-    layout: default
-    title: OpenAF processor {{doc}}
-    parent: oafp
-    grand_parent: Guides
-    ---
-
-    {% raw %}
-    {{{content}}}
-    {% endraw %}
+- Generate documentation
 
 jobs:
-# ------------------------------
-- name : Copy oAFp documentation
+- name: Generate documentation
   check:
     in:
-      oafp  : isString
-      output: isString
-  exec : | #js
-    args.init.docs.forEach(f => {
-      var inPath = args.oafp + "/" + f
-      var outPath = args.output + "/oafp-" + f.replace("src/docs/", "").replace(".md", "").toLowerCase() + ".md"
-      io.writeFileString(outPath, $t(args.init.tmpl, { 
-        doc    : f.replace("src/docs/", "").replace(".md", "").toLowerCase(), 
-        content: io.readFileString(inPath).replace(/\]\(JSON-SCHEMA\.md\)/g, "](json-schemas.md)")
-      }))
-    })
+      sources: isString
+      output: isString.default(".")
+      runtime: isString.default("oaf")
+  exec: |
+    var quote = s => "'" + String(s).replace(/'/g, "'\\''") + "'";
+    var command = ["python3", "utils/sync_docs.py", "--only", "imports", "--repository", "oafp",
+                   "--sources", args.sources, "--output", args.output, "--runtime", args.runtime];
+    var result = $sh(command.map(quote).join(" ")).get(0);
+    if (result.stdout) printnl(result.stdout);
+    if (result.stderr) printErrnl(result.stderr);
+    if (result.exitcode != 0) throw "Documentation generation failed: " + result.exitcode;

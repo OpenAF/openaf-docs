@@ -5,123 +5,217 @@ parent: Reference
 grand_parent: OpenAF docs
 ---
 
-
+{% raw %}
 ## ow.server
+
+[Source: `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/js/owrap.server.js) · [Baseline](../source-snapshot.md)
+
+### ow.server.a2a
+
+`ow.server.a2a() : ow.server.a2a`
+
+````text
+Creates an agent registry for Agent-to-Agent (A2A) messaging over MCP. Agents can be registered with metadata and message handlers, then accessed via MCP methods (agents/list, agents/get, agents/send).
+````
+
+### ow.server.a2a.prototype.getAgent
+
+`ow.server.a2a.prototype.getAgent(aId) : Map`
+
+````text
+Returns the metadata for a specific agent by ID.
+Throws an error if the agent is not found.
+````
+
+### ow.server.a2a.prototype.listAgents
+
+`ow.server.a2a.prototype.listAgents(aFilterFn) : Map`
+
+````text
+Returns a map with an 'agents' array containing metadata for all registered agents.
+Optionally filter agents using aFilterFn(agentMeta) which should return true to include the agent.
+````
+
+### ow.server.a2a.prototype.registerAgent
+
+`ow.server.a2a.prototype.registerAgent(aMeta, aHandler, aAuthFn, aOptions)`
+
+Registers an agent with the A2A registry.
+
+`aMeta` should be a map with:
+
+- `id` (string, required) : Unique agent identifier
+- `name` (string) : Display name (defaults to id)
+- `title` (string) : Human-readable title (defaults to id)
+- `version` (string) : Version string (defaults to "1.0.0")
+- `tags` (array) : Array of categorization tags
+- `capabilities` (map) : Map of agent capabilities
+
+`aHandler` is a function(message, options, context) that processes messages and returns:
+
+```javascript
+{ content: [{ type: "text", text: "..." }], isError: false }
+```
+
+`aAuthFn` is an optional function(context) that returns true/false for authorization.
+
+`aOptions` is an optional map with:
+
+- `sizeLimit` (number) : Maximum message size in bytes
+- `timeout` (number) : Handler timeout in milliseconds
+- `rateLimit` (number) : Requests per minute limit
+
+### ow.server.a2a.prototype.send
+
+`ow.server.a2a.prototype.send(aId, aMessage, aOptions, aAuthContext) : Map`
+
+Sends a message to the specified agent and returns the response.
+
+- `aId`: Agent identifier
+- `aMessage`: String or Map with message content
+- `aOptions`: Optional map with request options
+- `aAuthContext`: Optional authentication/session context
+
+Returns MCP-style response: `{ content: [{ type: "text", text: "..." }], isError: false }`
+
+### ow.server.a2a.prototype.unregisterAgent
+
+`ow.server.a2a.prototype.unregisterAgent(aId)`
+
+````text
+Removes an agent from the registry by ID.
+````
 
 ### ow.server.auth.add
 
-__ow.server.auth.add(aUser, aPass, aKey)__
+`ow.server.auth.add(aUser, aPass, aKey)`
 
-````
+````text
 Adds the aUser and aPass to the current authentication list. Optionally a 2FA aKey.
 ````
+
 ### ow.server.auth.check
 
-__ow.server.auth.check(aUser, aPass) : boolean__
+`ow.server.auth.check(aUser, aPass) : boolean`
 
-````
+````text
 Checks if the aUser and aPass provided are authenticated with the current internal list (returns true) or not (returns false). If a 2FA authentication was provided the token should be suffix to the password.
 ````
+
 ### ow.server.auth.del
 
-__ow.server.auth.del(aUser)__
+`ow.server.auth.del(aUser)`
 
-````
+````text
 Removes the aUSer from the current authentication list.
 ````
+
 ### ow.server.auth.dump
 
-__ow.server.auth.dump() : Map__
+`ow.server.auth.dump() : Map`
 
-````
+````text
 Dumps the current authentication list into a Map.
 ````
+
 ### ow.server.auth.dumpEncrypt
 
-__ow.server.auth.dumpEncrypt(aKey) : Map__
+`ow.server.auth.dumpEncrypt(aKey) : Map`
 
-````
+````text
 Dumps the current authentication list into an encrypted string (optionally using an encryption aKey).
 ````
+
 ### ow.server.auth.getExtra
 
-__ow.server.auth.getExtra(aUser) : Object__
+`ow.server.auth.getExtra(aUser) : Object`
 
-````
+````text
 Gets the extra object associated with aUser (previously set with ow.server.auth.setExtra).
 ````
+
 ### ow.server.auth.initialize
 
-__ow.server.auth.initialize(aPreviousDumpMap, aKey, aCustomFunc)__
+`ow.server.auth.initialize(aPreviousDumpMap, aKey, aCustomFunc)`
 
-````
+````text
 Initializes with a previous dump from ow.server.auth.dump or ow.server.auth.dumpEncrypt (including an optional aKey if used). Optionally aCustomFunc can be provided as a custom authentication function that receives the provided user and password and should return true if authenticated or false otherwise.
 ````
+
 ### ow.server.auth.is2FA
 
-__ow.server.auth.is2FA(aUser) : boolean__
+`ow.server.auth.is2FA(aUser) : boolean`
 
-````
+````text
 Returns true if aUser has 2FA authentication, false otherwise.
 ````
+
 ### ow.server.auth.isLocked
 
-__ow.server.auth.isLocked(aUser) : boolean__
+`ow.server.auth.isLocked(aUser) : boolean`
 
-````
+````text
 For a given aUser returns if the user is currently considered as lock or not.
 ````
+
 ### ow.server.auth.loadFile
 
-__ow.server.auth.loadFile(aFile, aKey)__
+`ow.server.auth.loadFile(aFile, aKey)`
 
-````
+````text
 Loads aFile (previously saved with ow.server.auth.saveFile), optionally providing aKey, (re)initializing  the current authentication information.
 ````
+
 ### ow.server.auth.saveFile
 
-__ow.server.auth.saveFile(aFile, aKey)__
+`ow.server.auth.saveFile(aFile, aKey)`
 
-````
+````text
 Saves into aFile, optionally providing aKey, the current authentication information. You can use ow.server.auth.loadFile later to reload this info.
 ````
+
 ### ow.server.auth.setCustomFunction
 
-__ow.server.auth.setCustomFunction(aCustomFunction)__
+`ow.server.auth.setCustomFunction(aCustomFunction)`
 
-````
+````text
 Sets a custom authentication function that receives the provided user and password and should return true if authenticated or false otherwise.
 ````
+
 ### ow.server.auth.setExtra
 
-__ow.server.auth.setExtra(aUser, aX)__
+`ow.server.auth.setExtra(aUser, aX)`
 
-````
+````text
 Sets an extra object (aX) to be associated with aUser (for example, the correspondings permissions). You can later retrieve this extra object with ow.server.auth.getExtra.
 ````
+
 ### ow.server.auth.setLockTimeout
 
-__ow.server.auth.setLockTimeout(aTimeout)__
+`ow.server.auth.setLockTimeout(aTimeout)`
 
-````
+````text
 Set the current lock timeout in seconds. Defaults to 15 minutes.
 ````
+
 ### ow.server.auth.setTriesToLock
 
-__ow.server.auth.setTriesToLock(numberOfTries)__
+`ow.server.auth.setTriesToLock(numberOfTries)`
 
-````
+````text
 Set the current number of wrong tries until a user is locked. Defaults to 3.
 ````
+
 ### ow.server.authAppCheck
 
-__ow.server.authAppCheck(anAppPassword, aReceivedToken, aUserPassword, a2FAToken, useBCrypt) : boolean__
+`ow.server.authAppCheck(anAppPassword, aReceivedToken, aUserPassword, a2FAToken, useBCrypt) : boolean`
 
-````
-Checks the validity of the aReceivedToken given anAppPassword, corresponding aUserPasswork and a2FAToken returning true if it's valid or false otherwise. If useBCrypt = 1 then an extra bcrypt function will be added.
+Checks the validity of the `aReceivedToken` given `anAppPassword`, corresponding `aUserPasswork` and `a2FAToken` returning
+true if it's valid or false otherwise. If `useBCrypt` = 1 then an extra bcrypt function will be added.
 
 Example:
 
+```javascript
 ow.loadServer();
 $ch("a").expose(1234, "/a", (u, p) => {
    if (u == "a" &&
@@ -130,34 +224,39 @@ $ch("a").expose(1234, "/a", (u, p) => {
    else
      return false;
 });
+```
 
-
-````
 ### ow.server.authAppGen
 
-__ow.server.authAppGen(anAppPassword, aUserPassword, a2FAToken, numRounds) : String__
+`ow.server.authAppGen(anAppPassword, aUserPassword, a2FAToken, numRounds) : String`
 
-````
-Generates an application token to be used for server communication given anAppPassword (encrypted or not), an application user password (aUserPassword encrypted or not) and an application a2FAToken. Optionally you can specify the numRounds for the bcrypt function used (if absent, bcrypt won't be used).
+Generates an application token to be used for server communication given `anAppPassword` (encrypted or not),
+an application user password (`aUserPassword` encrypted or not) and an application `a2FAToken`. Optionally you
+can specify the `numRounds` for the bcrypt function used (if absent, bcrypt won't be used).
 
 Example:
 
+```javascript
 ow.loadServer();
 $ch("a").createRemote("http://some.server:1234/a", __, (h) => {
    h.login("user", ow.server.authAppGen("...", "...", "..."));
 });
+```
 
-
-````
 ### ow.server.checkIn
 
-__ow.server.checkIn(aPidFile, onAlreadyRunning, onShutdown, anExitCode) : Boolean__
+`ow.server.checkIn(aPidFile, onAlreadyRunning, onShutdown, anExitCode) : Boolean`
 
-````
-Will check if a server for the give aPidFile is running or not. Will return false if it's running  and server start shouldn't proceed. Will return true if nothing is running and server start should proceed. Optionally you can provide an onShutdown function to execute any code needed upon controlled shutdown of the server and provide an onAlreadyRunning function (that will received the corresponding aPidFile). If the onAlreadyRunning function returns false the process will exit with -1 (or the anExitCode provided), if true will continue processing.
+Will check if a server for the give `aPidFile` is running or not. Will return false if it's running
+and server start shouldn't proceed. Will return true if nothing is running and server start should proceed.
+Optionally you can provide an `onShutdown` function to execute any code needed upon controlled shutdown
+of the server and provide an `onAlreadyRunning` function (that will received the corresponding `aPidFile`).
+If the `onAlreadyRunning` function returns false the process will exit with -1 (or the `anExitCode` provided),
+if true will continue processing. The `aPidFile` parameter can be overridden by setting the OAF_PIDFILE
+environment variable.
+Example:
 
-The environment variable OAF_PIDFILE can be set to override the aPidFile path. If set to a whitespace-only value it is treated as unset and aPidFile is used. Example:
-
+```javascript
 var params = processExpr();
 ow.server.checkIn("server.pid", function(aPid) {
    log("there is another me " + aPid + " already running... bye!");
@@ -174,174 +273,197 @@ ow.server.checkIn("server.pid", function(aPid) {
 });
 
 ow.server.daemon();
+```
 
-(available after ow.loadServer())
-````
+(available after `ow.loadServer()`)
+
 ### ow.server.cluster
 
-__ow.server.cluster(aHost, aPort, nodeTimeout, aNumberOfTries, aTryTimeout, aImplOptions, aListImplementation) : Object__
+`ow.server.cluster(aHost, aPort, nodeTimeout, aNumberOfTries, aTryTimeout, aImplOptions, aListImplementation) : Object`
 
-````
-Creates a new instance of a simple cluster nodes management code. Each cluster node should create it's own instante providing aHost address on which it can be contacted, a corresponding aPort, a nodeTimeout in ms (defaults to 30000), a aNumberOfTries to contact a cluster node (defaults to 3), a aTryTimeout in ms waiting for a reply from another cluster node (defaults to 500ms), a custom cluster list implementation options and a custom map of functions implementing a cluster list retrieval. If no aListImplemnetation is provided it defaults to an internal file based implementation that expects the following options: LOCKTIMEOUT, how much a lock should be honored in ms (e.g. more that 60000ms and it's wierd that the lock it's still there and no other cluster node has been found); CLUSTERFILE, the filepath to the cluster file; CLUSTERFILELOCK, the filepath to the cluster file lock file.
+Creates a new instance of a simple cluster nodes management code. Each cluster node should create its own instance providing `aHost` address
+on which it can be contacted, a corresponding `aPort`, a `nodeTimeout` in ms (defaults to 30000), a `aNumberOfTries` to contact a cluster node (defaults to 3),
+a `aTryTimeout` in ms waiting for a reply from another cluster node (defaults to 500ms), a custom cluster list implementation options and a custom map of functions
+implementing a cluster list retrieval. If no `aListImplementation` is provided it defaults to an internal file based implementation that expects
+the following options: LOCKTIMEOUT, how much a lock should be honored in ms (e.g. more that 60000ms and it's unexpected that the lock it's still there and no other
+cluster node has been found); CLUSTERFILE, the filepath to the cluster file; CLUSTERFILELOCK, the filepath to the cluster file lock file.
 
-To provide another custom aListImplementation it should contain the following methods:
+To provide another custom `aListImplementation` it should contain the following methods:
 
-  - clusterLock()                  - locking the access to the cluster nodes list
-  - clusterUnLock()                - unlocking the access to the cluster nodes list
-  - clusterGetList()               - returns the current cluster nodes list
-  - clusterPutList(aList)          - sets a new cluster nodes list (an array with maps containing host, port and date (last contact date))
-  - clusterSendMsg(aHost, aMsg)    - sends aMsg to a specific aHost or all (is aHost = "all")
-  - clusterSetMsgHandler(aT, aHFn) - sets aHFn function (receives (implementationOptionsMap, aMsg) ) to handle any messages that contain { t: aT }
-  - clusterCanLock(aLockName)      - asks all nodes if aLockName can be locked on cluster.locks
-  - clusterCanUnLock(aLockName)    - asks all nodes if aLockName can be unlocked on cluster.locks
-  - clusterLocks()                 - returns the current cluster node locks implementation (ow.server.locks)
+- `clusterLock()`: locking the access to the cluster nodes list
+- `clusterUnLock()`: unlocking the access to the cluster nodes list
+- `clusterGetList()`: returns the current cluster nodes list
+- `clusterPutList(aList)`: sets a new cluster nodes list (an array with maps containing host, port and date (last contact date))
+- `clusterSendMsg(aHost, aMsg)`: sends `aMsg` to a specific `aHost` or all (is `aHost` = "all")
+- `clusterSetMsgHandler(aT, aHFn)`: sets `aHFn` function (receives (implementationOptionsMap, `aMsg`) ) to handle any messages that contain { t: `aT` }
+- `clusterCanLock(aLockName)`: asks all nodes if `aLockName` can be locked on cluster.locks
+- `clusterCanUnLock(aLockName)`: asks all nodes if `aLockName` can be unlocked on cluster.locks
+- `clusterLocks()`: returns the current cluster node locks implementation (`ow.server.locks`)
 
-
-````
 ### ow.server.cluster.all
 
-__ow.server.cluster.all(aFunction, includeMe) : Object__
+`ow.server.cluster.all(aFunction, includeMe) : Object`
 
-````
+````text
 Tries to execute aFunction providing a map with all of the cluster list host + port. If the aFunction throws an exception another cluster will be used. If no cluster could be used an exception is thrown. Optionally includeMe = true enables executing on the current cluster node itself. If succcessfully returns whatever the aFunction returns.
 ````
+
 ### ow.server.cluster.any
 
-__ow.server.cluster.any(aFunction, includeMe) : Object__
+`ow.server.cluster.any(aFunction, includeMe) : Object`
 
-````
+````text
 Tries to execute aFunction providing a map with one of the cluster list host + port. If the aFunction throws an exception another cluster will be used. If no cluster could be used an exception is thrown. Optionally includeMe = true enables executing on the current cluster node itself. If succcessfully returns whatever the aFunction returns.
 ````
+
 ### ow.server.cluster.canLock
 
-__ow.server.cluster.canLock(aLockName) : boolean__
+`ow.server.cluster.canLock(aLockName) : boolean`
 
-````
+````text
 Sends messages to all other cluster nodes to reach quorum if can lock aLockName or not. Returns true if yes.
 ````
+
 ### ow.server.cluster.canUnLock
 
-__ow.server.cluster.canUnLock(aLockName) : boolean__
+`ow.server.cluster.canUnLock(aLockName) : boolean`
 
-````
+````text
 Sends messages to all other cluster nodes to reach quorum if can unlock aLockName or not. Returns true if yes.
 ````
+
 ### ow.server.cluster.checkIn
 
-__ow.server.cluster.checkIn()__
+`ow.server.cluster.checkIn()`
 
-````
+````text
 Checks in the current cluster node.
 ````
+
 ### ow.server.cluster.checkOut
 
-__ow.server.cluster.checkOut()__
+`ow.server.cluster.checkOut()`
 
-````
+````text
 Checks out the current cluster node.
 ````
+
 ### ow.server.cluster.locks
 
-__ow.server.cluster.locks() : owServerLocks__
+`ow.server.cluster.locks() : owServerLocks`
 
-````
+````text
 Returns the current cluster node ow.server.locks instance.
 ````
+
 ### ow.server.cluster.sendMsg
 
-__ow.server.cluster.sendMsg(aHostMap, aMessageMap)__
+`ow.server.cluster.sendMsg(aHostMap, aMessageMap)`
 
-````
+````text
 Sends aMessageMap to a specific aHostMap (map composed of a host and a port) or to all cluster nodes if aHostMap = "all". The aMessageMap should contain a "t" key for message topic. The topics "l", "u", "cl", "dl", "cu" and "du" are reserved for cluster lock management.
 ````
+
 ### ow.server.cluster.sendToOthers
 
-__ow.server.cluster.sendToOthers(aData, aSendToOtherFn) : Object__
+`ow.server.cluster.sendToOthers(aData, aSendToOtherFn) : Object`
 
-````
+````text
 Tries to send to another cluster node aData using aSendToOtherFn that receives, as parameter, a aData and a Map with HOST and PORT of another cluster node to try. In case of failure the function should throw an exception in case of success the function should return an object that will be returned. If no result can be obtained an object with result: 0 will be returned.
 ````
+
 ### ow.server.cluster.setMsgHandler
 
-__ow.server.cluster.setMsgHandler(aMessageTopic, aHandlerFunction)__
+`ow.server.cluster.setMsgHandler(aMessageTopic, aHandlerFunction)`
 
-````
+````text
 Sets aHandlerFunction to be called whenever the current node receives a message with aMessageTopic. The aHandlerFunction  receives the implementation options and the message.
 ````
+
 ### ow.server.cluster.verify
 
-__ow.server.cluster.verify(addNewHostMap, delHostMap, customLoad)__
+`ow.server.cluster.verify(addNewHostMap, delHostMap, customLoad)`
 
-````
+````text
 Verifies if all cluster nodes ports are reachable and updates the cluster file. If a cluster node is not reachable it will try to a specific number of times after timing out on a specific timeout (see default values in help ow.server.cluster).
 ````
+
 ### ow.server.cluster.whenUnLocked
 
-__ow.server.cluster.whenUnLocked(aLockName, aFn, aTryTimeout, aNumRetries) : boolean__
+`ow.server.cluster.whenUnLocked(aLockName, aFn, aTryTimeout, aNumRetries) : boolean`
 
-````
+````text
 A wrapper for ow.server.locks.lock that will try to lock aLockName after check in the cluster if it can be locked, execute the provide function and then unlock it even in case an exception is raised. Returns if the lock was successfull (true) or not (false).
 ````
+
 ### ow.server.clusterChsPeersImpl
 
-__ow.server.clusterChsPeersImpl__
+`ow.server.clusterChsPeersImpl`
 
-````
-This ow.servers.cluster implementation will cluster one or more cluster servers keeping the cluster connection details on a cluster channel (defaults to __cluster::[name of cluster]). It's meant to be provided to ow.server.cluster like this:
+This `ow.server.cluster` implementation will cluster one or more cluster servers keeping the cluster connection details on
+a cluster channel (defaults to `__cluster::[name of cluster]`). It's meant to be provided to `ow.server.cluster` like this:
 
+```javascript
 var mts = new ow.server.cluster("1.2.3.4", 1234, __, __, __, { name: "testCluster" }, ow.server.clusterChsPeersImpl)
+```
 
 There are several implementation options:
 
-   name         (String, mandatory)  The clusters name.
-   serverOrPort (Number or HTTPd)    Port or http server object where the cluster node channels will be available.
-   protocol     (String)             The transport protocol use to reach other cluster (defaults to http).
-   path         (String)             The path where other cluster nodes channel is reachable (defaults to '/__m').
-   authFunc     (Function)           Optional authentication function (see mor in ow.ch.server.peer).
-   unAuthFunc   (Function)           Optional failed authentication function (see more in ow.ch.server.peer).
-   maxTime      (Number)             Optional retry max time (see more in ow.ch.server.peer).
-   maxCount     (Number)             Optional max count of retries (see more in ow.ch.server.peer).
-   ch           (String)             The cluster local channel (defaults to "__cluster::[name of cluster]").
-   chs          (Array)              Array of names of channels or maps with each channel name and path. These channels will be automatically peered and unpeered with other cluster nodes. The path, if not provided, defaults to "/[name of channel]".
-   chErrs       (String)             The cluster local errors channel (default is none).
+- `name` (String, mandatory) The clusters name.
+- `serverOrPort` (Number or HTTPd) Port or http server object where the cluster node channels will be available.
+- `protocol` (String) The transport protocol use to reach other cluster (defaults to http).
+- `path` (String) The path where other cluster nodes channel is reachable (defaults to `'/__m'`).
+- `authFunc` (Function) Optional authentication function (see more in `ow.ch.server.peer`).
+- `unAuthFunc` (Function) Optional failed authentication function (see more in `ow.ch.server.peer`).
+- `maxTime` (Number) Optional retry max time (see more in `ow.ch.server.peer`).
+- `maxCount` (Number) Optional max count of retries (see more in `ow.ch.server.peer`).
+- `ch` (String) The cluster local channel (defaults to "`__cluster::[name of cluster]`").
+- `chs` (Array) Array of names of channels or maps with each channel name and path. These channels will be automatically peered and unpeered with other cluster nodes. The path, if not provided, defaults to "/[name of channel]".
+- `chErrs` (String) The cluster local errors channel (default is none).
 
-
-````
 ### ow.server.daemon
 
-__ow.server.daemon(aTimePeriod, aPeriodicFunction)__
+`ow.server.daemon(aTimePeriod, aPeriodicFunction)`
 
-````
+````text
 Will start an infinite cycle to keep a server running. If aTimePeriod (in ms) is not provided a default of 5 seconds will be considered. Optionally you can provide aPeriodicFunction to run every aTimePeriod. If this aPeriodicFunction returns true, the infinite cycle is broken. (available after ow.loadServer())
 ````
+
 ### ow.server.getPid
 
-__ow.server.getPid(aPidFile) : String__
+`ow.server.getPid(aPidFile) : String`
 
-````
+````text
 Retrieve the server pid on the given aPidFile. (available after ow.loadServer())
 ````
+
 ### ow.server.httpd.addHTTPCode
 
-__ow.server.httpd.addHTTPCode(aCodeRef, aCodeNum)__
+`ow.server.httpd.addHTTPCode(aCodeRef, aCodeNum)`
 
-````
+````text
 Adds a new HTTP aCodeNum number that will be referenced by the name aCodeRef.
 ````
+
 ### ow.server.httpd.addMimeType
 
-__ow.server.httpd.addMimeType(anExtension, aMimeType)__
+`ow.server.httpd.addMimeType(anExtension, aMimeType)`
 
-````
+````text
 Adds a new aMimeType for the corresponding anExtension.
 ````
+
 ### ow.server.httpd.authBasic
 
-__ow.server.httpd.authBasic(aRealm, aHTTPd, aReq, aAuthFunc, aReplyFunc, aUnAuthFunc) : Map__
+`ow.server.httpd.authBasic(aRealm, aHTTPd, aReq, aAuthFunc, aReplyFunc, aUnAuthFunc) : Map`
 
-````
-Wraps a httpd reply with basic HTTP authentication for the provided aRealm on the aHTTPd server. The aReq request map should be provided along with aAuthFunc (that receives the user and password and should return true of false if authentication is successful). If authentication is successful aReplyFunc will be executed receiving aHTTPd and aReq. Otherwise an optional aUnAuthFunc will be executed also receiving aHTTPd and aReq. Example:
+Wraps a httpd reply with basic HTTP authentication for the provided `aRealm` on the `aHTTPd` server. The `aReq`
+request map should be provided along with `aAuthFunc` (that receives the user and password and should return
+true of false if authentication is successful). If authentication is successful `aReplyFunc` will be executed
+receiving `aHTTPd` and `aReq`. Otherwise an optional `aUnAuthFunc` will be executed also receiving `aHTTPd` and `aReq`.
+Example:
 
+```javascript
 ow.server.httpd.route(hs, ow.server.httpd.mapRoutesWithLibs(hs, {
    "/f": function(req) {
       return ow.server.httpd.authBasic(
@@ -349,12 +471,12 @@ ow.server.httpd.route(hs, ow.server.httpd.mapRoutesWithLibs(hs, {
          function(user, pass) {
             if (user == "adm" && pass == "Password1") return true; else return false;
          },
-  	    function(hss, areq) {
-	       return ow.server.httpd.replyFile(hss, "/some/path", "/f", areq.uri);
-	    },
-	    function(hss, ar) {
-	       return hss.reply("Not authorized.", "text/plain", ow.server.httpd.codes.UNAUTHORIZED);
-	    }
+        function(hss, areq) {
+           return ow.server.httpd.replyFile(hss, "/some/path", "/f", areq.uri);
+        },
+        function(hss, ar) {
+           return hss.reply("Not authorized.", "text/plain", ow.server.httpd.codes.UNAUTHORIZED);
+        }
      );
   }
 }),
@@ -362,175 +484,168 @@ function(req) {
    return hs.replyOKText("nothing here...");
 }
 );
+```
 
-
-````
 ### ow.server.httpd.authOAuth
 
-__ow.server.httpd.authOAuth(aMapOptions, aHTTPd, aRequest, aFnReply) : Map__
+`ow.server.httpd.authOAuth(aMapOptions, aHTTPd, aRequest, aFnReply) : Map`
 
-````
-Provides OAuth 2.0 support by intersecting aRequest of aHTTPd to return aFnReply only on correctly authenticated. aMapOptions provides the OAuth configurations to follow:
+Provides OAuth 2.0 support by intersecting `aRequest` of `aHTTPd` to return `aFnReply` only on correctly authenticated. `aMapOptions`
+provides the OAuth configurations to follow:
 
-aMapOptions:
+`aMapOptions`:
 
-   realm             (optional)  An unique realm name (defaults to 'realm')
-   cookie            (optional)  The name of the cookie entry to use (defaults to 'OAF_AUTH_SESSION_ID')
-   baseURL           (mandatory) The web server base url (e.g. https://myserver:8090)
-   uriLogout         (optional)  The uri to use on the web server to logout (defaults to '/logout')
-   uriCallBack       (optional)  The uri to use on the web server to callback (defaults to '/cb'). You should configure oauth to allow redirection to base url + callback (e.g. https://myserver:8090/cb)
-   oauthAuthURL      (mandatory) The OAuth authorization_endpoint
-   oauthTokenURL     (mandatory) The OAuth token_endpoint
-   oauthLogoutURL    (mandatory) The OAuth end_session_endpoint
-   oauthCliendId     (mandatory) The OAuth configured client id
-   oauthClientSecret (mandatory) The OAuth configured client secret\
+- `realm` (optional) An unique realm name (defaults to 'realm')
+- `cookie` (optional) The name of the cookie entry to use (defaults to 'OAF_AUTH_SESSION_ID')
+- `baseURL` (mandatory) The web server base url (e.g. https://myserver:8090)
+- `uriLogout` (optional) The uri to use on the web server to logout (defaults to '/logout')
+- `uriCallBack` (optional) The uri to use on the web server to callback (defaults to '/cb'). You should configure oauth to allow redirection to base url + callback (e.g. https://myserver:8090/cb)
+- `oauthAuthURL` (mandatory) The OAuth authorization_endpoint
+- `oauthTokenURL` (mandatory) The OAuth token_endpoint
+- `oauthLogoutURL` (mandatory) The OAuth end_session_endpoint
+- `oauthCliendId` (mandatory) The OAuth configured client id
+- `oauthClientSecret` (mandatory) The OAuth configured client secret
 
-````
 ### ow.server.httpd.browse.files
 
-__ow.server.httpd.browse.files(aURI, aOptions) : Map__
+`ow.server.httpd.browse.files(aURI, aOptions) : Map`
 
-````
-Provides a simple file browser for the provided aURI. The aOptions map can contain the following keys:
+Provides a simple file browser for the provided `aURI`. The `aOptions` map can contain the following keys:
 
-  path     (string)   The path to use as root (defaults to ".")
-  browse   (boolean)  If true the file browser will be shown (defaults to true)
-  showURI  (boolean)  If true the URI will be shown in the file browser (defaults to false)
-  sortTab  (boolean)  If true the table will be sorted (defaults to false)
-  default  (string)   The default file to show (defaults to undefined)
-  logo  	  (string)   The logo to show in the file browser (defaults to undefined)
-  footer   (string)   The footer to show in the file browser (defaults to undefined)
+- `path` (string) The path to use as root (defaults to ".")
+- `browse` (boolean) If true the file browser will be shown (defaults to true)
+- `showURI` (boolean) If true the URI will be shown in the file browser (defaults to false)
+- `sortTab` (boolean) If true the table will be sorted (defaults to false)
+- `default` (string) The default file to show (defaults to undefined)
+- `logo` (string) The logo to show in the file browser (defaults to undefined)
+- `footer` (string) The footer to show in the file browser (defaults to undefined)
 
-````
 ### ow.server.httpd.browse.odoc
 
-__ow.server.httpd.browse.odoc(aURI, aOptions) : Map__
+`ow.server.httpd.browse.odoc(aURI, aOptions) : Map`
 
-````
-Provides a simple oDoc browser. The aOptions map can contain the following keys:
+Provides a simple oDoc browser. The `aOptions` map can contain the following keys:
 
-  browse   (boolean)  If true the file browser will be shown (defaults to true)
-  showURI  (boolean)  If true the URI will be shown in the file browser (defaults to false)
-  sortTab  (boolean)  If true the table will be sorted (defaults to false)
-  logo  	  (string)   The logo to show in the file browser (defaults to undefined)
-  footer   (string)   The footer to show in the file browser (defaults to undefined)
-  ttl	  (number)   The time to live for the cache (defaults to 5 minutes)
+- `browse` (boolean) If true the file browser will be shown (defaults to true)
+- `showURI` (boolean) If true the URI will be shown in the file browser (defaults to false)
+- `sortTab` (boolean) If true the table will be sorted (defaults to false)
+- `logo` (string) The logo to show in the file browser (defaults to undefined)
+- `footer` (string) The footer to show in the file browser (defaults to undefined)
+- `ttl` (number) The time to live for the cache (defaults to 5 minutes)
 
-````
 ### ow.server.httpd.browse.opacks
 
-__ow.server.httpd.browse.opacks(aURI, aOptions) : Map__
+`ow.server.httpd.browse.opacks(aURI, aOptions) : Map`
 
-````
-Provides a simple oPack browser. The aOptions map can contain the following keys:
+Provides a simple oPack browser. The `aOptions` map can contain the following keys:
 
-  browse   (boolean)  If true the file browser will be shown (defaults to true)
-  showURI  (boolean)  If true the URI will be shown in the file browser (defaults to false)
-  sortTab  (boolean)  If true the table will be sorted (defaults to false)
-  logo  	  (string)   The logo to show in the file browser (defaults to undefined)
-  footer   (string)   The footer to show in the file browser (defaults to undefined)
-  ttl	  (number)   The time to live for the cache (defaults to 5 minutes)
+- `browse` (boolean) If true the file browser will be shown (defaults to true)
+- `showURI` (boolean) If true the URI will be shown in the file browser (defaults to false)
+- `sortTab` (boolean) If true the table will be sorted (defaults to false)
+- `logo` (string) The logo to show in the file browser (defaults to undefined)
+- `footer` (string) The footer to show in the file browser (defaults to undefined)
+- `ttl` (number) The time to live for the cache (defaults to 5 minutes)
 
-````
 ### ow.server.httpd.getFromOpenAF
 
-__ow.server.httpd.getFromOpenAF(aResource, inBytes, anEncoding) : anArrayOfBytes__
+`ow.server.httpd.getFromOpenAF(aResource, inBytes, anEncoding) : anArrayOfBytes`
 
-````
+````text
 Retrieves aResource, as anArrayOfBytes, from the openaf.jar. This resource can be inBytes = true or not and anEncoding can be provided.
 ````
+
 ### ow.server.httpd.getFromZip
 
-__ow.server.httpd.getFromZip(aZipFile, aResource, inBytes, anEncoding) : anArrayOfBytes__
+`ow.server.httpd.getFromZip(aZipFile, aResource, inBytes, anEncoding) : anArrayOfBytes`
 
-````
+````text
 Retrieves aResource, as anArrayOfBytes, from aZipFile. This resource can be inBytes = true or not and anEncoding can be provided.
 ````
+
 ### ow.server.httpd.getHS
 
-__ow.server.httpd.getHS(aPort) : HTTPd__
+`ow.server.httpd.getHS(aPort) : HTTPd`
 
-````
+````text
 Returns the HTTPd object created, if any, for aPort.
 ````
+
 ### ow.server.httpd.getMimeType
 
-__ow.server.httpd.getMimeType(aFilename) : String__
+`ow.server.httpd.getMimeType(aFilename) : String`
 
-````
+````text
 Tries to determine the mime type of aFilename and returns it. If not determined it will default to application/octet-stream.
 ````
-### ow.server.httpd.getPrefix
 
-__ow.server.httpd.getPrefix(aHTTPdOrPort) : String__
-
-````
-Returns the normalized HTTPD_PREFIX flag value for the given HTTPd object or port. Key "0" on the HTTPD_PREFIX
-map is the global default used for all ports; a specific port key (as a string) overrides it. Set HTTPD_PREFIX
-(via __flags.HTTPD_PREFIX or an ojob.flags entry) before calling ow.server.httpd.start().
-````
 ### ow.server.httpd.mapRoutesWithLibs
 
-__ow.server.httpd.mapRoutesWithLibs(aHTTPd, aMapOfRoutes) : Map__
+`ow.server.httpd.mapRoutesWithLibs(aHTTPd, aMapOfRoutes) : Map`
 
-````
+````text
 Helper to use with ow.server.httpd.route to automatically add routes for JQuery, Handlebars, jLinq and Underscore from the openaf.jar.
 ````
+
 ### ow.server.httpd.mapWithExistingRoutes
 
-__ow.server.httpd.mapWithExistingRoutes(aHTTPd, aMapOfRoutes) : Map__
+`ow.server.httpd.mapWithExistingRoutes(aHTTPd, aMapOfRoutes) : Map`
 
-````
+````text
 Builds a map of routes taking into account the already defined routes for aHTTPd thus effectively letting add new routes.
 ````
-### ow.server.httpd.normalizePrefix
 
-__ow.server.httpd.normalizePrefix(aPrefix) : String__
+### ow.server.httpd.oauth2
 
+`ow.server.httpd.oauth2(aOptions) : Object`
+
+````text
+Creates a localhost OAuth2 authorization-code client. Requires authURL, tokenURL, clientId and an HTTP loopback redirectURI with an explicit port. authenticate() returns tokens, reusing or refreshing cached credentials; getAuthStatus() returns non-secret status; clearAuth() removes credentials; cancel() stops a pending login. Uses fresh state and S256 PKCE. Optional clientSecret, scope, audience, resource, extraAuthParams and extraParams configure the provider. authURL and tokenURL must use HTTPS unless they are loopback addresses or allowHTTP is true. interactive defaults to true, disableOpenBrowser to false, loginTimeoutMs to 300000, tokenTimeoutMs to 60000 and refreshWindowMs to 30000. onAuthorizationURL(url) receives the login URL after the listener is ready. tokenStore defaults to {type:"sec", repo:"oauth2", profile:"default"}; false disables persistence. Store options match $mcp's tokenStore (including synchronous custom stores). Tokens and expiry/identity metadata are encrypted using $sec; client secrets, codes, state and PKCE material are never persisted.
 ````
-Normalizes a raw path prefix string: ensures a leading "/" and no trailing "/" (e.g. "app/" or "app" become "/app").
-An empty/undefined prefix normalizes to "".
-````
+
 ### ow.server.httpd.reply
 
-__ow.server.httpd.reply(aObject, aStatus, aMimeType, aHeadersMap) : Map__
+`ow.server.httpd.reply(aObject, aStatus, aMimeType, aHeadersMap) : Map`
 
-````
+````text
 Builds the map response for a HTTP server request using aObject (map, array, string or bytearray), aStatus (default to 200), aMimeType (defaults to application/octet-stream if not recognized) and aHeadersMap.
 ````
+
 ### ow.server.httpd.replyBrowse
 
-__ow.server.httpd.replyBrowse(server, request, _options) : Map__
+`ow.server.httpd.replyBrowse(server, request, _options) : Map`
 
-````
-Provides a helper function to reply with a list of files or a file content. The _options map is used to provide the following functions:
+Provides a helper function to reply with a list of files or a file content. The `_options` map is used to
+provide the following functions:
 
-  getList(request, _options)   : Function to get the list of files or directories
-  getObj(request, _options)    : Function to get the object requested
-  renderList(list, server, request, _options) : Function to render the list of files
-  renderObj(obj, server, request, _options)   : Function to render the object requested
-  renderEmpty(request, _options) : Function to render an empty list
+- `getList(request, _options)`: Function to get the list of files or directories
+- `getObj(request, _options)`: Function to get the object requested
+- `renderList(list, server, request, _options)`: Function to render the list of files
+- `renderObj(obj, server, request, _options)`: Function to render the object requested
+- `renderEmpty(request, _options)`: Function to render an empty list
 
-````
 ### ow.server.httpd.replyFile
 
-__ow.server.httpd.replyFile(aHTTPd, aBaseFilePath, aBaseURI, aURI, notFoundFunction, documentRootArray, mapOfHeaders) : Map__
+`ow.server.httpd.replyFile(aHTTPd, aBaseFilePath, aBaseURI, aURI, notFoundFunction, documentRootArray, mapOfHeaders) : Map`
 
-````
-Provides a helper aHTTPd reply that will enable the download of a file, from aBaseFilePath (a file path or java stream), given aURI part of  aBaseURI. Optionally you can also provide a notFoundFunction and an array of file strings (documentRootArraY) to replace as documentRoot. Example:
+Provides a helper `aHTTPd` reply that will enable the download of a file, from `aBaseFilePath` (a file path or java stream), given `aURI` part of
+`aBaseURI`. Optionally you can also provide a `notFoundFunction` and an array of file strings (documentRootArraY) to replace as
+documentRoot. Example:
 
+```javascript
 ow.server.httpd.route(hs, ow.server.httpd.mapRoutesWithLibs(hs, {
    "/stuff/to/server": r => ow.server.httpd.replyFile(hs, "/some/path/to/serve/files", "/stuff/to/server", req.uri)
 }), r => hs.replyOKText("nothing here...") );
-\
-````
+```
+
 ### ow.server.httpd.replyFileMD
 
-__ow.server.httpd.replyFileMD(aHTTPd, aBaseFilePath, aBaseURI, aURI, notFoundFunction, documentRootArray, mapOfHeaders, noMaxWidth) : Map__
+`ow.server.httpd.replyFileMD(aHTTPd, aBaseFilePath, aBaseURI, aURI, notFoundFunction, documentRootArray, mapOfHeaders, noMaxWidth) : Map`
 
-````
-Provides a helper aHTTPd reply that will enable the parsing markdown file-based sites, from aBaseFilePath (a file path or stream), given aURI part of  aBaseURI. Optionally you can also provide a notFoundFunction and an array of file strings (documentRootArraY) to replace as documentRoot. Example:
+Provides a helper `aHTTPd` reply that will enable the parsing markdown file-based sites, from `aBaseFilePath` (a file path or stream), given `aURI` part of
+`aBaseURI`. Optionally you can also provide a `notFoundFunction` and an array of file strings (documentRootArraY) to replace as
+documentRoot. Example:
 
+```javascript
 ow.server.httpd.route(hs, ow.server.httpd.mapRoutesWithLibs(hs, {
    "/stuff/to/server": function(req) {
       return ow.server.httpd.replyFileMD(hs, "/some/path/to/serve/files", "/stuff/to/server", req.uri);
@@ -540,198 +655,197 @@ function(req) {
    return hs.replyOKText("nothing here...");
 }
 );
+```
 
-
-````
 ### ow.server.httpd.replyFn
 
-__ow.server.httpd.replyFn(aFunctionName, aInstance, aRequest, aParams, dontRetError) : Map__
+`ow.server.httpd.replyFn(aFunctionName, aInstance, aRequest, aParams, dontRetError) : Map`
 
-````
+````text
 Provides a helper function to call aFunctionName over aInstance (default this) given a POST aRequest. If aFunctionName doesn't have odoc help information available you will need to provide aParams map for the expected aFunctionName arguments. If dontRetError = true any exception will be kept in the server and an empty map will be returned.
 ````
+
 ### ow.server.httpd.replyJSMap
 
-__ow.server.httpd.replyJSMap(aHTTPd, aMapOrArray) : Map__
+`ow.server.httpd.replyJSMap(aHTTPd, aMapOrArray) : Map`
 
-````
-Provides a helper aHTTPd reply that will parse aMapOrArray into a HTML output. Example:
+Provides a helper `aHTTPd` reply that will parse `aMapOrArray` into a HTML output. Example:
 
+```javascript
 ow.server.httpd.route(hs, ow.server.httpd.mapRoutesWithLibs(hs, {
    "/stuff/to/server": r => ow.server.httpd.replyJSMap(hs, getOPackPaths()
 }),
 r => hs.replyOKText("nothing here...")
 );
+```
 
-
-````
 ### ow.server.httpd.replyJSONRPC
 
-__ow.server.httpd.replyJSONRPC(server, request, mapOfFunctions, logFn, debugFn, opts) : Map__
+`ow.server.httpd.replyJSONRPC(server, request, mapOfFunctions, logFn, debugFn, opts) : Map`
 
-````
-Implements a JSON-RPC 2.0 endpoint using the provided mapOfFunctions. The request must be a POST with a JSON-RPC body.
-Optionally you can provide logFn and debugFn functions to log errors and debug information respectively.
+Implements a JSON-RPC 2.0 endpoint using the provided `mapOfFunctions`. The `request` must be a POST with a JSON-RPC body.
+Optionally you can provide `logFn` and `debugFn` functions to log errors and debug information respectively.
 
 Example usage:
-  ow.server.httpd.route(hs, {
-    "/rpc": (req) => ow.server.httpd.replyJSONRPC(hs, req, { sum: (a, b) => a + b }, logErr, log)
-  })
 
-opts is an optional map: { modern: false, listMethods: [...] } (defaults shown). When modern is true,
-requests carrying a modern (2026-07-28+) per-request _meta protocol version are validated against
-ow.server.mcp.versions.supported (replying with an UnsupportedProtocolVersionError otherwise), results are
-wrapped with the required resultType (plus ttlMs/cacheScope for methods listed in opts.listMethods, default
+```javascript
+ow.server.httpd.route(hs, {
+  "/rpc": (req) => ow.server.httpd.replyJSONRPC(hs, req, { sum: (a, b) => a + b }, logErr, log)
+})
+```
+
+`opts` is an optional map: { modern: false, listMethods: [...] } (defaults shown). When modern is true,
+requests carrying a modern (2026-07-28+) per-`request` _meta protocol version are validated against
+`ow.server.mcp.versions.supported` (replying with an UnsupportedProtocolVersionError otherwise), results are
+wrapped with the required resultType (plus ttlMs/cacheScope for methods listed in `opts`.listMethods, default
 ["tools/list","prompts/list","resources/list","resources/templates/list"]), and the negotiated version is
 echoed back via the MCP-Protocol-Version response header. Legacy requests (the default, and everything when
 modern is false/omitted) are handled exactly as before -- zero behavior change.
-	 *
-````
+
 ### ow.server.httpd.replyMCP
 
-__ow.server.httpd.replyMCP(server, request, mapOfFunctions, logFn, debugFn, opts) : Map__
+`ow.server.httpd.replyMCP(server, request, mapOfFunctions, logFn, debugFn, opts) : Map`
 
-````
-Implements a Model Context Protocol (MCP) endpoint using the provided mapOfFunctions. The request must be a POST with a MCP body.
-Optionally you can provide logFn and debugFn functions to log errors and debug information respectively.
-\  Example usage:
+Implements a Model Context Protocol (MCP) endpoint using the provided `mapOfFunctions`. The `request` must be a POST with a MCP body.
+Optionally you can provide `logFn` and `debugFn` functions to log errors and debug information respectively.
+
+Example usage:
+
+```javascript
 ow.server.httpd.route(hs, {
    "/mcp": req => ow.server.httpd.replyMCP(hs, req, {
-	initialize                 : params => ({ serverInfo: { name: "OpenAF", title: "OpenAF test ", version: "1.0.0" }, capabilities: { prompts: { listChanged: true }, tools: { listChanged: true } } }),
-	"notifications/initialized": params => ({}),
-	"tools/call"               : () => ({content:[{type:"text",text:"PONG!"}],isError: false}),
-	"tools/list"               : params => { cprint(params); return { tools: [{name:"ping",description:"pings",title:"ping"}] } },
-	"prompts/list"             : params => ({})
+    initialize                 : params => ({ serverInfo: { name: "OpenAF", title: "OpenAF test ", version: "1.0.0" }, capabilities: { prompts: { listChanged: true }, tools: { listChanged: true } } }),
+    "notifications/initialized": params => ({}),
+    "tools/call"               : () => ({content:[{type:"text",text:"PONG!"}],isError: false}),
+    "tools/list"               : params => { cprint(params); return { tools: [{name:"ping",description:"pings",title:"ping"}] } },
+    "prompts/list"             : params => ({})
   }, logErr, log),
   "/echo": req => ow.server.httpd.reply(stringify(req))
  })
-opts is an optional map: { modern: false, listMethods: [...] } -- see ow.server.httpd.replyJSONRPC for the
+```
+
+`opts` is an optional map: { modern: false, listMethods: [...] } -- see `ow.server.httpd.replyJSONRPC` for the
 meaning of both; the same opt-in 2026-07-28 modern-era handling (version validation, resultType/ttlMs/
 cacheScope wrapping, MCP-Protocol-Version response header) applies here, with legacy behavior (default)
 left fully unchanged.
-     *
-````
+
 ### ow.server.httpd.replyRedirect
 
-__ow.server.httpd.replyRedirect(aHTTPd, newLocation, mapOfHeaders) : Map__
+`ow.server.httpd.replyRedirect(aHTTPd, newLocation, mapOfHeaders) : Map`
 
-````
+````text
 Provides a helper aHTTPd reply that will redirect the request to the newLocation provided (HTTP code 303).
 ````
+
 ### ow.server.httpd.resetRoutes
 
-__ow.server.httpd.resetRoutes(aHTTPd)__
+`ow.server.httpd.resetRoutes(aHTTPd)`
 
-````
+````text
 Given aHTTPd it will reset all internal mapped routes to a reply HTTP code 401 to everything.
 ````
+
 ### ow.server.httpd.route
 
-__ow.server.httpd.route(aHTTPd, aMapOfRoutes, aDefaultRoute, aPath, aPreRouteFunc)__
+`ow.server.httpd.route(aHTTPd, aMapOfRoutes, aDefaultRoute, aPath, aPreRouteFunc)`
 
-````
-Adds a request router to aHTTPd given aMapOfRoutes. This router will use aPath if defined or /r otherwise. Optionally you can also specify aPreRouteFunc that will run before any routing is made.
+Adds a request router to `aHTTPd` given `aMapOfRoutes`. This router will use `aPath` if defined or /r otherwise.
+Optionally you can also specify `aPreRouteFunc` that will run before any routing is made.
 Example:
 
+```javascript
 ow.loadServer();
 var hs = ow.server.httpd.start(17878);
 ow.server.httpd.route(hs, ow.server.httpd.mapRoutesWithLibs(hs, {
-		"/myapp": function(req, aHs) {
-			return aHs.replyOKText("my stuff!!");
-		}
+        "/myapp": function(req, aHs) {
+            return aHs.replyOKText("my stuff!!");
+        }
 }),
 function(req) {
-		return hs.replyOKText("nothing here...");
+        return hs.replyOKText("nothing here...");
 });
 log("READY!");
 ow.server.daemon();
+```
 
-(available after ow.loadServer())
-````
+(available after `ow.loadServer()`)
+
 ### ow.server.httpd.setWebSocketRoute
 
-__ow.server.httpd.setWebSocketRoute(aHTTPd, aURI)__
+`ow.server.httpd.setWebSocketRoute(aHTTPd, aURI)`
 
-````
+````text
 Using aHTTPd sets aURI to act as a websocket server.
 ````
+
 ### ow.server.httpd.start
 
-__ow.server.httpd.start(aPort, aHost, keyStorePath, password, errorFunction, aWebSockets, aTimeout, aImpl) : Object__
+`ow.server.httpd.start(aPort, aHost, keyStorePath, password, errorFunction, aWebSockets, aTimeout, aImpl) : Object`
 
-````
-Will prepare a HTTP server to be used returning a HTTPServer object. Optionally you can provide  aPort where you want the HTTP server to run. Otherwise a free port will be assigned. Optionally you can provide a different aImpl (implementation) for the HTTP server. If aHost is provided it will be used as the host to bind the server to. If keyStorePath and password are provided the server will be started as a secure HTTPS server. If errorFunction is provided it will be called whenever an error occurs in the server. This function will receive the error as a parameter. If aWebSockets is provided it will be used to handle WebSockets connections. If aTimeout is provided it will be used as the timeout for the server to wait for a request before closing the connection.
+Will prepare a HTTP server to be used returning a HTTPServer object. Optionally you can provide
+`aPort` where you want the HTTP server to run. Otherwise a free port will be assigned. Optionally you can provide a different
+`aImpl` (implementation) for the HTTP server. If `aHost` is provided it will be used as the host to bind the server to.
+If `keyStorePath` and `password` are provided the server will be started as a secure HTTPS server. If `errorFunction` is provided
+it will be called whenever an error occurs in the server. This function will receive the error as a parameter.
+If `aWebSockets` is provided it will be used to handle WebSockets connections. If `aTimeout` is provided it will be used as
+the timeout for the server to wait for a request before closing the connection.
 
-(available after ow.loadServer()).
+(available after `ow.loadServer()`).
 
-aWebSockets, if used, should be a map with the following functions:
+`aWebSockets`, if used, should be a map with the following functions:
 
-   onOpen(_ws)
-   onClose(_ws, aCode, aReason, hasInitByRemote)
-   onMessage(_ws, aMessage)
-   onPong(_ws, aPong)
-   onException(_ws, anException)
+- `onOpen(_ws)`
+- `onClose(_ws, aCode, aReason, hasInitByRemote)`
+- `onMessage(_ws, aMessage)`
+- `onPong(_ws, aPong)`
+- `onException(_ws, anException)`
 
-To serve all routes and static resources under a subpath (e.g. when running behind a reverse proxy), set the
-HTTPD_PREFIX flag before calling start: __flags.HTTPD_PREFIX = { "0": "/app" } (key "0" is the global default;
-use a specific port number string, e.g. "8080", to override per port). See ow.server.httpd.getPrefix/withPrefix/stripPrefix.
-
-````
 ### ow.server.httpd.stop
 
-__ow.server.httpd.stop(aHTTPd)__
+`ow.server.httpd.stop(aHTTPd)`
 
-````
+````text
 Will stop the aHTTPd server running.  (available after ow.loadServer())
 ````
-### ow.server.httpd.stripPrefix
 
-__ow.server.httpd.stripPrefix(aHTTPdOrPort, aURI) : String__
-
-````
-Removes the configured HTTPD_PREFIX from aURI, useful for internal route matching when the server is deployed
-behind a reverse proxy under a subpath. If aURI does not start with the prefix it is returned unchanged.
-````
-### ow.server.httpd.withPrefix
-
-__ow.server.httpd.withPrefix(aHTTPdOrPort, aURI) : String__
-
-````
-Prepends the configured HTTPD_PREFIX to aURI (skips absolute URLs, e.g. "http://..."). All built-in GUI pages and
-static-file handlers automatically use this to build links so they keep working under a configured path prefix.
-````
 ### ow.server.jmx.call
 
-__ow.server.jmx.call(aJMXObject, objName, aOperation, param1, ...) : value__
+`ow.server.jmx.call(aJMXObject, objName, aOperation, param1, ...) : value`
 
-````
-Invokes aOperation on the object objName using aJMXObject connected to a server using ow.server.jmx.serverExec. Optionally you can provide extra arguments to be passed to the jmx remote operation. Example (based on ow.server.jmx.serverExec):
+Invokes `aOperation` on the object `objName` using `aJMXObject` connected to a server using `ow.server.jmx.serverExec`. Optionally
+you can provide extra arguments to be passed to the jmx remote operation. Example (based on `ow.server.jmx.serverExec`):
 
+```javascript
 var jmx = ow.loadServer().jmx.localConnect("12345");
 ow.server.jmx.call(jmx, "com.openaf:type=server", "increment"); // 1
 ow.server.jmx.call(jmx, "com.openaf:type=server", "resetTo", 10); // 10
-````
+```
+
 ### ow.server.jmx.get
 
-__ow.server.jmx.get(aJMXObject, objName, aProperty) : value__
+`ow.server.jmx.get(aJMXObject, objName, aProperty) : value`
 
-````
+````text
 Returns the current value of aProperty on the object objName using aJMXObject connected to a JMX server.
 ````
+
 ### ow.server.jmx.localConnect
 
-__ow.server.jmx.localConnect(aPid) : JMX__
+`ow.server.jmx.localConnect(aPid) : JMX`
 
-````
+````text
 Tries to connect with a local aPid via JMX and returns a JMX plugin object instance. If no aPid is provided it will try to retrieve the current process pid and connect to it.
 ````
+
 ### ow.server.jmx.serverExec
 
-__ow.server.jmx.serverExec(aParamsArray, aFunction)__
+`ow.server.jmx.serverExec(aParamsArray, aFunction)`
 
-````
-Helper function to be used with JMXServers. Receives aParamsArray passed on the JMX bean operations handling function and will call aFunction passing the parameters as arguments and converting the returned result into a JSON string to be transmitted to the calling JMX client. Example:
+Helper function to be used with JMXServers. Receives `aParamsArray` passed on the JMX bean operations handling function
+and will call `aFunction` passing the parameters as arguments and converting the returned result into a JSON string to
+be transmitted to the calling JMX client. Example:
 
+```javascript
 plugin("JMX");
 var jmxs = new JMXServer("com.openaf:type=server");
 jmxs.start();
@@ -746,67 +860,74 @@ jmxs.addBean({"count": "long", "increment": "operation", "resetTo": "operation"}
      }
   }
 );
-````
+```
+
 ### ow.server.jmx.set
 
-__ow.server.jmx.set(aJMXObject, objName, aProperty, aNewValue)__
+`ow.server.jmx.set(aJMXObject, objName, aProperty, aNewValue)`
 
-````
+````text
 Sets aProperty with the value aNewValue on the object objName using aJMXObject connected to a JMX server.
 ````
+
 ### ow.server.jsonRPC
 
-__ow.server.jsonRPC(data, mapOfFns) : Map__
+`ow.server.jsonRPC(data, mapOfFns) : Map`
 
-````
+````text
 Processes a JSON-RPC request (data) using the provided mapOfFns where each key is the method name and the value is the function to be executed. The data should be a map with the following entries: jsonrpc (should be "2.0"), method (the method name to be executed), params (optional, the parameters to be passed to the method) and id (optional, the request id). Returns a map with the following entries: jsonrpc (should be "2.0"), id (the request id), result (the result of the method execution) or error (if the method is unknown or if the request is invalid).
 ````
+
 ### ow.server.jwt.decode
 
-__ow.server.jwt.decode(aToken) : Map__
+`ow.server.jwt.decode(aToken) : Map`
 
-````
+````text
 Tries to decode the JWT aToken provided.
 ````
+
 ### ow.server.jwt.genKey
 
-__ow.server.jwt.genKey(aAlgorithm) : JavaObject__
+`ow.server.jwt.genKey(aAlgorithm) : JavaObject`
 
-````
+````text
 Generates a key for the provided aAlgorithm (defaults to HS256). If aAlgorithm is not HS256, HS384 or HS512 the generated object will be a key pair for which you will need to user .getPrivate() for signing and .getPublic() for verify. Possible algorithms: HS256, HS384, HS512, ES256, ES384, ES512, RS256, RS384, RS512, PS256 (java >= 11), PS384 (java >= 11), PS512 (java >= 11)
 ````
+
 ### ow.server.jwt.sign
 
-__ow.server.jwt.sign(aKey, aData) : String__
+`ow.server.jwt.sign(aKey, aData) : String`
 
-````
-Signs a JWT using aKey (either a string or java.security.Key) returning the corresponding encoded JWT. To add specific claims use aData map where you can add custom headers and/or custom claims or used the standard fields.  Expected keys for aData:
+Signs a JWT using `aKey` (either a string or java.security.Key) returning the corresponding encoded JWT. To
+add specific claims use `aData` map where you can add custom headers and/or custom claims or used the standard fields.
+Expected keys for `aData`:
 
-   audience    (String)
-   claims      (Map)
-   expiration  (Date)
-   headers     (Map)
-   issuer      (String)
-   id          (String)
-   issuedAt    (Date)
-   issuer      (String)
-   notBefore   (Date)
-   subject     (String)
-````
+- `audience` (String)
+- `claims` (Map)
+- `expiration` (Date)
+- `headers` (Map)
+- `issuer` (String)
+- `id` (String)
+- `issuedAt` (Date)
+- `issuer` (String)
+- `notBefore` (Date)
+- `subject` (String)
+
 ### ow.server.jwt.verify
 
-__ow.server.jwt.verify(aSecret1, aToken) : Map__
+`ow.server.jwt.verify(aSecret1, aToken) : Map`
 
-````
+````text
 Verifies the JWT provided with aToken using aSecret1 (key (either a string or java.security.Key)). Returns the converted json headers and claims. If any verification fails it will throw a JavaException.
 ````
+
 ### ow.server.ldap
 
-__ow.server.ldap(aServer, aUsername, aPassword) : Object__
+`ow.server.ldap(aServer, aUsername, aPassword) : Object`
 
-````
-Creates a ow.server.ldap object for the given aServer, aUsername and aPassword. Example:
+Creates a `ow.server.ldap` object for the given `aServer`, `aUsername` and `aPassword`. Example:
 
+```javascript
 var ldapAdServer = "ldap://ldap.forumsys.com:389";
 var ldapUsername = "cn=read-only-admin,dc=example,dc=com";
 var ldapPassword = "password";
@@ -815,108 +936,203 @@ var ldap = new ow.server.ldap(ldapAdServer, ldapUsername, ldapPassword);
 var res = ldap.search("dc=example,dc=com", "(uid=*)");
 
 print(beautifier(res));
+```
 
-````
 ### ow.server.ldap.close
 
-__ow.server.ldap.close()__
+`ow.server.ldap.close()`
 
-````
+````text
 Closes the current connection.
 ````
+
 ### ow.server.ldap.search
 
-__ow.server.ldap.search(baseSearch, searchFilter) : Array__
+`ow.server.ldap.search(baseSearch, searchFilter) : Array`
 
-````
+````text
 Tries to return the result of using searchFilter under the baseSearh. See also ow.server.ldap
 ````
+
 ### ow.server.ldap.searchStrings
 
-__ow.server.ldap.searchStrings(baseSearch, searchFilter) : Array__
+`ow.server.ldap.searchStrings(baseSearch, searchFilter) : Array`
 
-````
+````text
 Tries to return the result of using searchFilter under the baseSearch converting each entry to string See also ow.server.ldap
 ````
+
 ### ow.server.ldap.startTLS
 
-__ow.server.ldap.startTLS()__
+`ow.server.ldap.startTLS()`
 
-````
+````text
 Starts TLS over the current connection.
 ````
+
 ### ow.server.locks
 
-__ow.server.locks(justInternal, aCh, aOptions)__
+`ow.server.locks(justInternal, aCh, aOptions)`
 
-````
+````text
 Creates a lock managing object instance. You can optional make it internal (using a __openAFLocks::local simple channel) or global using a __openAFLocks:global ignite channel. Optional you can also provide an already created channel aCh. aOptions is forwarded to new global Ignite channels.
 ````
+
 ### ow.server.locks.clear
 
-__ow.server.locks.clear(aLockName)__
+`ow.server.locks.clear(aLockName)`
 
-````
+````text
 Clears an existing aLockName. Note: This might also unlock an inuse lock.
 ````
+
 ### ow.server.locks.extendTimeout
 
-__ow.server.locks.extendTimeout(aLockName, aTryTimeout) : Objet__
+`ow.server.locks.extendTimeout(aLockName, aTryTimeout) : Objet`
 
-````
+````text
 Tries to extend the lock timeout (or adds a timeout if doesn't exist) with aTryTimeout for aLockName.
 ````
+
 ### ow.server.locks.isLocked
 
-__ow.server.locks.isLocked(aLockName) : Map__
+`ow.server.locks.isLocked(aLockName) : Map`
 
-````
+````text
 Returns the lock record; its value property indicates whether the lock is held. Storage errors propagate to the caller.
 ````
+
 ### ow.server.locks.lock
 
-__ow.server.locks.lock(aLockName, aTryTimeout, aNumRetries, aLockTimeout) : boolean__
+`ow.server.locks.lock(aLockName, aTryTimeout, aNumRetries, aLockTimeout) : boolean`
 
-````
+````text
 Locks the lock aLockName optionally using a specific aTryTimeout and aNumRetries instead of the defaults ones (see ow.server.locks.setTryTimeout and ow.server.locks.setRetries). A aLockTimeout can optionally be provided after which the lock will expire. If successfull in locking returns true, otherwiser returns false.
 ````
+
 ### ow.server.locks.setRetries
 
-__ow.server.locks.setRetries(aNumber)__
+`ow.server.locks.setRetries(aNumber)`
 
-````
+````text
 Sets the number of tries for checking if a lock is free waiting a specific time on each (see ow.server.locks.setRetries). Defaults to 5.
 ````
+
 ### ow.server.locks.setTryTimeout
 
-__ow.server.locks.setTryTimeout(aTimeout)__
+`ow.server.locks.setTryTimeout(aTimeout)`
 
-````
+````text
 Sets the default wait time (in ms) for each try (see ow.server.locks.setRetries) checking if a lock is free. Defaults to 500 ms.
 ````
+
 ### ow.server.locks.unlock
 
-__ow.server.locks.unlock(aLockName)__
+`ow.server.locks.unlock(aLockName)`
 
-````
+````text
 Tries to unlock aLockName.
 ````
+
 ### ow.server.locks.whenUnLocked
 
-__ow.server.locks.whenUnLocked(aLockName, aFunction, aTryTimeout, aNumRetries) : boolean__
+`ow.server.locks.whenUnLocked(aLockName, aFunction, aTryTimeout, aNumRetries) : boolean`
 
-````
+````text
 A wrapper for ow.server.locks.lock that will try to lock aLockName, execute the provide function and then unlock it even in case an exception is raised. Returns if the lock was successfull (true) or not (false).
 ````
+
+### ow.server.mcp
+
+`ow.server.mcp`
+
+````text
+Shared Model Context Protocol version negotiation helpers used by ow.server.mcpStdio, ow.server.httpd.replyJSONRPC/replyMCP and OpenAF's oJob-based MCP servers (httpdMCP/stdioMCP shortcuts). Implements the 2026-07-28 "modern" stateless per-request protocol era alongside the legacy initialize-handshake eras (2024-11-05, 2025-06-18) without changing any default (legacy) behavior -- modern-era handling is only exercised by call sites that opt into it.
+````
+
+### ow.server.mcp.discoverResult
+
+`ow.server.mcp.discoverResult(initData) : Map`
+
+````text
+Builds the mandatory server/discover response (modern era) advertising this server's supported protocol versions, capabilities and identity.
+````
+
+### ow.server.mcp.eraOf
+
+`ow.server.mcp.eraOf(reqObj) : String`
+
+````text
+Classifies a parsed JSON-RPC request as "modern" (carries a modern params._meta protocol version), "legacy-initialize" (an initialize handshake request) or "legacy-stateless" (any other request, handled statelessly per today's default behavior).
+````
+
+### ow.server.mcp.invalidParamsError
+
+`ow.server.mcp.invalidParamsError(anId, aMessage, aData) : Map`
+
+````text
+Builds a JSON-RPC Invalid Params (-32602) error response, used when a modern-era request is missing a required params._meta field (e.g. io.modelcontextprotocol/clientCapabilities).
+````
+
+### ow.server.mcp.isModern
+
+`ow.server.mcp.isModern(aVersion) : boolean`
+
+````text
+Returns true if aVersion is a protocol version string on or after the modern (stateless, 2026-07-28+) era. Protocol version strings are YYYY-MM-DD so lexicographic comparison is a valid chronological ordering.
+````
+
+### ow.server.mcp.metaClientCapabilities
+
+`ow.server.mcp.metaClientCapabilities(reqObj) : Map`
+
+````text
+Extracts the per-request client capabilities from params._meta["io.modelcontextprotocol/clientCapabilities"], or __ if not present.
+````
+
+### ow.server.mcp.metaProtocolVersion
+
+`ow.server.mcp.metaProtocolVersion(reqObj) : String`
+
+````text
+Extracts the modern per-request protocol version from a parsed JSON-RPC request's params._meta field (io.modelcontextprotocol/protocolVersion), or __ if not present.
+````
+
+### ow.server.mcp.requestMeta
+
+`ow.server.mcp.requestMeta(reqObj) : Map`
+
+````text
+Returns the request's params._meta map (per the spec, _meta is nested inside params, not a top-level JSON-RPC envelope field), or __ if not present.
+````
+
+### ow.server.mcp.unsupportedVersionError
+
+`ow.server.mcp.unsupportedVersionError(anId, aRequestedVersion) : Map`
+
+````text
+Builds a JSON-RPC UnsupportedProtocolVersionError (-32022) response listing the versions this server supports.
+````
+
+### ow.server.mcp.wrapResult
+
+`ow.server.mcp.wrapResult(aBody, anEra, opts) : Map`
+
+````text
+Wraps a MCP result body per the negotiated era. Legacy eras ("legacy-initialize"/"legacy-stateless") return aBody unchanged -- zero behavior change for existing callers. The "modern" era merges in the required resultType ("complete"), and, when opts.isList is true, CacheableResult fields (ttlMs, cacheScope) with sensible defaults (opts.ttlMs default 0, opts.cacheScope default "private"). When opts.serverInfo is given, it is advertised (SHOULD, per spec) as result._meta["io.modelcontextprotocol/serverInfo"].
+````
+
 ### ow.server.mcpStdio
 
-__ow.server.mcpStdio(initData, fnsMeta, fns, lgF, opts)__
+`ow.server.mcpStdio(initData, fnsMeta, fns, lgF, opts)`
 
-````
-Processes a MCP (Model Context Protocol) request using standard input/output. The initData is a map with initial data to be sent to the client, fnsMeta is an array of function metadata and fns is a map of functions to be executed. The lgF is a function that will be used to log messages. If not provided, it will default to a function that writes logs to a file named "log.ndjson". The initData should contain the server information and capabilities. The fnsMeta should contain metadata about the functions available, such as their names and descriptions. The fns should contain the actual functions that can be called by the client. The function will listen for incoming MCP requests on standard input and respond accordingly.
+Processes a MCP (Model Context Protocol) request using standard input/output. The `initData` is a map with initial data to be sent to the client, `fnsMeta` is an array of function metadata and `fns` is a map of functions to be executed.
+The `lgF` is a function that will be used to log messages. If not provided, it will default to a function that writes logs to a file named "log.ndjson".
+The `initData` should contain the server information and capabilities. The `fnsMeta` should contain metadata about the functions available, such as their names and descriptions. The `fns` should contain the actual functions that can be called by the client.
+The function will listen for incoming MCP requests on standard input and respond accordingly.
 
-opts.rawToolResults (default false) preserves MCP content/structuredContent/isError envelopes returned by tools.
-opts is an optional map: { modern: false } (default). When modern is true this also serves the 2026-07-28
+`opts`.rawToolResults (default false) preserves MCP content/structuredContent/isError envelopes returned by tools.
+`opts` is an optional map: { modern: false } (default). When modern is true this also serves the 2026-07-28
 stateless/per-request MCP protocol era (per-request _meta protocol version, server/discover, resultType,
 ttlMs/cacheScope on list results, UnsupportedProtocolVersionError) side-by-side with the legacy
 initialize-handshake era used above, for any request that carries a modern _meta protocol version.
@@ -924,351 +1140,347 @@ When modern is false (the default) behavior is 100% unchanged from previous rele
 
 Example usage:
 
-     ow.server.mcpStdio({ 			serverInfo: { 				name: "MyServer", 				title: "My Server", 				version: "1.0.0" 			}, 			capabilities: { 				prompts: { 					listChanged: true 				}, 				tools: { 					listChanged: true 				} 			} 		}, [{ 		name: "ping", 		description: "Ping the server" 	}, { 		name: "get_user", 		description: "Get user information", 		input_schema: { 			type: "object", 			properties: { 				userId: { 					type: "string", 					description: "The ID of the user to retrieve" 				} 			}, 			required: ["userId"] 		} 	}], { 		ping: params => { 			return "Pong! Server is running." 		}, 		get_user: params => { 			return { 				name: "Alice", 				userId: params.userId 			} 		} 	})
-````
+```javascript
+     ow.server.mcpStdio({
+            serverInfo: {
+                name: "MyServer",
+                title: "My Server",
+                version: "1.0.0"
+            },
+            capabilities: {
+                prompts: {
+                    listChanged: true
+                },
+                tools: {
+                    listChanged: true
+                }
+            }
+        }, [{
+        name: "ping",
+        description: "Ping the server"
+    }, {
+        name: "get_user",
+        description: "Get user information",
+        input_schema: {
+            type: "object",
+            properties: {
+                userId: {
+                    type: "string",
+                    description: "The ID of the user to retrieve"
+                }
+            },
+            required: ["userId"]
+        }
+    }], {
+        ping: params => {
+            return "Pong! Server is running."
+        },
+        get_user: params => {
+            return {
+                name: "Alice",
+                userId: params.userId
+            }
+        }
+    })
+```
+
 ### ow.server.openafServer.exec
 
-__ow.server.openafServer.exec(aId, aScript, aServerPid)__
+`ow.server.openafServer.exec(aId, aScript, aServerPid)`
 
-````
+````text
 Tries to execute the given aScript locally or in the aServerPid provided (created by a ow.server.openafServer.start). Optionally you can also specify aId.
 ````
+
 ### ow.server.openafServer.load
 
-__ow.server.openafServer.load(aId, aScriptFilePath, aServerPid)__
+`ow.server.openafServer.load(aId, aScriptFilePath, aServerPid)`
 
-````
+````text
 Tries to execute the given aScriptFilePath locally or in the aServerPid provided (created by a ow.server.openafServer.start). Optionally you can also specify aId.
 ````
+
 ### ow.server.openafServer.start
 
-__ow.server.openafServer.start(aId, aPort, notLocal)__
+`ow.server.openafServer.start(aId, aPort, notLocal)`
 
-````
+````text
 Starts an internal JMX server with a give optional aId. If there is a need to access it externally  (do keep in mind security) you can provide also aPort. This server allows for the load or execution  of OpenAF scripts. In extreme cases you can use notLocal = true to make the server available outside the localhost (NOT ADVISABLE!).
 ````
+
 ### ow.server.openafServer.stop
 
-__ow.server.openafServer.stop()__
+`ow.server.openafServer.stop()`
 
-````
+````text
 Attempts to stop the existing server.
 ````
+
 ### ow.server.processArguments
 
-__ow.server.processArguments(aRouterFunction, aMainSeparator, aSubSeparator) : Array__
+`ow.server.processArguments(aRouterFunction, aMainSeparator, aSubSeparator) : Array`
 
-````
-Processes the __expr (-e or opack arguments) value for arguments splitting first by aMainSeparator (if not defined defaults to " ") and then splitting by aSubSeparator (if not defined defaults to "="). Example with  __expr = "opensomething exec count=5=123 some=1
+Processes the `__expr` (-e or opack arguments) value for arguments splitting first by `aMainSeparator` (if not defined
+defaults to " ") and then splitting by `aSubSeparator` (if not defined defaults to "="). Example with
+
+```javascript
+__expr = "opensomething exec count=5=123 some=1";
 
 ow.server.processArguments(function(aParam) { ... });
+```
 
-Will produce function calls where aParam will have the following values:
+Will produce function calls where `aParam` will have the following values:
 
+```text
 "opensomething"
 "exec"
 [ "count", "5", "123" ]
 [ "some", "1" ]
+```
 
-(available after ow.loadServer())
-````
+(available after `ow.loadServer()`)
+
 ### ow.server.queue
 
-__ow.server.queue(aStamp, aName, aChName)__
+`ow.server.queue(aStamp, aName, aChName)`
 
-````
+````text
 Creates an instance to handle a queue on a channel named "queue::[aName]" or using aChName. The queue entries  will be identified on the channel with aStamp map (defaults to {}) ignoring all other entries. aStamp allows the use of generic channels with other non-queue entries. aName will default to "queue" if not provided.
 ````
+
 ### ow.server.queue.delete
 
-__ow.server.queue.delete(aId)__
+`ow.server.queue.delete(aId)`
 
-````
+````text
 Tries to delete a queue unique entry identified by aId.
 ````
+
 ### ow.server.queue.increaseVisibility
 
-__ow.server.queue.increaseVisibility(aId, aVisibilityTime)__
+`ow.server.queue.increaseVisibility(aId, aVisibilityTime)`
 
-````
+````text
 Tries to set the visibility of a queue aId to now + aVisibilityTime ms. Note: the queue aId should have been already received previously with a specific visibility time.
 ````
+
 ### ow.server.queue.purge
 
-__ow.server.queue.purge()__
+`ow.server.queue.purge()`
 
-````
+````text
 Tries to delete all queue entries.
 ````
+
 ### ow.server.queue.receive
 
-__ow.server.queue.receive(aVisibilityTime, aWaitTime, aPoolTime) : Map__
+`ow.server.queue.receive(aVisibilityTime, aWaitTime, aPoolTime) : Map`
 
-````
+````text
 Tries to return an object from the queue within a map composed of two entries: idx (the unique index on the queue) and obj (the object/map queued). If aVisibilityTime is defined, the returned entry identified by idx will be returned to the queue if ow.server.queue.delete is not used within aVisibilityTime defined in ms. Optionally you can also provide aWaitTime for how much to wait for an entry to be available on the queue (defaults to 2,5 seconds) and aPoolTime (defaults to 50ms) of queue pooling interval.
 ````
+
 ### ow.server.queue.send
 
-__ow.server.queue.send(aObject, aId, aTTL, aPriority) : Object__
+`ow.server.queue.send(aObject, aId, aTTL, aPriority) : Object`
 
-````
+````text
 Sends aObject (map) to the queue. Optionally a specific unique aId can be provided and/or aTTL (time to live) for the object in the queue in ms. Optionally aPriority can be provided and will be prefixed to aId. The final unique aId will be returned and used as the sorting based for returning objects from the queue (the lowest first).
 ````
+
 ### ow.server.queue.size
 
-__ow.server.queue.size() : Number__
+`ow.server.queue.size() : Number`
 
-````
+````text
 Tries to return an estimative of the current queue size.
 ````
+
 ### ow.server.rest.parseIndexes
 
-__ow.server.rest.parseIndexes(aBaseURI, aHTTPRequest) : Map__
+`ow.server.rest.parseIndexes(aBaseURI, aHTTPRequest) : Map`
 
-````
+````text
 Given aBaseURI and aHTTPRequest will parse and determine the implicit REST API indexes
 ````
+
 ### ow.server.rest.reply
 
-__ow.server.rest.reply(aBaseURI, aRequest, aCreateFunc, aGetFunc, aSetFunc, aRemoveFunc, returnWithParams, anAuditFn, returnHTML) : RequestReply__
+`ow.server.rest.reply(aBaseURI, aRequest, aCreateFunc, aGetFunc, aSetFunc, aRemoveFunc, returnWithParams, anAuditFn, returnHTML) : RequestReply`
 
-````
-Provides a REST compliant HTTPServer request replier given a aBaseURI, aRequest, aCreateFunc, aGetFunc, aSetFunc and aRemoveFunc. Each function will receive a map with the provided indexes and data from the request plus the request itself. Optionally you can  specify with returnWithParams = true that each function will not return just the data map but a composed map with: data (the actual json of data), status (the HTTP code to return) and mimetype.
+> Example formatting/syntax corrected against the implementation; the signature is unchanged.
 
+Provides a REST compliant HTTPServer request replier given a `aBaseURI`, `aRequest`, `aCreateFunc`, `aGetFunc`, `aSetFunc`
+and `aRemoveFunc`. Each function will receive a map with the provided indexes and data from the request plus the request itself. Optionally you can
+specify with `returnWithParams` = true that each function will not return just the data map but a composed map with: data (the actual
+json of data), status (the HTTP code to return) and mimetype.
+
+```javascript
 var hs = ow.loadServer().httpd.start(8080);
 ow.server.httpd.route(hs, ow.server.httpd.mapRoutesWithLibs(hs, {
    "/rest": function(req) { return ow.server.rest.reply("/rest", req,
-      function(idxs, data, r) { // Create and return a map },
-      function(idxs, r)       { // Get and return a map },
-      function(idxs, data, r) { // Set and return a map },
-      function(idxs, r)       { // Remove and return a map }
-   )}}, function(req) { return hs.replyOKText("nothing here"); });
+      function(idxs, data, r) { /* Create and return a map */ return {}; },
+      function(idxs, r)       { /* Get and return a map */ return {}; },
+      function(idxs, data, r) { /* Set and return a map */ return {}; },
+      function(idxs, r)       { /* Remove and return a map */ return {}; }
+   )}}), function(req) { return hs.replyOKText("nothing here"); });
 ow.server.daemon();
-\  Optionally you can also provide anAuditFn that will be called on every request with the arguments request and reply maps.
+```
 
+Optionally you can also provide `anAuditFn` that will be called on every request with the arguments request and reply maps.
 
-````
 ### ow.server.rest.replyData
 
-__ow.server.rest.replyData(aBaseURI, aRequest, aDataArray) : RequestReply__
+`ow.server.rest.replyData(aBaseURI, aRequest, aDataArray) : RequestReply`
 
-````
-Provides a REST JSON compliant HTTPServer request replier given a aBaseURI, aRequest and aDataArray.  The data array provided will be manipulated by REST calls.
+> Example formatting/syntax corrected against the implementation; the signature is unchanged.
 
+Provides a REST JSON compliant HTTPServer request replier given a `aBaseURI`, `aRequest` and `aDataArray`.
+The data array provided will be manipulated by REST calls.
+
+```javascript
 var hs = ow.loadServer().httpd.start(8080);
 ow.server.httpd.route(hs, ow.server.httpd.mapRoutesWithLibs(hs, {
    "/rest": function(req) {
       return ow.server.rest.replyData("/rest", req, myData);
-   });
+   }
+}), function(req) { return hs.replyNotFound(); });
 ow.server.daemon();
-\
-````
+```
+
 ### ow.server.rest.writeIndexes
 
-__ow.server.rest.writeIndexes(aPropsMap) : String__
+`ow.server.rest.writeIndexes(aPropsMap) : String`
 
-````
+````text
 Given a map of REST API indexes (aPropsMap) will return a corresponding URI. Note: just a shortcut for ow.obj.rest.writeIndexes.
 ````
+
 ### ow.server.scheduler.addEntry
 
-__ow.server.scheduler.addEntry(aCronExpr, aFunction, waitForFinish) : String__
+`ow.server.scheduler.addEntry(aCronExpr, aFunction, waitForFinish) : String`
 
-````
+````text
 Adds a new scheduler entry with a given aCronExpr"ession" that will trigger the scheduled execution of aFunction. If waitForFinish = true it will not execute until the previous execution has finished. Returns an UUID that can be used with the function modifyEntry later, if needed.
 ````
+
 ### ow.server.scheduler.modifyEntry
 
-__ow.server.scheduler.modifyEntry(aUUID, aCronExpr, aFunction, waitForFinish) : String__
+`ow.server.scheduler.modifyEntry(aUUID, aCronExpr, aFunction, waitForFinish) : String`
 
-````
+````text
 Changes an existing scheduler entry (aUUID) with a given aCronExpr"ession" that will trigger the scheduled execution of aFunction. If waitForFinish = true it will not execute until the previous execution has finished.
 ````
+
 ### ow.server.scheduler.nextUUID
 
-__ow.server.scheduler.nextUUID() : String__
+`ow.server.scheduler.nextUUID() : String`
 
-````
+````text
 Returns the uuid of the next entry that will be executed.
 ````
+
 ### ow.server.scheduler.resetSchThread
 
-__ow.server.scheduler.resetSchThread(aErrFunction)__
+`ow.server.scheduler.resetSchThread(aErrFunction)`
 
-````
+````text
 Resets the current scheduler thread pool adding a loop cached thread that will sleep until the next execution is due. When it executes it will add a new cached thread to execute the scheduled entry by executing the entry function provided, as argument, it's uuid.
 ````
+
 ### ow.server.scheduler.scheduler
 
-__ow.server.scheduler.scheduler()__
+`ow.server.scheduler.scheduler()`
 
-````
+````text
 Creates a new instance of a cron based scheduler with its own thread pool.
 ````
+
 ### ow.server.scheduler.stop
 
-__ow.server.scheduler.stop()__
+`ow.server.scheduler.stop()`
 
-````
+````text
 Attempts to force stop the current scheduler thread pool.
 ````
+
 ### ow.server.scheduler.timeUntilNext
 
-__ow.server.scheduler.timeUntilNext() : Number__
+`ow.server.scheduler.timeUntilNext() : Number`
 
-````
+````text
 Returns the number of ms until the next scheduled execution.
 ````
+
 ### ow.server.simpleCheckIn
 
-__ow.server.simpleCheckIn(aName)__
+`ow.server.simpleCheckIn(aName)`
 
-````
+````text
 If aName is provided it will check for 'aName.pid'. If the pid is running it will stop the current execution unless  stop or restart is provided as a script parameter. If stop is provided as a script parameter it will stop execution and try to kill the existing pid (force stop will try to kill it anyway). If restart is provided as a script parameter it will continue execution and try to kill the existing pid.
 ````
+
 ### ow.server.socket.start
 
-__ow.server.socket.start(aPort, aFunction, aBackLog, aBindAddr)__
+`ow.server.socket.start(aPort, aFunction, aBackLog, aBindAddr)`
 
-````
-Starts a thread listening on aPort with aBackLog (defaults to a queue of 50 connections in waiting) on aBindAddr (defaults to "0.0.0.0"). Whenever a connection is established aFunction will be called with the corresponding java.net.Socket and a java.net.ServerSocket. Examples:
+Starts a thread listening on `aPort` with `aBackLog` (defaults to a queue of 50 connections in waiting) on `aBindAddr` (defaults to "0.0.0.0").
+Whenever a connection is established `aFunction` will be called with the corresponding java.net.Socket and a java.net.ServerSocket. Examples:
 
+```javascript
 ow.loadServer();
 ow.server.socket.start(12345, (clt, srv) => {
-   log("Connection from " + clt.getInetAddress().getHostAddress());    ioStreamReadLines(clt.getInputStream(), stream => {
+   log("Connection from " + clt.getInetAddress().getHostAddress());
+   ioStreamReadLines(clt.getInputStream(), stream => {
       print(stream);
       ioStreamWrite(clt.getOutputStream(), stream);
       clt.getOutputStream().flush();
-	     clt.shutdownInput();
+         clt.shutdownInput();
       clt.shutdownOutput();
       return true;
    });
    log("closing...");
    clt.close();
 });
+```
 
-
-````
 ### ow.server.socket.stop
 
-__ow.server.socket.stop(aPort)__
+`ow.server.socket.stop(aPort)`
 
-````
+````text
 Stops a thread socket server on aPort previously started by ow.server.socket.start.
 ````
+
 ### ow.server.telemetry.active
 
-__ow.server.telemetry.active(aSendFunc, aPeriod)__
+`ow.server.telemetry.active(aSendFunc, aPeriod)`
 
-````
+````text
 Setup recurrent execution of aSendFunc with the propose of sending ow.metrics for a provided aPeriod (defaults to 60000 ms).
 ````
+
 ### ow.server.telemetry.passive
 
-__ow.server.telemetry.passive(aHTTPdOrPort, aURI, useOpenMetrics, openMetricsPrefix, openMetricsHelp)__
+`ow.server.telemetry.passive(aHTTPdOrPort, aURI, useOpenMetrics, openMetricsPrefix, openMetricsHelp, openMetricsStrict)`
 
+````text
+Setup a HTTPd server on aHTTPdOrPort (defaults to 7777) on the aURI (defaults to /healthz) to  serve ow.metrics.getAll. If the parameter "s" is present the value will be split by commas and used for ow.metrics.getSome. Optionally if useOpenMetrics = true the default of aURI becomes /metrics and the output becomes open metrics (prometheus) using openMetricsPrefix (defaults to "metric") and uses the openMetricsHelp where each key is a open metric entry associated with map with text (description text), help (help text) and type (metrics type). OpenMetrics responses default to strict OpenMetrics 1.0 text (unknown, gauge and counter scalar families), with the versioned content type and EOF marker. Set openMetricsStrict to false for the legacy Prometheus text output.
 ````
-Setup a HTTPd server on aHTTPdOrPort (defaults to 7777) on the aURI (defaults to /healthz) to  serve ow.metrics.getAll. If the parameter "s" is present the value will be split by commas and used for ow.metrics.getSome. Optionally if useOpenMetrics = true the default of aURI becomes /metrics and the output becomes open metrics (prometheus) using openMetricsPrefix (defaults to "metrics") and uses the openMetricsHelp where each key is a open metric entry associated with map with text (description text), help (help text) and type (metrics type).
-````
-### ow.server.telemetry.send2nAttrMon
 
-__ow.server.telemetry.send2nAttrMon(anAttrMonCValsURL, anAttrPrefix, anArrayOfMetricNames) : Function__
-
-````
-Returns a function to be used with ow.server.telemetry.active to send metrics to nAttrMon using the provided anAttrMonCValsURL, anAttrPrefix (e.g. "myjobname/") and, optionally, an array of metrics (anArrayOfMetricsNames)
-````
 ### ow.server.telemetry.send2Prometheus
 
-__ow.server.telemetry.send2Prometheus(aPrometheusGatewayURL, aPrefix, anArrayOfMetricNames) : Function__
+`ow.server.telemetry.send2Prometheus(aPrometheusGatewayURL, aPrefix, anArrayOfMetricNames) : Function`
 
-````
+````text
 Returns a function to be used with ow.server.telemetry.active to send metrics to a OpenMetrics/Prometheus gateway using the provided aPrometheusGatewayURL with aPrefix (e.g. "myjobname") and, optionally, an array of metrics (anArrayOfMetricsNames)
 ````
 
-### ow.server.mcp
+### ow.server.telemetry.send2nAttrMon
 
-__ow.server.mcp__
+`ow.server.telemetry.send2nAttrMon(anAttrMonCValsURL, anAttrPrefix, anArrayOfMetricNames) : Function`
 
+````text
+Returns a function to be used with ow.server.telemetry.active to send metrics to nAttrMon using the provided anAttrMonCValsURL, anAttrPrefix (e.g. "myjobname/") and, optionally, an array of metrics (anArrayOfMetricsNames)
 ````
-Shared Model Context Protocol version negotiation helpers used by ow.server.mcpStdio, ow.server.httpd.replyJSONRPC/replyMCP and OpenAF's oJob-based MCP servers (httpdMCP/stdioMCP shortcuts). Implements the 2026-07-28 "modern" stateless per-request protocol era alongside the legacy initialize-handshake eras (2024-11-05, 2025-06-18) without changing any default (legacy) behavior -- modern-era handling is only exercised by call sites that opt into it.
-````
-
-### ow.server.mcp.isModern
-
-__ow.server.mcp.isModern(aVersion) : boolean__
-
-````
-Returns true if aVersion is a protocol version string on or after the modern (stateless, 2026-07-28+) era. Protocol version strings are YYYY-MM-DD so lexicographic comparison is a valid chronological ordering.
-````
-
-### ow.server.mcp.requestMeta
-
-__ow.server.mcp.requestMeta(reqObj) : Map__
-
-````
-Returns the request's params._meta map (per the spec, _meta is nested inside params, not a top-level JSON-RPC envelope field), or __ if not present.
-````
-
-### ow.server.mcp.metaProtocolVersion
-
-__ow.server.mcp.metaProtocolVersion(reqObj) : String__
-
-````
-Extracts the modern per-request protocol version from a parsed JSON-RPC request's params._meta field (io.modelcontextprotocol/protocolVersion), or __ if not present.
-````
-
-### ow.server.mcp.metaClientCapabilities
-
-__ow.server.mcp.metaClientCapabilities(reqObj) : Map__
-
-````
-Extracts the per-request client capabilities from params._meta["io.modelcontextprotocol/clientCapabilities"], or __ if not present.
-````
-
-### ow.server.mcp.eraOf
-
-__ow.server.mcp.eraOf(reqObj) : String__
-
-````
-Classifies a parsed JSON-RPC request as "modern" (carries a modern params._meta protocol version), "legacy-initialize" (an initialize handshake request) or "legacy-stateless" (any other request, handled statelessly per today's default behavior).
-````
-
-### ow.server.mcp.unsupportedVersionError
-
-__ow.server.mcp.unsupportedVersionError(anId, aRequestedVersion) : Map__
-
-````
-Builds a JSON-RPC UnsupportedProtocolVersionError (-32022) response listing the versions this server supports.
-````
-
-### ow.server.mcp.invalidParamsError
-
-__ow.server.mcp.invalidParamsError(anId, aMessage, aData) : Map__
-
-````
-Builds a JSON-RPC Invalid Params (-32602) error response, used when a modern-era request is missing a required params._meta field (e.g. io.modelcontextprotocol/clientCapabilities).
-````
-
-### ow.server.mcp.wrapResult
-
-__ow.server.mcp.wrapResult(aBody, anEra, opts) : Map__
-
-````
-Wraps a MCP result body per the negotiated era. Legacy eras ("legacy-initialize"/"legacy-stateless") return aBody unchanged -- zero behavior change for existing callers. The "modern" era merges in the required resultType ("complete"), and, when opts.isList is true, CacheableResult fields (ttlMs, cacheScope) with sensible defaults (opts.ttlMs default 0, opts.cacheScope default "private"). When opts.serverInfo is given, it is advertised (SHOULD, per spec) as result._meta["io.modelcontextprotocol/serverInfo"].
-````
-
-### ow.server.mcp.discoverResult
-
-__ow.server.mcp.discoverResult(initData) : Map__
-
-````
-Builds the mandatory server/discover response (modern era) advertising this server's supported protocol versions, capabilities and identity.
-````
-
-### ow.server.httpd.oauth2
-
-__ow.server.httpd.oauth2(aOptions) : Object__
-
-````
-Creates a localhost OAuth2 authorization-code client. Requires authURL, tokenURL, clientId and an HTTP loopback redirectURI with an explicit port. authenticate() returns tokens, reusing or refreshing cached credentials; getAuthStatus() returns non-secret status; clearAuth() removes credentials; cancel() stops a pending login. Uses fresh state and S256 PKCE. Optional clientSecret, scope, audience, resource, extraAuthParams and extraParams configure the provider. authURL and tokenURL must use HTTPS unless they are loopback addresses or allowHTTP is true. interactive defaults to true, disableOpenBrowser to false, loginTimeoutMs to 300000, tokenTimeoutMs to 60000 and refreshWindowMs to 30000. onAuthorizationURL(url) receives the login URL after the listener is ready. tokenStore defaults to {type:"sec", repo:"oauth2", profile:"default"}; false disables persistence. Store options match $mcp's tokenStore (including synchronous custom stores). Tokens and expiry/identity metadata are encrypted using $sec; client secrets, codes, state and PKCE material are never persisted.
-````
+{% endraw %}

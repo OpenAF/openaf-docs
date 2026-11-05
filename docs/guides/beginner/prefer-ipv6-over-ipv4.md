@@ -34,5 +34,5 @@ The name dns.google now was solved to IPv6 _2001:4860:4860::8888_.
 The reverse preference can also be acheived with:
 
 ````bash
-$ export JDK_JAVA_OPTIONS="-Djava.net.preferIPv4Addresses=true"
+$ export JDK_JAVA_OPTIONS="-Djava.net.preferIPv6Addresses=false"
 ````

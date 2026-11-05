@@ -1,15 +1,18 @@
 ---
 layout: default
-title: "From an OpenAF script to an oJob"
+title: From an OpenAF script to an oJob
 parent: oJob
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/authoring.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # From an OpenAF script to an oJob
 
-[Index](../../../index.md) | [Recipes](authoring-recipes.md) | [Testing](authoring-testing.md)
+[Index](../index.md) | [Recipes](authoring-recipes.md) | [Testing](authoring-testing.md)
 
-This tutorial reads a JSON array, selects a status, optionally writes a result file, and prints JSON. It requires only OpenAF; no oPacks or credentials. Download the files in [examples/authoring](../../examples/authoring/index.md) and run commands from that directory. Existing output files are overwritten.
+This tutorial reads a JSON array, selects a status, optionally writes a result file, and prints JSON. It requires only OpenAF; no oPacks or credentials. Download the files in [examples/authoring](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/examples/authoring) and run commands from that directory. Existing output files are overwritten.
 
 ## Choose an entry point
 
@@ -73,4 +76,5 @@ openaf -f test-filter.js
 
 The [standalone assertions](../../examples/authoring/test-filter.js) verify selection and empty results. Test both CLIs with missing input, invalid JSON, and an object instead of an array. See [Testing](authoring-testing.md) for end-to-end checks and [embedded module testing](authoring-testing.md#test-an-embedded-module-from-a-file) to export, test, and re-embed the same source.
 
-Continue with [authoring recipes](authoring-recipes.md). Use [ojob-all.yaml](../../examples/ojob-all.yaml) as a syntax catalog, not an executable scaffold. For AI-assisted work, consult the [JavaScript skill](https://github.com/OpenAF/openaf/blob/a5181af6/skills/openaf-javascript/SKILL.md) and [oJob skill](https://github.com/OpenAF/openaf/blob/a5181af6/skills/ojob-authoring/SKILL.md).
+Continue with [authoring recipes](authoring-recipes.md). Use [ojob-all.yaml](../../examples/ojob-all.yaml) as a syntax catalog, not an executable scaffold. For AI-assisted work, consult the [JavaScript skill](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/skills/openaf-javascript/SKILL.md) and [oJob skill](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/skills/ojob-authoring/SKILL.md).
+{% endraw %}

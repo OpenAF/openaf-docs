@@ -25,19 +25,19 @@ _Note: If you want to use a specific JDBC driver class just replace by "new DB(j
 2. Get the number of columns from the JDBC ResultSet object:
 
 ````javascript
-var numberOfColumns = rs.getMetadata().getColumnCount();
+var numberOfColumns = rs.getMetaData().getColumnCount();
 ````
 
 3. Get the columns' metadata:
 
 ````javascript
-var columns = []; 
-for(let ci = 1; ci <= numberOfColumns; ci++) { 
-    columns.push({ 
-        name : rs.getMetaData().getColumnName(ci), 
-        type:  rs.getMetaData().getColumnTypeName(ci).toUpperCase(), 
+var columns = [];
+for(let ci = 1; ci <= numberOfColumns; ci++) {
+    columns.push({
+        name : rs.getMetaData().getColumnName(ci),
+        type:  rs.getMetaData().getColumnTypeName(ci).toUpperCase(),
         size : rs.getMetaData().getColumnDisplaySize(ci),
-        scale: rs.getMetaData().getScale(ci) 
+        scale: rs.getMetaData().getScale(ci)
     })
 };
 ````

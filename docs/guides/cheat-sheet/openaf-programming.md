@@ -23,7 +23,7 @@ List of functions to help you get started with any OpenAF script programming.
 
 Step-by-step "Hello World":
 
-1. Follow the [instructions to install/setup OpenAF](../index.md#Installing) if you haven't already
+1. Follow the [instructions to install/setup OpenAF](../../../installing.md) if you haven't already
 2. Create a text file "test.js" in an folder with the following contents:
 
 ```javascript
@@ -74,10 +74,10 @@ You can learn more how to print data with OpenAF in:
 
 | Function | Example | Description |
 |----------|-------------|---------|
-| io.readFileString(aFilename, anEncoding) | ```var str = io.readFileString("some/path/myfile.txt", "UTF-8")``` | Reads the contents of a provided filename into a string variable | 
+| io.readFileString(aFilename, anEncoding) | ```var str = io.readFileString("some/path/myfile.txt", "UTF-8")``` | Reads the contents of a provided filename into a string variable |
 | io.readFileJSON(aFilename) | ```var obj = io.readFileJSON("some/path/myfile.json")``` | Reads and parses the contents of a provided filename, as JSON, into an object variable |
-| io.writeFileString(aFilename, aString, anEnconding, shouldAppend) | ```io.writeFileString("some/path/myfile.txt", str, "UTF-8", false)``` | Writes the "str"ing variable contents into the provided filename |  
-| io.writeFileJSON(aFilename, aObj, aSpace) | ```io.writeFileJSON("some/path/myfile.json", obj, " ")``` | Writes an "obj"ect into a file, as JSON, with a provded spacing | 
+| io.writeFileString(aFilename, aString, anEnconding, shouldAppend) | ```io.writeFileString("some/path/myfile.txt", str, "UTF-8", false)``` | Writes the "str"ing variable contents into the provided filename |
+| io.writeFileJSON(aFilename, aObj, aSpace) | ```io.writeFileJSON("some/path/myfile.json", obj, " ")``` | Writes an "obj"ect into a file, as JSON, with a provded spacing |
 
 ### Example with a string:
 
@@ -124,7 +124,7 @@ You can learn more how to read and write files with OpenAF in:
 | Function | Example | Description |
 |----------|-------------|---------|
 | stringify(aObj, aReplacerFn, space) | ```var str = stringify(obj)``` | Converts a provide javascript object structure into a string JSON representation of the same |
-| jsonParse(aStr, useAlternative, useUnsafe, ignoreNonJson) | ```var obj = jsonParse(str)``` | Converts a string with a JSON representation of an object into a javascript object structure | 
+| jsonParse(aStr, useAlternative, useUnsafe, ignoreNonJson) | ```var obj = jsonParse(str)``` | Converts a string with a JSON representation of an object into a javascript object structure |
 
 ### Example:
 

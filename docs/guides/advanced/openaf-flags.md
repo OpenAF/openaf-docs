@@ -1,13 +1,16 @@
 ---
 layout: default
-title: "OpenAF & oJob Flags Reference"
+title: OpenAF & oJob Flags Reference
 parent: Advanced
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/openaf-flags.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # OpenAF & oJob Flags Reference
 
-[Index](../../../index.md) | [oJob Reference](../ojob/ojob-yaml-reference.md) | [Security](../ojob/ojob-security.md) | [Flags](openaf-flags.md) | [Recipes](../ojob/ojob-recipes.md) | [Advanced](openaf-advanced-guide.md)
+[Index](../index.md) | [oJob Reference](../ojob/ojob-yaml-reference.md) | [Security](../ojob/ojob-security.md) | [Flags](openaf-flags.md) | [Recipes](../ojob/ojob-recipes.md) | [Advanced](openaf-advanced-guide.md)
 
 Central list of noteworthy runtime flags and environment variables.
 
@@ -23,6 +26,30 @@ Central list of noteworthy runtime flags and environment variables.
 | OJOB_JSONLOG | (unset) | Force JSON logging format |
 | OJOB_AUTHORIZEDDOMAINS | ojob.io | Allowlist for remote includes |
 | OJOB_LOCALPATH | (unset) | Local path for ojob files resolution |
+
+## JDBC URL execution permissions
+
+Both `__flags` entries default to boolean `false`; only boolean `true` permits the
+covered mechanisms. Set them before creating trusted connections.
+
+| Flag | Default | Restriction and reason |
+| --- | --- | --- |
+| `DB_ALLOW_JDBC_URL_INIT` | false | Blocks covered URL initialization SQL and SQL script files, which can execute statements when a connection opens. |
+| `DB_ALLOW_JDBC_URL_CUSTOM_CLASSES` | false | Blocks covered URL-selected Java classes and indirect configuration selectors, which can execute code with the OpenAF process's permissions. |
+
+See [JDBC URL execution policy](jdbc-url-policy.md) for driver-specific options,
+examples, migration guidance and coverage boundaries. These permissions apply to
+core DB connections and are independent.
+
+## Alternative (native) implementations (`__flags.ALTERNATIVES`)
+
+Each flag selects a native Java implementation over the bundled JavaScript one when `true`. Set to `false` to fall back.
+
+| Flag | Default | Purpose |
+|------|---------|---------|
+| toTOON / fromTOON | true | Native Java TOON encoder/decoder (`af.toTOON`, `af.fromTOON`) |
+| path | true | Native Java JMESPath engine behind `$path` (`af.pathJava`, see [path-java.md](path-java.md)); `false` uses the bundled JavaScript `jmespath` |
+| jsonParse, merge, extend, traverse, colorify, listFilesRecursive, restart | true | See `openaf.js` ODoc for each |
 
 ## AI/LLM Configuration
 
@@ -41,9 +68,11 @@ Central list of noteworthy runtime flags and environment variables.
 | OAF_INTEGRITY | {} | Map of script integrity hashes |
 | OAF_INTEGRITY_WARN | true | Warn vs abort on mismatch |
 | OAF_INTEGRITY_STRICT | false | Require integrity entries |
-| OAF_SIGNATURE_STRICT | false | Require signed scripts |
-| OAF_SIGNATURE_KEY | (unset) | Public key for signature validation |
-| OAF_VALIDATION_STRICT | false | Require integrity + signature both |
+| OAF_SIGNATURE_STRICT | false | Reject script loading because no script signature format is currently defined |
+| OAF_SIGNATURE_KEY | (unset) | Reserved for a future documented script signature format |
+| OAF_VALIDATION_STRICT | false | Reject script loading until combined integrity and signature validation is defined |
+
+These script-policy flags apply to OpenAF's `load`, `require`, and compiled-library helpers. Low-level `af.eval`, `af.compile`, and `af.load` remain explicit trusted-code execution primitives.
 
 ## Server Management
 
@@ -86,3 +115,4 @@ print(stringify(__flags, void 0, '  '))
 
 ---
 See also: `ojob-security.md`, main guides.
+{% endraw %}

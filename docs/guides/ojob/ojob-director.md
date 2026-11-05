@@ -81,7 +81,7 @@ jobs:
 The Director uses an OpenAF channel to store job execution state:
 
 ```javascript
-{
+var example = {
   type: "director",      // Stamp field
   app: "myapp",          // Stamp field
   name: "process-data",  // Job name

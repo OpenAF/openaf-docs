@@ -5,9 +5,12 @@ parent: oJob
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/ojob-recipes.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # oJob Recipes
 
-[Index](../../../index.md) | [oJob Reference](ojob-yaml-reference.md) | [Security](ojob-security.md) | [Examples from ojob.io](ojob-examples.md)
+[Index](../index.md) | [oJob Reference](ojob-yaml-reference.md) | [Security](ojob-security.md) | [Examples from ojob.io](ojob-examples.md)
 
 Each YAML block below is a complete definition. Save it to a file and run `ojob file.yaml`. The periodic and subscriber recipes run until interrupted; the template recipe writes `greeting.txt`. These examples need only OpenAF. Larger integrations and their dependencies are listed in the [examples map](ojob-examples.md).
 
@@ -169,7 +172,7 @@ jobs:
 
 ## 6. Write a template result to a file
 
-`((outputFile))` selects a file. `((out))` selects a stored result key and does not write a file. Keep global argument templating disabled here so `{% raw %}{{name}}{% endraw %}` is resolved using the template job's `data`.
+`((outputFile))` selects a file. `((out))` selects a stored result key and does not write a file. Keep global argument templating disabled here so `{{name}}` is resolved using the template job's `data`.
 
 ```yaml
 ojob:
@@ -177,7 +180,7 @@ ojob:
   logToConsole: false
 
 todo:
-- (template): "Hello {% raw %}{{name}}{% endraw %}!"
+- (template): "Hello {{name}}!"
   ((data)): { name: World }
   ((outputFile)): greeting.txt
 ```
@@ -316,3 +319,4 @@ For secrets, use `(secget)` with `((secOut))` to choose the destination in `args
 For metrics, configure `ojob.metrics.add` for collectors, `ojob.metrics.passive` for an endpoint, and `ojob.metrics.active` for push delivery. The push interval is `ojob.metrics.active.periodInMs`, alongside `openmetrics` or `nattrmon`. Use [instrumentation](../advanced/instrumentation.md) for tracing rather than treating metrics as job execution records.
 
 For package jobs, copy the source definition's `ojob.opacks` **and** its `include`/`jobsInclude` entries. HTTP/MCP shortcuts are supplied by those libraries. Review the [source examples](ojob-examples.md) before adapting an integration to your environment.
+{% endraw %}

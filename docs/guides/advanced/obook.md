@@ -1,9 +1,12 @@
 ---
 layout: default
-title: "OpenAF Interactive Notebooks (oBook) Guide"
+title: OpenAF Interactive Notebooks (oBook) Guide
 parent: Advanced
 grand_parent: Guides
 ---
+
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/obook.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
 
 # OpenAF Interactive Notebooks (oBook) Guide
 
@@ -122,3 +125,4 @@ When `oBook` executes in an interactive terminal, the user can navigate steps us
 | **`[Up Arrow]`** | Go back to previous step. |
 | **`[Ctrl+U]`** | Suspend oBook execution and drop back to interactive OpenAF console prompt. |
 | **`'q'`** or **`[Escape]`** | Quit oBook. |
+{% endraw %}

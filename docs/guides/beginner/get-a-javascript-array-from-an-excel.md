@@ -7,7 +7,7 @@ grand_parent: Guides
 
 # Get a javascript array from an Excel
 
-In the same way you can [write a javascript array to an Excel](adding-array-to-an-excel-spreadsheet.md) it's equally easy to retrieve a javascript array from an existing Excel. Let's take this excel sheet as an example (from test.xlsx):
+In the same way you can [write a javascript array to an Excel](adding-an-array-to-an-excel-spreadsheet.md) it's equally easy to retrieve a javascript array from an existing Excel. Let's take this excel sheet as an example (from test.xlsx):
 
 ![get-a-javascript-array-from-an-excel](get-a-javascript-array-from-an-excel.png)
 

@@ -663,17 +663,17 @@ jobs:
     exec: |
       ow.loadObj();
 
+      // This endpoint must return a decoded JSON body with status: "UP".
       // Wait for service to be ready
       var ready = false;
       var attempts = 0;
 
       while (!ready && attempts < 30) {
         try {
-          var response = $rest({ throwExceptions: false })
-            .get("http://localhost:8080/health")
-            .getResponse();
+          var response = $rest({ throwExceptions: true, timeout: 5000 })
+            .get("http://localhost:8080/health");
 
-          if (response.status == 200) {
+          if (response.status == "UP") {
             ready = true;
             log("Service is healthy");
           }

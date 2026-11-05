@@ -1,61 +1,12 @@
-jobs:
-# --------------------
-- name: List all files
-  exec: |
-    ow.loadTemplate();
-    ow.template.addConditionalHelpers();
-    global.files = { advanced: [], beginner: [], medium: [], ojobio: [], oneliner: [] };
-    
-    $from( io.listFiles(".").files )
-    .equals("isDirectory", true)
-    .select(r => {
-      $from( io.listFiles(r.filename).files )
-      .equals("isFile", true)
-      .ends("filename", ".md")
-      .notEquals("filename", "index.md")
-      .sort("filename")
-      .select(s => {
-         var aTitle = io.readFileString(s.canonicalPath).match(/^title: (.+)$/m);
-         if (isNull(aTitle)) return;
-         global.files[r.filename].push({ title: aTitle[1], location: "/docs/guides/" + r.filename + "/" + s.filename.replace(/\.md$/, "") });
-      });
-    });
-
-# -----------------
-- name: Generate MD
-  exec: |
-    var localFiles = clone(global.files);
-
-    localFiles.title = args.title;
-    localFiles.includeBeginner = (args.title == 'Guide' || args.title == 'Beginner');
-    localFiles.includeMedium   = (args.title == 'Guide' || args.title == 'Medium');
-    localFiles.includeAdvanced = (args.title == 'Guide' || args.title == 'Advanced');
-    localFiles.includeOneLiner = (args.title == 'Guide' || args.title == 'OneLiner');
-    localFiles.includeOJobIO   = (args.title == 'Guide' || args.title == 'oJobIO');
-    localFiles.navOrder = args.navOrder;
-
-    tlog("Generating {% raw %}{{file}}{% endraw %} for ({% raw %}{{title}}{% endraw %})", args);
-    io.writeFileString(args.file, templify( io.readFileString("index.hbs"), localFiles ) );
-
+# Run from repository root: ojob docs/guides/index.yaml
+# All nine sections are generated from Markdown front matter.
 todo:
-- name: List all files
-- name: Generate MD
-  args:
-  - file    : index.md
-    title   : Guides
-    navOrder: 2
-  - file    : beginner/index.md
-    title   : Beginner
-    navOrder: 1
-  - file    : advanced/index.md
-    title   : Advanced
-    navOrder: 3
-  - file    : medium/index.md
-    title   : Medium
-    navOrder: 2
-  - file    : oneliner/index.md
-    title   : OneLiner
-    navOrder: 4
-  - file    : ojobio/index.md
-    title   : oJobIO
-    navOrder: 5
+- Generate guide indexes
+jobs:
+- name: Generate guide indexes
+  exec: |
+    var script = io.fileExists("utils/gen_indexes.py") ? "utils/gen_indexes.py" : "../../utils/gen_indexes.py";
+    var result = $sh("python3 " + script).get(0);
+    if (result.stdout) printnl(result.stdout);
+    if (result.stderr) printErrnl(result.stderr);
+    if (result.exitcode != 0) throw "Guide index generation failed: " + result.exitcode;

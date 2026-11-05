@@ -23,7 +23,7 @@ The easiest way to have a quick glance at the list of ElasticSearch/OpenSearch i
 
 ````sh
 $ ./oafc
-> loadLib("elastisearch.js")
+> loadLib("elasticsearch.js")
 ````
 
 ### 2.1 Connecting
@@ -88,7 +88,7 @@ After you filtered the indexes you want, on the previous list, you can now execu
 
 You can now repeat the listing commands, from 2.2, to check the new listing.
 
---- 
+---
 
 If you want to try out deleting some dummy indexes before performing the real operation you can create them by executing:
 

@@ -1,0 +1,246 @@
+[
+  {
+    "module": "oJobBasics.yaml",
+    "jobs": [
+      "oJob Start",
+      "oJob Shutdown",
+      "oJob Stop",
+      "oJob Exit",
+      "oJob Sleep 5s",
+      "oJob Sleep 1s",
+      "oJob Stringify",
+      "oJob Set",
+      "oJob Path Set",
+      "oJob YAML",
+      "oJob Sort Array",
+      "oJob Map Array",
+      "oJob Map",
+      "oJob From global",
+      "oJob Args from JSON",
+      "oJob Args from YAML",
+      "oJob Split into items",
+      "oJob Print list",
+      "oJob Print args",
+      "oJob Get kept result",
+      "oJob Keep result",
+      "oJob Switch",
+      "oJob Sec Get",
+      "oJob sh",
+      "oJob Process Launch",
+      "oJob Process Wait",
+      "oJob Show Log",
+      "oJob Jobs Report",
+      "oJob Jobs Final Report",
+      "oJob A2B",
+      "oJob Get settings",
+      "oJob Set settings"
+    ]
+  },
+  {
+    "module": "oJobBrowse.yaml",
+    "jobs": [
+      "HTTP Browser",
+      "HTTP Browse generic",
+      "HTTP Browse API"
+    ]
+  },
+  {
+    "module": "oJobCh.yaml",
+    "jobs": [
+      "oJob Ch Start Buffering",
+      "oJob Ch Stop Buffering",
+      "oJob Ch Wait For Jobs"
+    ]
+  },
+  {
+    "module": "oJobDebug.yaml",
+    "jobs": [
+      "oJob Debug Args"
+    ]
+  },
+  {
+    "module": "oJobDirector.yaml",
+    "jobs": [
+      "oJob Director init",
+      "oJob Director checkin",
+      "oJob Director checkout",
+      "oJob Director check",
+      "oJob Director wait"
+    ]
+  },
+  {
+    "module": "oJobES.yaml",
+    "jobs": [
+      "Start Log to ES",
+      "Stop ES logging"
+    ]
+  },
+  {
+    "module": "oJobEmail.yaml",
+    "jobs": [
+      "oJob Send email"
+    ]
+  },
+  {
+    "module": "oJobGIT.yaml",
+    "jobs": [
+      "GIT Copy Repository"
+    ]
+  },
+  {
+    "module": "oJobHBS.yaml",
+    "jobs": [
+      "oJob HBS Add helpers",
+      "oJob HBS file",
+      "oJob HBS"
+    ]
+  },
+  {
+    "module": "oJobHTTPd.yaml",
+    "jobs": [
+      "HTTP Start Server",
+      "HTTP Apply Service",
+      "HTTP Stop Server",
+      "HTTP Default Auth",
+      "HTTP Service",
+      "HTTP Default",
+      "HTTP Redirect",
+      "HTTP Upload",
+      "HTTP Healthz",
+      "HTTP Metrics",
+      "HTTP Add Metric",
+      "HTTP markdown",
+      "HTTP Classical File Browse",
+      "HTTP File Browse",
+      "HTTP SSE Service"
+    ]
+  },
+  {
+    "module": "oJobIO.yaml",
+    "jobs": [
+      "IO Append File",
+      "IO Find & Replace",
+      "IO MV File",
+      "IO RM File",
+      "IO CP File",
+      "IO List files",
+      "IO List filenames",
+      "IO Modify text file"
+    ]
+  },
+  {
+    "module": "oJobMCP.yaml",
+    "jobs": [
+      "HTTP MCP Server",
+      "STDIO MCP Server"
+    ]
+  },
+  {
+    "module": "oJobManager.yaml",
+    "jobs": [
+      "oJobManager Init",
+      "oJobManager Error",
+      "oJobManager Job Start",
+      "oJobManager Job End"
+    ]
+  },
+  {
+    "module": "oJobNet.yaml",
+    "jobs": [
+      "NET Port test"
+    ]
+  },
+  {
+    "module": "oJobOPack.yaml",
+    "jobs": [
+      "oPack Pack external"
+    ]
+  },
+  {
+    "module": "oJobQueue.yaml",
+    "jobs": [
+      "oJob Queue Add",
+      "oJob Queue Delete",
+      "oJob Queue Rules",
+      "oJob Queue Manager"
+    ]
+  },
+  {
+    "module": "oJobRAID.yaml",
+    "jobs": [
+      "RAID AF"
+    ]
+  },
+  {
+    "module": "oJobRest.yaml",
+    "jobs": [
+      "REST Start Server",
+      "REST Apply Service",
+      "REST Stop Server",
+      "REST List Services",
+      "REST Doc Service",
+      "REST Service",
+      "REST Healthz",
+      "REST Metrics",
+      "REST Add Metric"
+    ]
+  },
+  {
+    "module": "oJobSQL.yaml",
+    "jobs": [
+      "SQL Result",
+      "SQL",
+      "SQL Batch",
+      "SQL RAID"
+    ]
+  },
+  {
+    "module": "oJobSSH.yaml",
+    "jobs": [
+      "SSH Load hosts",
+      "SSH Exec",
+      "SSH Send file",
+      "SSH Get file"
+    ]
+  },
+  {
+    "module": "oJobSVN.yaml",
+    "jobs": [
+      "SVN checkout",
+      "SVN update",
+      "SVN commit"
+    ]
+  },
+  {
+    "module": "oJobTest.yaml",
+    "jobs": [
+      "oJob Assert",
+      "oJob Test",
+      "oJob Test sh",
+      "oJob Test Results",
+      "oJob Test Todo results",
+      "oJob Generate Markdown",
+      "oJob Generate JSON results",
+      "oJob Test CI summary",
+      "oJob Generate JUnit XML"
+    ]
+  },
+  {
+    "module": "oJobWatchDog.yaml",
+    "jobs": [
+      "oJob WatchDog"
+    ]
+  },
+  {
+    "module": "oJobXLS.yaml",
+    "jobs": [
+      "oJob XLS Open File",
+      "oJob XLS Table",
+      "oJob XLS Close File"
+    ]
+  },
+  {
+    "module": "oJobs.yaml",
+    "jobs": []
+  }
+]

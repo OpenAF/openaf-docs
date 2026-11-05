@@ -185,11 +185,11 @@ The ch(name, op, ...) function lets you interact with any OpenAF-supported chann
 
 **🔧 Function Signature**
 
-```javascript
+```text
 ch("channelName", "operation", arg1?, arg2?)
 ```
 
-| Parameter | Meaning | 
+| Parameter | Meaning |
 |:---------|:--------|
 | channelName | The name of the channel you want to interact with. |
 | operation | The operation you want to perform on the channel. One of: get, set, unset, size, unsetAll, getAll, getKeys |
@@ -253,7 +253,7 @@ expression just needs a rolling buffer or event queue.
 
 **🔧 Function Signature**
 
-```javascript
+```text
 chq(channelName, operation, max, value?)
 ```
 

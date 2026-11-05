@@ -15,6 +15,7 @@ To do this first list the "recognized" running JVMs on your host:
 
 ````javascript
 > plugin("JMX");
+> var jmx = new JMX();
 > af.fromJavaMap(jmx.getLocals());
 +---------+-----+-------+-----------------------------------+
 | Locals: | [0] | name: | /openaf/openaf.jar --console      |
@@ -34,7 +35,7 @@ Using the _id_ number, for the local Java JVM you want to target, now call _atta
 If successfull you will now be able to use the _localJMX_ JMX client object:
 
 ````javascript
-> var obj = jmx.getObject("java.lang:type=Runtime");
+> var obj = localJMX.getObject("java.lang:type=Runtime");
 > String(obj.get("ClassPath"));
 "/myApp/myapp.jar"
 ````

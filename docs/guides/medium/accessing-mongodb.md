@@ -58,7 +58,7 @@ mongo.getCollectionNames("admin")
 // [0] system.version
 // [1] system.users
 
-mongo.getcollectionNames("local")
+mongo.getCollectionNames("local")
 // [0] startup_log
 ````
 
@@ -110,13 +110,13 @@ All entries on a MongoDB collection have a special field _\_id_ which identifies
 ````javascript
 // set(key, value)
 // value must also have the _id field and value
-$ch("test").set({ _id: 1 }, { _id: 1, text: "My first entry" }
+$ch("test").set({ _id: 1 }, { _id: 1, text: "My first entry" });
 
 $ch("test").size()
 // 1
 
 $ch("test").get({ _id: 1 })
-// { _id: 1, text: "My first entry" }
+// { _id: 1, text: "My first entry" });
 ````
 
 ### Modifying
@@ -127,7 +127,7 @@ To modify any MongoDB document you just need the corresponding _\_id_ field valu
 var document = $ch("test").get({ _id: 1 })
 
 document.text  = "My modified entry";
-document.other = 12345 
+document.other = 12345
 
 // Modify the existing entry with the map of the document variable
 $ch("test").set({ _id: 1 }, document)

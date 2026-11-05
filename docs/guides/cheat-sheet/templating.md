@@ -12,7 +12,7 @@ Template in OpenAF uses the [HandleBars](https://handlebarsjs.com/guide/) javasc
 | Name | Expression | Description |
 |------|------------|-------------|
 | Escaping content | ````{% raw %}{{{text}}}{% endraw %}```` | Without three braces HandleBars will replace '&' with the HTML escape sequence as well as other characters. |
-| Escaping expression | ````{% raw %}\{{something}}{% endraw %}```` | To escape a HandleBars expression just add ´\´ before the first character | 
+| Escaping expression | ````{% raw %}\{{something}}{% endraw %}```` | To escape a HandleBars expression just add ´\´ before the first character |
 | Accessing an element of an array | ````{% raw %}{{lst.[0]}}{% endraw %}```` | Accessing a position of a provided array. |
 | Accessing an object property with symbols | ````{% raw %}{{obj.[something else].[item-name]}}{% endraw %}```` | To access any object property with a space or other symbols use '[]'. |
 | Accessing a property from a different level | ````{% raw %}{{#each list}}Name = {{name}}, Company = {{../company}}\n{{/each}}{% endraw %}```` | Consider the following map = ````{ company: "myC", list: [ { name: "john", name: "anne" } ]}````. You can access "parent" levels as if they were a folder hierarchy (e.g. concatenating "../" as needed) |
@@ -73,20 +73,24 @@ The conditional helpers included mimic the ones provided by [Assemble for compar
 
 The format helpers are all the ow.format.* functions available. For example:
 
-{% raw %}````javascript
+{% raw %}
+````javascript
 templify("{{owFormat_toBytesAbbreviation 10240000 3}}")
 // 9.77 MB
 templify("{{owFormat_toBinary 123}}")
 // 1111011
-````{% endraw %}
+````
+{% endraw %}
 
 ## Adding a helper
 
 Example of adding a simple template helper:
 
-{% raw %}````javascript
+{% raw %}
+````javascript
 ow.template.addHelper("publicip", (aIP, aElement) => $$(ow.loadNet().getPublicIP(aIP)).get(aElement) )
 
 templify("{{ip}} is in {{publicip ip 'country'}}", { ip: "1.1.1.1" })
 // 1.1.1.1 is in Australia
-````{% endraw %}
+````
+{% endraw %}

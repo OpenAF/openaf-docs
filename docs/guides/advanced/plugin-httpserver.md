@@ -1,0 +1,117 @@
+---
+layout: default
+title: HTTPServer plugin
+parent: Advanced
+grand_parent: Guides
+---
+
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/plugins/HTTPServer.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
+# HTTPServer Java Plugin Reference
+
+The `HTTPServer` plugin provides an embedded web server supporting NanoHTTPD (`nwu2` default engine) and JDK `com.sun.net.httpserver.HttpServer`, with REST endpoints, file browsing, WebSockets, SSL HTTPS, and session handling.
+
+---
+
+## Loading Syntax
+
+```javascript
+plugin("HTTPServer");
+// Registers constructor `HTTPd`
+var server = new HTTPd(port, host, keyStorePath, keyStorePassword, logFunction, webSockets, timeout, impl);
+```
+
+### Constructor Options
+- `port` *(int)*: Listening port (use `<= 0` for auto free port).
+- `host` *(String)*: Interface bind address (or `undefined` for `0.0.0.0`).
+- `keyStorePath`, `password`: Keystore path and password for HTTPS/SSL.
+- `logFunc` *(Function(type, msg, exc))*: Log callback hook.
+- `impl` *(String)*: Server engine (`"nwu2"` default, `"java"`, or `"nwu"`).
+
+---
+
+## API Methods
+
+| Method | Parameters | Return Type | Description |
+| :--- | :--- | :--- | :--- |
+| `getPort()` | *none* | `int` | Returns listening port number. |
+| `getImpl()` | *none* | `String` | Returns server implementation name. |
+| `isAlive()` | *none* | `boolean` | Checks if server is active. |
+| `stop()` | *none* | `void` | Stops server. |
+| `add(uri, callback)` | `String, Function` | `void` | Registers request handler callback `function(req) { return reply; }`. |
+| `setDefault(uri)` | `String` | `void` | Configures default fallback/redirect route. |
+| `addEcho(uri)` | `String` | `void` | Registers request echo debugging endpoint. |
+| `addStatus(uri)` | `String` | `void` | Registers health status endpoint. |
+| `addFileBrowse(uri, filepath)` | `String, String` | `void` | Serves static file directory contents. |
+| `addWS(uri)` | `String` | `void` | Registers WebSocket handler on URI. |
+| `replyOKJSON(data, headers)` | `String, [Object]` | `Object` | Helper returning 200 OK JSON response structure. |
+| `replyOKText(data, headers)` | `String, [Object]` | `Object` | Helper returning 200 OK plain text response. |
+| `replyOKHTML(data, headers)` | `String, [Object]` | `Object` | Helper returning 200 OK HTML response. |
+| `replyOKXML(data, headers)` | `String, [Object]` | `Object` | Helper returning 200 OK XML response. |
+| `replyOKBin(data, headers)` | `String, [Object]` | `Object` | Helper returning 200 OK binary response. |
+| `reply(data, mime, code, headers)` | `String, String, int, Object` | `Object` | Builds generic string response map. |
+| `replyBytes(bytes, mime, code, headers)` | `byte[], String, int, Object` | `Object` | Builds generic binary response map. |
+| `replyStream(stream, mime, code, headers)` | `InputStream, String, int, Object` | `Object` | Builds generic streaming response map. |
+
+---
+
+## Practical Code Example
+
+```javascript
+plugin("HTTPServer");
+
+var hs = new HTTPd(8080);
+
+hs.add("/api/greet", function(req) {
+  var name = (req.params && req.params.name) ? req.params.name : "World";
+  return hs.replyOKJSON(stringify({ message: "Hello " + name }));
+});
+
+hs.addFileBrowse("/static", "/var/www/html");
+hs.addEcho("/debug/echo");
+hs.setDefault("/api/greet");
+
+print("Server listening on port: " + hs.getPort());
+// To stop: hs.stop();
+```
+
+---
+
+## WebSockets
+
+WebSocket support is backed by the `HTTPws` plugin (`src/openaf/plugins/HTTPws/WebSockets.java`) and is enabled by passing `webSockets: true` to the `HTTPd` constructor (or calling `addWS(uri)`).
+
+```javascript
+plugin("HTTPServer");
+
+var hs = new HTTPd(8080, undefined, undefined, undefined, undefined, true);
+
+hs.addWS("/ws/chat");
+hs.subscribe("/ws/chat", function(op, msg, session) {
+  // op: "open" | "message" | "close"
+  // msg: received text/binary payload
+  // session: WebSocket session handle
+  if (op === "message") {
+    hs.broadcast("/ws/chat", "echo: " + msg);
+  }
+});
+
+print("WebSocket endpoint ready at ws://localhost:8080/ws/chat");
+```
+
+The underlying `WebSockets` class implements the NanoHTTPD WebSocket protocol with text and binary frame support, ping/pong keepalive, and per-session lifecycle callbacks.
+
+## Localhost OAuth2 client
+
+After `ow.loadServer()`, `ow.server.httpd.oauth2(options)` can receive an OAuth2
+authorization-code callback on an exclusively owned localhost HTTPd listener,
+exchange the code using S256 PKCE, and persist access/refresh tokens with `$sec`.
+It provides `authenticate()`, `getAuthStatus()`, `clearAuth()` and `cancel()`.
+`$mcp` reuses it when `auth.callback: true`. See [OAuth2 authentication](mcp-oauth.md)
+for configuration, storage and examples.
+
+## Query state on persistent connections
+
+The `nwu` and `nwu2` implementations reset raw query state for each request. For GET requests, `params["NanoHttpd.QUERY_STRING"]` is absent when the URL has no query, and is an empty string for an explicit trailing `?`. A later request on the same connection does not inherit the previous URL query or form parameters.
+{% endraw %}

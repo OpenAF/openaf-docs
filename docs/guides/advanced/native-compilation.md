@@ -1,9 +1,12 @@
 ---
 layout: default
-title: "Native JavaScript compilation"
+title: Native JavaScript compilation
 parent: Advanced
 grand_parent: Guides
 ---
+
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/native-compilation.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
 
 # Native JavaScript compilation
 
@@ -52,3 +55,4 @@ shared registry access, and cross-class invocation and initialization.
 constant-pool inspection, small-script behavior, adaptive partition sizing, and
 failed JAR replacement. The deterministic 600-function fixture contains 36,000
 unique literals and reproduces the upstream constant-pool exception.
+{% endraw %}

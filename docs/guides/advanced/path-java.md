@@ -1,9 +1,12 @@
 ---
 layout: default
-title: "Java $path() engine"
+title: Java $path() engine
 parent: Advanced
 grand_parent: Guides
 ---
+
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/path-java.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
 
 # Java `$path()` engine
 
@@ -86,3 +89,10 @@ including callbacks, nested calls and unique-query churn. See the benchmark
 README and saved native-run results for measured timings. Earlier Jackson
 benchmarks used a different implementation and must not be treated as timings
 for this port.
+
+Validation of the rebuilt artifact: 603 focused assertions pass on Java 21 and
+Java 27. The complete intended suite passes 388/388 tests (6,011 assertions)
+with a test-only in-memory correction for an existing misplaced Format job
+definition and the local `_oaf/oJob-common` dependency path. The original
+Format test definition was left unchanged.
+{% endraw %}

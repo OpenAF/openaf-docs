@@ -13,14 +13,14 @@ Whenever dealing with bytes you might want to output an abbreviation for human r
 ow.loadFormat();
 
 var folderPath = ".";
-var sumBytes = ow.format.toBytesAbbreviation( 
-                 $from( io.listFiles(folderPath).files).sum("size") )
+var sumBytes = ow.format.toBytesAbbreviation(
+                 $from( io.listFiles(folderPath).files).sum("size")
                );
 
 print(sumBytes);
 ````
 
-In this example it will sum all the byte sizes of a given folder and print you the corresponding abbreviation in bytes. 
+In this example it will sum all the byte sizes of a given folder and print you the corresponding abbreviation in bytes.
 
 Other examples:
 

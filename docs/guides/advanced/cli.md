@@ -1,13 +1,16 @@
 ---
 layout: default
-title: "OpenAF Command-Line Interface Reference"
+title: OpenAF Command-Line Interface Reference
 parent: Advanced
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/cli.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # OpenAF Command-Line Interface Reference
 
-[Index](../../../index.md) | [oJob Reference](../ojob/ojob-yaml-reference.md) | [Flags](openaf-flags.md) | [Advanced](openaf-advanced-guide.md)
+[Index](../index.md) | [oJob Reference](../ojob/ojob-yaml-reference.md) | [Flags](openaf-flags.md) | [Advanced](openaf-advanced-guide.md)
 
 Complete reference for the `openaf` (alias `oaf`) command-line binary. For runtime `__flags` and environment variables, see [openaf-flags.md](openaf-flags.md).
 
@@ -71,6 +74,8 @@ With no arguments, OpenAF launches the interactive GUI if a desktop is available
 | `--sb <file>` | file path | Generate or prepend an OpenAF/oJob/oafp shebang line, chosen by the file's extension. See [Shebang scripts](#shebang-scripts) below. |
 | `--bashcompletion <arg>` | arg | Generate bash completion script. |
 | `--zshcompletion <arg>` | arg | Generate zsh completion script. |
+
+Generated completion scripts match subcommands exactly once chosen (so a subcommand name that prefixes another no longer offers the wrong options) and print with `printf` for safe output of special characters.
 
 ## Generated wrapper commands
 
@@ -205,3 +210,4 @@ For API lookup use `openaf -helpscript <term>` or `searchHelp()`; see [ODoc](odo
 - [python.md](python-integration.md) — Python integration.
 - [odoc.md](odoc.md) — documentation engine.
 - [console.md](console.md) — interactive REPL commands, aliases, and profile/history files.
+{% endraw %}

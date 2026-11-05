@@ -7,7 +7,7 @@ grand_parent: Guides
 
 # oJob building blocks
 
-To enrich the oJob building blocks there is a set of jobs to help minimize coding (low-code). For this, the oPack ojob-common provides __ojob.yaml__. 
+To enrich the oJob building blocks there is a set of jobs to help minimize coding (low-code). OpenAF provides these built-in jobs through __ojob.yaml__ (`includeOJob: true`). The separate [oJob-common package](ojob-common-modules.md) supplies reusable modules such as `oJobBasics.yaml` and `oJobHTTPd.yaml`.
 
 ## What's provided
 
@@ -18,25 +18,25 @@ To enrich the oJob building blocks there is a set of jobs to help minimize codin
 | Control | [ojob repeat with each](#ojob-repeat-with-each) | Repeats the configured "jobs" (one or more jobs) sequentially for each element of the provided "key" list. |
 | Debug | [ojob debug](#ojob-debug) | Outputs the current args and res values to help debug an ojob flow. |
 | Debug | [ojob job debug](#ojob-job-debug) | Provides an alternative to print based debug. |
-| Channel | [ojob channel](#ojob-channel) | Provides a set of operations over an OpenAF channel. |
+| Channel | [ojob channel](#channel) | Provides a set of operations over an OpenAF channel. |
 | Function | [ojob function](#ojob-function) | Executes the provided function mapping any args to the function arguments using the odoc help available for the provided function. |
-| Input | [ojob get](#ojob-get) | Retrieves a specific map key (or path) using $get. | 
+| Input | [ojob get](#ojob-get) | Retrieves a specific map key (or path) using $get. |
 | Input | [ojob file get](#ojob-file-get) | Retrieves a specific map key (or path) from an YAML or JSON file provided. |
 | Input | [ojob split to items](#ojob-split-to-items) | Splits an args source into an array of maps. |
-| Query | [ojob query](#ojob-query) | Performs a query (using ow.obj.filter) to the existing args. | 
+| Query | [ojob query](#ojob-query) | Performs a query (using ow.obj.filter) to the existing args. |
 | Options | [ojob job](#ojob-job) | Provides a way to organize idempotent jobs. |
 | Options | [ojob job report](#ojob-job-report) | Outputs a job jobs report (e.g. job name, action and plan). |
 | Options | [ojob job final report](#ojob-job-final-report) | Outputs a job jobs report (e.g. job name, action and plan) upon ojob termination. |
-| Options | [ojob options](#ojob-options) | Adds new "todo" entries depending on the value of a provided args variable. | 
+| Options | [ojob options](#ojob-options) | Adds new "todo" entries depending on the value of a provided args variable. |
 | Options | [ojob todo](#ojob-todo) | Adds new "todo" entries. |
 | Output | [ojob set](#ojob-set) | Sets a "key" with the current value on a "path" using $set. |
 | Output | [ojob set envs](#ojob-set-envs) | Sets job args based on environment variables. |
 | Output | [ojob print](#ojob-print) | Prints a message line given an OpenAF template. |
-| Output | [ojob log](#ojob-log) | Logs a message line given an OpenAF template. | 
-| Output | [ojob find/replace](#ojob-find/replace) | Performs an in-memory find/replace on a provided string or file and outputs to args.output or, optionally, to a file. |
+| Output | [ojob log](#ojob-log) | Logs a message line given an OpenAF template. |
+| Output | [ojob find/replace](#ojob-findreplace) | Performs an in-memory find/replace on a provided string or file and outputs to args.output or, optionally, to a file. |
 | Output | [ojob output](#ojob-output) | Prints the current arguments to the console. |
 | Template | [ojob template](#ojob-template) | Applies the OpenAF template over the provided data producing an output. |
-| Template | [ojob template folder](#ojob-template-folder) | Given a templateFolder it will execute 'ojob template' for each (recursively), with the provided data, to output to outputFolder. |  
+| Template | [ojob template folder](#ojob-template-folder) | Given a templateFolder it will execute 'ojob template' for each (recursively), with the provided data, to output to outputFolder. |
 | Report | [ojob report](#ojob-report) | Outputs a jobs report (e.g. job name, status, number of executions, total time, avg time and last execution). |
 | Report | [ojob final report](#ojob-final-report) | Outputs a jobs report (e.g. job name, status, number of executions, total time, avg time and last execution) upon ojob termination. |
 | Security | [ojob sec get](#ojob-sec-get) | This job will get a SBucket secret and map it to oJob's args. |
@@ -45,7 +45,7 @@ To enrich the oJob building blocks there is a set of jobs to help minimize codin
 | State | [ojob set state](#ojob-set-state) | Changes the current state. |
 | AI    | [ojob llm](llm-shortcut) | Enable interaction with LLM (Large Language Models) AI models. |
 
-## How to start using it 
+## How to start using it
 
 You can include it in different ways depending on the OpenAF version you are using.
 
@@ -250,7 +250,7 @@ __Expects:__
 |source|no|A object path to the string source to split|
 |separator|no|The separator for the source string (defaults to \n)|
 
-## Query 
+## Query
 
 ### ojob query
 
@@ -271,7 +271,7 @@ __Expects:__
 
 Provides a way to organize idempotent jobs. One or more "checks" jobs will be called to determine an args._action.
 Initially the args._action is set to "none". If the "checks" jobs determine an action it will call the corresponding
-jobs on "actions" jobs. If "_go=true" is not provided, instead of running, it will only return a plan of actions. 
+jobs on "actions" jobs. If "_go=true" is not provided, instead of running, it will only return a plan of actions.
 For example:
 
 ````yaml
@@ -547,7 +547,7 @@ __Returns:__
 
 ## State
 
-### ojob state 
+### ojob state
 
 Changes the current state depending on the value of a provided args variable.
 

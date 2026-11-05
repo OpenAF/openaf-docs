@@ -48,8 +48,8 @@ OAF_JARGS="-Xms64m -Xmx128m" ./oaf -c "sprint(ow.loadJava().getMemory(true), '')
 __Windows__:
 
 ````powershell
-set OAF_JARGS="-Xms64m -Xmx128m" 
-oaf.bat -c "sprint(ow.loadJava().getMemory(true), ''"
+set "OAF_JARGS=-Xms64m -Xmx128m"
+oaf.bat -c "sprint(ow.loadJava().getMemory(true), '')"
 
 # {"max":"128 MB","total":"64.0 MB","used":"10.1 MB","free":"53.9 MB"}
 ````
@@ -73,7 +73,7 @@ __Windows__:
 
 *myScript.bat*:
 ````bat
-set OAF_JARGS="-Xms64m -Xmx128m"
+set "OAF_JARGS=-Xms64m -Xmx128m"
 cd my\scripts
 the\openaf\folder\oaf -f myScripts.js
 ````

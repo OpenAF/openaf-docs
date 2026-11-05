@@ -1,63 +1,30 @@
-init:
-  header: |
-    ---
-    layout: default
-    title: {{title}}
-    parent: {{pre}}
-    grand_parent: {{grand}}
-    ---
+# Compatibility entry point. Run from the documentation repository root.
+help:
+  text: Regenerate pinned source documentation with utils/sync_docs.py.
+  expects:
+  - name: sources
+    desc: Directory prepared by utils/prepare_sources.py
+    mandatory: true
+  - name: output
+    desc: Site repository root (not a section directory); defaults to current directory
+  - name: runtime
+    desc: OpenAF executable or JAR used to parse source ODoc; defaults to oaf
 
 todo:
-- Generate index
-- Generate reference
+- Generate documentation
 
 jobs:
-# --------------------
-- name: Generate index
-  exec: | #js
-    ow.loadObj();
-
-    global.opacks = Object.keys(getOPackPaths()).map(r => r.toLowerCase())
-    global.all    = searchHelp("").filter(r => global.opacks.indexOf(r.id.toLowerCase()) < 0 && 
-                                               global.opacks.indexOf("plugin-" + r.id.toLowerCase()) < 0 &&
-                                               r.id != "ops");
-    global.idxs   = Object.keys( ow.obj.fromArray2Obj(global.all, "id") ).sort();
-
-    io.rm("out");
-    io.mkdir("out");
-
-# ------------------------
-- name: Generate reference
-  each: Generate entry
-  exec: | #js
-    var rout = "---\nlayout: default\ntitle: Reference\nparent: OpenAF docs\nhas_children: true\nnav_order: 4\n---\n";
-    rout += "# Reference\n_version: " + getVersion() + "_\n";
-
-    log("Number of indexes: " + global.idxs.length);
-    global.idxs.map(idx => {
-      var out = templify(args.init.header, {
-        title: idx,
-        pre  : "Reference",
-        grand: "OpenAF docs"
-      });
-      out += "\n\n## " + idx + "\n\n";
-      var f = idx.replace(".", "_") + ".md";
-      log("Generating " + f + "...");
-
-      $from(global.all)
-      .equals("id", idx)
-      .notEquals("id", "index")
-      .select(r => {
-        out += "### " + r.key + "\n\n";
-        var h = searchHelp(r.key, void 0, [ idx ])[0];
-        out += "__" + h.fullkey + "__\n\n";
-        //out += "<pre>" + h.text.replace(/\n\n+/g, "</pre>") + "</pre>";
-        out += "````\n" + h.text + "\n````\n";
-      });
-    
-      if (f != "index.md") io.writeFileString("out/" + f, out);
-      rout += "* __[" + idx + "](" + f + ")__\n";
-      log("... done " + f);
-    });
-
-    io.writeFileString("out/index.md", rout);
+- name: Generate documentation
+  check:
+    in:
+      sources: isString
+      output: isString.default(".")
+      runtime: isString.default("oaf")
+  exec: |
+    var quote = s => "'" + String(s).replace(/'/g, "'\\''") + "'";
+    var command = ["python3", "utils/sync_docs.py", "--only", "reference",
+                   "--sources", args.sources, "--output", args.output, "--runtime", args.runtime];
+    var result = $sh(command.map(quote).join(" ")).get(0);
+    if (result.stdout) printnl(result.stdout);
+    if (result.stderr) printErrnl(result.stderr);
+    if (result.exitcode != 0) throw "Documentation generation failed: " + result.exitcode;

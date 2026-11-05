@@ -20,7 +20,7 @@ Here is a list of the included shorcuts:
 | Control       | [(each)](#-each)           | Repeat a series of jobs per each list element              |
 | Control       | [(todo)](#-todo)           | Sub ToDo list                                              |
 | Control       | [(parallel)](#-parallel)       | Runs a list of jobs in parallel                            |
-| Control       | [(optionOn)](#-optionOn)       | Selects a list of jobs to run based on an option           |
+| Control       | [(optionOn)](#-optionon)       | Selects a list of jobs to run based on an option           |
 | Control       | [(state)](#-state)          | Changes the current running state                          |
 | Control       | [(pass)](#-pass)           | Represents a pass-through job                              |
 | Control       | [(fail)](#-fail)           | Represents a failure job                                   |
@@ -35,10 +35,10 @@ Here is a list of the included shorcuts:
 | Output        | [(print)](#-print)          | Prints a message                                           |
 | Output        | [(printmd)](#-printmd)        | Prints a message using markdown                            |
 | Output        | [(log)](#-log)            | Logs a message                                             |
-| Output        | [(findReplace)](#-findReplace)    | Finds and replaces text                                    |
+| Output        | [(findReplace)](#-findreplace)    | Finds and replaces text                                    |
 | Output        | [(output)](#-output)         | Output's data in different formats                         |
 | Output        | [(template)](#-template)       | Generates an output based on a template                    |
-| Output        | [(templateFolder)](#-templateFolder) | Generates several outputs, based on templates, in a folder |
+| Output        | [(templateFolder)](#-templatefolder) | Generates several outputs, based on templates, in a folder |
 | Debug         | [(debug)](#-debug) | Shows the current args and _res_ key. |
 | Debug         | [(jobdebug)](#-jobdebug)       | Sets debug for a single job                                |
 | Debug         | [(jobsdebug)](#-jobsdebug)      | Sets debug for a series of jobs                            |
@@ -80,7 +80,7 @@ Expects:
 * **(repeat)**: The number of times to repeat the provided list of jobs
 * **((jobs))**: One job or a list of jobs to execute each time
 
-```yaml 
+```yaml
 - (repeat): 10
   ((jobs)):
   - Write on the board 'I will not do it again'
@@ -97,7 +97,7 @@ Expects:
 * **((key))** : Can be a global key or 'args'
 * **((jobs))**: One job or a list of jobs to execute each time
 
-```yaml 
+```yaml
 - (each  ): files
   ((key )): myFilesList
   ((jobs)):
@@ -126,7 +126,7 @@ Expects:
 * **((shareArgs))**        : Boolean, false by default, to indicate that args should be shared between all todo's jobs sequentially.
 * **((debug))**            : Boolean to indicate that each job execution parameters should be printed before executing
 
-```yaml 
+```yaml
 - (todo          ):
   - First thing to do
   - name        : Second thing to do
@@ -150,7 +150,7 @@ _Executes an ojob sub-todo in parallel._
 > NOTE: doesn't perform any checks for recursive behaviour!
 
 Expects:
-    
+
 * **(todo)**               : A string or array of todo' maps
 * **(todo)[].name**        : Name of the job to execute
 * **(todo)[].args**        : Arguments to merge (if isolateArgs is not true) with the main job arguments
@@ -163,7 +163,7 @@ Expects:
 * **((shareArgs))**        : Boolean, false by default, to indicate that args should be shared between all todo's jobs sequentially.
 * **((debug))**            : Boolean to indicate that each job execution parameters should be printed before executing
 
-```yaml 
+```yaml
 - (parallel      ):
   - Do this
   - Do that
@@ -194,7 +194,7 @@ Expects:
 * **((default))**  : Default array of "todo"s
 * **((async))**    : Boolean value that if true, run the todos in async mode
 
-```yaml 
+```yaml
 - (optionOn   ): op
   ((lowerCase)): true
   ((todos    )):
@@ -222,7 +222,7 @@ Expects:
 * **((validStates))**: An array of valid states to change to. If not included the default will be choosen (or none).
 * **((default))**    : Default value of state
 
-```yaml 
+```yaml
 - (stateOn      ): state
   ((lowerCase  )): true
   ((upperCase  )): false
@@ -260,7 +260,7 @@ Expects:
 * **(code)**   : The exit code number to use.
 * **((force))**: A boolean indicating if instead of exit the processing should halt
 
-```yaml 
+```yaml
 - (code   ): -1
   ((force)): true
 
@@ -276,7 +276,7 @@ Expects:
 * **((actions))**: A map of possible values of args._action whose values are one or more jobs to execute
 * **_go**        : A boolean value (defaults to false) that controls if the *actions* jobs are called (when true) or not
 
-```yaml 
+```yaml
 - (check    ): Check Hello World
   ((actions)):
     create   : Create Hello World
@@ -293,7 +293,7 @@ Expects:
 
 * **(wait)**: The amount of time, in ms, to pause execution
 
-```yaml 
+```yaml
 - (wait): 5000
 
 ```
@@ -319,7 +319,7 @@ Expects:
 * **((vpath))**: If defined, the path over the values retrieved from __key where the value or values of the operation are defined
 * **((extra))**: If defined, will provide an extra argument (usually a map), depending on channel type, for the getall and getkeys operations.
 
-```yaml 
+```yaml
 ojob:
     channels:
     create:
@@ -359,7 +359,7 @@ Expects:
 * **(get)**   : Map key to retrieve (key is also checked for compatibility)
 * **((path))**: The path to consider from the (get)
 
-```yaml 
+```yaml
 - (get   ): values
   ((path)): last
 
@@ -372,13 +372,13 @@ Retrieves a specific map key (or path) from an YAML or JSON file provided.
 Expects:
 
 * **(fileget)**: The file path to an YAML or JSON file
-* **((path))** : Path of the file contents 
+* **((path))** : Path of the file contents
 * **((cache))**: Boolean value that if false it won't cache the file contents (default: true)
 * **((ttl))**  : If cache is enabled lets you define a numeric ttl
 * **((out))**  : The path on args to set the map key/path contents
 * **((key))**  : If ((out)) is not defined will set the content into the provided key
 
-```yaml 
+```yaml
 - name: Retrieve list of hosts
   to  :
   - (fileget): listOfHosts.yml
@@ -402,13 +402,13 @@ Expects:
 * **((to))**  : The path to where the results should be stores
 * **((key))** : If ((from)) and ((to)) not provided defaults to $get/$set on the provided key
 
-```yaml 
+```yaml
 - (query ): "equals(isDirectory, true)"
   ((key )): list
 
 ```
 
-```yaml 
+```yaml
 - (query ): "[?isDirectory==`true`]"
   ((type)): path
   ((key )): list
@@ -428,10 +428,10 @@ Expects:
 * **(set)**   : Map key
 * **((path))**: A key or path to a value from the current args
 
-```yaml 
+```yaml
 - (set)   : values
   ((path)): values
-    
+
 ```
 
 ### 🔖 (unset)
@@ -442,7 +442,7 @@ Expects:
 
 * **(unset)**: Map key
 
-```yaml 
+```yaml
 - (unset): values
 
 ```
@@ -458,7 +458,7 @@ Expects:
 * **((path))** : The path to consider from the ((key))
 * **((level))**: The level of the message (info (default) or error)
 
-```yaml 
+```yaml
 - (print): This is a printed message.
 
 ```
@@ -472,7 +472,7 @@ Expects:
 * **(printmd)** : The text template to parse.
 * **((outputMD)): A boolean flag that if true will no parse the input text.
 
-```yaml 
+```yaml
 todo:
 - (printmd): |
     # Chapter 1
@@ -501,7 +501,7 @@ Expects:
 * **((level))**  : The level of the message (info (default), warn or error)
 * **((options))**: Extra options to provide to the tlog* functions. See more in the help of tlog, tlogErr and tlogWarn.
 
-```yaml 
+```yaml
 todo:
 - (log    ): You can issue a log message.
   ((level)): info
@@ -521,12 +521,12 @@ Expects:
 * **((inputKey))**   : If defined, indicates the key that holds the string of data to replace.
 * **((inputPath))**  : If defined with inputKey, indicates the path to use to select the string of data to replace.
 * **((inputFile))**  : If defined the contents to be replaced will be read from the inputFile.
-* **((outputFile))** : If defined will output of the content replacement to the defined file. 
+* **((outputFile))** : If defined will output of the content replacement to the defined file.
 * **((useRegExp))**  : Boolean value to determine if the map of replacements will be interpreted as a regexp or text.
 * **((flagsRegExp))**: If useRegExp=true the JavaScript reg exp flags to use (defaults to 'g').
 * **((logJob))**     : Optionally provide a logging job with the current args and __op with 'read' or 'write'
 
-```yaml 
+```yaml
 jobs:
 - name: Replace text
   from:
@@ -560,7 +560,7 @@ Expects:
 * **((internal))**: Boolean value that if true it will display the internal oJob entries on the arguments (default false).
 * **((function))**: One of the OpenAF's print or log functions available
 
-```yaml 
+```yaml
 todo:
 - (runfile ): ojob.io/news/bbc
   ((key   )): news
@@ -609,10 +609,10 @@ todo:
 
 ### 🔖 (templateFolder)
 
-Given a templateFolder it will execute '(template)' for each (recursively), with the provided data, to output to outputFolder. Optionally metaTemplate can be use where each json/yaml file in templateFolder all or part of the arguments for 'ojob template'.    
+Given a templateFolder it will execute '(template)' for each (recursively), with the provided data, to output to outputFolder. Optionally metaTemplate can be use where each json/yaml file in templateFolder all or part of the arguments for 'ojob template'.
 
 Expects:
-    
+
 * **(templateFolder)**: The original folder where the templates are located.
 * **((templatePath))**: If defined, will apply a $path string over the recursive list of files in templateFolder.
 * **((data))**        : If defined, will be used as data.
@@ -623,7 +623,7 @@ Expects:
 * **((logJob))**      : A ojob job to log the 'ojob template' activity (receives the same arguments as 'ojob template').
 * **((metaTemplate))**: Boolean that if 'true' will interpret any json/yaml file, in the templateFolder, as a map/array of arguments to use when calling 'ojob template' overriden the defaults.
 
-```yaml 
+```yaml
 todo:
 - (templateFolder): src
   ((data        )):
@@ -633,7 +633,7 @@ todo:
     - 2
     - 3
   ((outputFolder)): output
-    
+
 ```
 
 ---
@@ -644,7 +644,7 @@ todo:
 
 Will print the current "args" and "res" contents.
 
-```yaml 
+```yaml
 todo:
 - (debug)
 
@@ -664,7 +664,7 @@ Expects:
 * **((signs))**      : A custom map of emoticons (keys: checkpoint, assert and print).
 * **((includeTime))**: A boolean value to indicate if a time indication should be included.
 
-```yaml 
+```yaml
 todo:
 - (jobdebug): Sample job
 - Sample job
@@ -689,7 +689,7 @@ jobs:
     //?s args
     //?y args
 
-```  
+```
 
 ### 🔖 (jobsdebug)
 
@@ -705,9 +705,9 @@ Expects:
 * **((signs))**      : A custom map of emoticons (keys: checkpoint, assert and print).
 * **((includeTime))**: A boolean value to indicate if a time indication should be included.
 
-```yaml 
+```yaml
 todo:
-- (jobsdebug): 
+- (jobsdebug):
     - Sample job
 - Sample job
 
@@ -731,7 +731,7 @@ jobs:
     //?s args
     //?y args
 
-```  
+```
 
 ---
 
@@ -741,12 +741,12 @@ jobs:
 
 Prints the current "args" and "res"
 
-```yaml 
+```yaml
 jobs:
 - name: a
   to  :
   - (run  ): ojob.io/envs
-  - (debug) 
+  - (debug)
 
 ```
 
@@ -767,7 +767,7 @@ Expects:
 * **((secIgnore))**  : If true will ignore errors of sec parameters not being provided (default=false)
 * **((secEnv))**     : If true will set everything to retrieve the secret from an env variable
 
-```yaml 
+```yaml
 jobs:
 - name: Check clock on my server
   from:
@@ -807,7 +807,7 @@ Expects:
 * **((path))**  : If defined the args path for the function arguments to consider.
 * **((fnPath))**: If defined the args path where to set the function result.
 
-```yaml 
+```yaml
 todo:
 - (fn    ): "io.listFiles"
   ((key )): files
@@ -819,7 +819,7 @@ todo:
 ```
 
 ### 🔖 (runfile) / (run)
-    
+
 Executes an external YAML/JSON ojob file or a remote URL with the provided args.
 
 Expects:
@@ -834,7 +834,7 @@ Expects:
 * **((templateArgs))**: Boolean to indicate to apply template to each string of the provided args (use only if typeArgs.noTemplateArgs = false OR job.templateArgs = true).
 * **((debug))**       : Boolean to indicate that the job execution parameters should be printed before executing.
 
-```yaml 
+```yaml
 jobs:
 - name: Get envs
   to  :

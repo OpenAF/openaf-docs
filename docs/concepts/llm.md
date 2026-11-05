@@ -7,7 +7,7 @@ grand_parent: OpenAF docs
 
 # Large Language Model (LLM) Configuration
 
-OpenAF provides first-class support for Local Language Model (LLM) prompts via the `$llm` function in JavaScript jobs and the `oafp` CLI. You can configure which model to use by setting environment variables at runtime.
+OpenAF provides first-class support for Large Language Model (LLM) prompts via the `$llm` function in JavaScript jobs and the `oafp` CLI. You can configure which model to use by setting environment variables at runtime.
 
 ## Environment Variables
 
@@ -18,20 +18,18 @@ Used by the `$llm` function and OpenAF JavaScript APIs to select and configure a
 - Type: string (JSON/[SLON](https://github.com/nmaguiar/slon)) or simple `<type>` name
 - Default key: `OAF_MODEL`
 
-Examples:
+Examples (replace the key and model with values supported by your provider account):
 
-```bash
-# Full JSON configuration ([SLON](https://github.com/nmaguiar/slon) is also supported)
-export OAF_MODEL='{ \
-  type: "openai", \
-  key: "YOUR_OPENAI_API_KEY", 
-  model: "gpt-4", 
-  temperature: 0.7,
-  timeout: 900000
-}'
+```sh
+export OAF_MODEL='{"type":"openai","key":"YOUR_API_KEY","model":"YOUR_MODEL_ID","timeout":900000}'
+# Equivalent SLON configuration:
+export OAF_MODEL='(type: openai, key: YOUR_API_KEY, model: YOUR_MODEL_ID, timeout: 900000)'
+```
 
-# Inline shorthand (must parse as a map)
-export OAF_MODEL='(type: openai, key: "$OPENAI_KEY", model: gpt-4, temperature: 0.7, timeout: 900000)'
+Single-quoted shell strings do not expand variables. To read a key already stored in the environment, construct the configuration inside OpenAF:
+
+```javascript
+var model = $llm({ type: "openai", key: getEnv("OPENAI_API_KEY"), model: getEnv("OPENAI_MODEL") });
 ```
 
 With `OAF_MODEL` set, you can use `$llm()` without arguments:
@@ -40,7 +38,7 @@ With `OAF_MODEL` set, you can use `$llm()` without arguments:
 // Inside an oJob or script
 var response = $llm().prompt("Summarize the following text...")
 cprint(response)
-```  
+```
 
 You can still override at call time:
 
@@ -57,10 +55,10 @@ Examples:
 
 ```bash
 # Use OpenAI via CLI
-export OAFP_MODEL='(type: openai, key: "$OPENAI_KEY", model: gpt-4, temperature: 0.7, timeout: 900000)'
+export OAFP_MODEL='(type: openai, key: YOUR_API_KEY, model: YOUR_MODEL_ID, temperature: 0.7, timeout: 900000)'
 
 # Use Gemini via CLI
-export OAFP_MODEL='(type: gemini, model: gemini-2.5-flash-preview-05-20, key: YOUR_GEMINI_KEY, timeout: 900000, temperature: 0, params: (tools: [(googleSearch: ())]))'
+export OAFP_MODEL='(type: gemini, model: YOUR_GEMINI_MODEL_ID, key: YOUR_GEMINI_KEY, timeout: 900000, temperature: 0, params: (tools: [(googleSearch: ())]))'
 ```
 
 Then run:

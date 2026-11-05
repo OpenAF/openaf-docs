@@ -6,9 +6,9 @@ grand_parent: OpenAF docs
 ---
 # oafp
 
-OpenAF processor (oafp) is a command-line utility, distributed with OpenAF (since version 20240318), that takes an input, usually a data structure such as json, and transforms it to an equivalent data structure in another format or visualization. The output data can be filtered through JMESPath, SQL or OpenAF's nLinq and provided transformers can also be applied to it.
+OpenAF processor (oafp) is a command-line utility, distributed with OpenAF (since version 20240318), that takes an input, usually a data structure such as json, and transforms it to an equivalent data structure in another format or visualization. The output data can be filtered through JMESPath, jq, SQL or OpenAF's nLinq and provided transformers can also be applied to it.
 
-The tool comes with it's own built-in documentation that can be accessed by executing:
+The tool comes with its own built-in documentation that can be accessed by executing:
 
 ```bash
 oafp -h
@@ -44,50 +44,30 @@ If you don't find a suitable example you can also use [OAFP ChatGPT](https://cha
 
 _oafp_ reads input data format, filters that data into an internal JSON representation. Then the internal JSON representation can be transformed and filtered again to an output data format.
 
-### 📌 oafp Filters: path, from, sql and their order
+### Filter order
 
-The oafp tool is powerful, but the way filters are applied can trip people up. Here’s a breakdown to help clarify.
+Every filter is optional, but execution order is fixed independently of command-line argument order:
 
-#### 🔁 Order of Processing in oafp
-
-Standard flow:
-
-```
-input → path → transformers → from → sql → output
+```text
+input → ifrom → isql → path → ijq (alias jq) → transforms → from → sql → opath → ojq → output
 ```
 
-Advanced flow:
+| Filter | Query engine | Applied to |
+| --- | --- | --- |
+| `ifrom` / `from` | OpenAF nLinq | Input / transformed output |
+| `isql` / `sql` | SQL | Input / transformed output |
+| `path` / `opath` | JMESPath plus OpenAF functions | Input / transformed output |
+| `ijq` (or `jq`) / `ojq` | JVM jq 1.6 engine | After the corresponding JMESPath stage |
 
+Do not supply both `jq` and `ijq`. A jq expression producing no value suppresses that record; several emissions become one collected array. Streaming behavior and JSON compatibility are described in the [filter reference](../guides/oafp/oafp-filters.md).
+
+```sh
+oafp in=json data='[{"name":"Ana","active":true},{"name":"Ben","active":false}]' jq='map(select(.active))' ojq='map(.name)' out=json
+# ["Ana"]
 ```
-input → ifrom → isql → path → transformers → from → sql → opath → output
-```
 
-#### 🔹 Filter Types Explained
+See the [source baseline](../source-snapshot.md) for the distinction between development oafp, the processor bundled with OpenAF, and the `oafproc` package.
 
-| Filter | Purpose | Example |
-|--------|---------|---------|
-| *path* | A JMESPath expression applied to raw input | ```path="[].data"``` |
-| *from* | Applies $from() operations after path | ```from="sort(date)"``` |
-| *sql* | SQL-like query applied to $from() result | ```sql="select * where size > 1000"``` |
-| *opath* | JMESPath applied to the final result | ```opath="[].name"``` |
-| *ifrom* | $from() logic before path | ```ifrom="sort(name)"``` |
-| *isql* | SQL logic before path (less common) | ```isql="select name from input"``` |
-
-#### 🧠 Key Takeaways
-
-* Use path to shape the raw input.
-* Use from for logic using OpenAF’s $from() like sort, group, distinct, etc.
-* Use sql when it’s easier to express logic in SQL.
-* Use opath for a final transformation before output.
-
-#### ✅ Recommended Pattern
-
-Start with path to normalize the data → then use from or sql depending on preference → finally apply opath if you need to tweak output.
-
----
-
-You can check more examples of usage in the [oafp guides](../guides/oafp/).
-
-## October processing features
+## Decisions and interactive exploration
 
 See [decisions and interactive JSON exploration](../guides/oafp/october-features.md) for `in=llmdecide`, per-entry decision enrichment, and `out=idesc` with loaded or file-backed JSON. The [processor reference](../guides/oafp/oafp-reference.md) provides an overview of the wider pipeline.

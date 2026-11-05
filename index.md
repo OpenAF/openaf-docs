@@ -14,9 +14,11 @@ OpenAF (_pronounced open-a-f_) is a Java & Javascript based "swiss-army knife" s
 * __[How to](docs/howto/index.md)__ - core functionality exemplified.
 * __[Guides](docs/guides/index.md)__ - guides with example code from beginner to advanced topics.
 
-## October 2026 source updates
+## Current documentation
 
-Explore [what changed since July](docs/guides/advanced/october-2026.md): stateless LLM decisions, MCP OAuth, JSON query engines, instrumentation, and new script-to-oJob tutorials. This documentation covers the October source snapshot and the local `20261014 nightly` runtime; it does not announce a published stable release.
+This site follows the [upstream source baseline checked on 5 November 2026](docs/source-snapshot.md). Browse the [API reference](docs/reference/index.md), [oJob-common modules](docs/guides/ojob/ojob-common-modules.md), [oafp usage](docs/guides/oafp/oafp-usage.md), and [complete oPack catalog](docs/guides/opacks/catalog.md).
+
+New coverage includes [graph and time-series channels](docs/concepts/OpenAF-Channels.md), [desktop and terminal views](docs/guides/advanced/desktop.md), [JDBC URL policy](docs/guides/advanced/jdbc-url-policy.md), and [Lambda/MicroVM deployment](docs/guides/opacks/openaflambda.md). Source availability and published releases are distinguished in the baseline page.
 
 ## Installing/Setup
 
@@ -39,7 +41,7 @@ Download the specific file for your OS and architecture (see below for Windows):
 | Linux | aarch64 (Arm) | [openaf.io/oaf-linux-aarch64](https://openaf.io/oaf-linux-aarch64) |
 | Alpine Linux | x86_64 (Intel) | [openaf.io/oaf-alpine-x86_64](https://openaf.io/oaf-alpine-x86_64) |
 | Alpine Linux | aarch64 (Arm) | [openaf.io/oaf-alpine-aarch64](https://openaf.io/oaf-alpine-aarch64) |
-| Mac | x64_64 (Intel) | [openaf.io/oaf-mac-x86_64](https://openaf.io/oaf-mac-x86_64) |
+| Mac | x86_64 (Intel) | [openaf.io/oaf-mac-x86_64](https://openaf.io/oaf-mac-x86_64) |
 | Mac | aarch64 (Apple Silicon) | [openaf.io/oaf-mac-aarch64](https://openaf.io/oaf-mac-aarch64) |
 
 
@@ -50,9 +52,9 @@ chmod u+x oaf-*
 ./oaf-*
 # Please use the created symlinks: oaf, ojob, opack, oafc, oafp, oaf-sb or ojob-sb
 # ./oafc
-``` 
+```
 
-This will provide it with execution permissons and, afterwards, simply execute it.
+This will provide it with execution permissions and, afterwards, simply execute it.
 
 For a more permanent or portable install follow the next instructions.
 
@@ -100,7 +102,7 @@ curl -o setup.sh https://openaf.io/setup.sh && sh setup.sh && rm setup.sh && mv 
 
 If you used "install.sh": After moving to the new folder execute the reinstall.sh (or reinstall.bat in Windows) created after the first installation.
 
-If you used "setup.sh": Simple move the folder.
+If you used "setup.sh": Simply move the folder.
 
 ## Upgrade
 
@@ -117,7 +119,7 @@ sudo ojob ojob.io/oaf/symlinks UNINSTALL=true && sudo rm -rf /opt/oaf
 ### Mac OS
 
 ````
-rm -rf /Applications/OpenAF && sudo rm /etc/paths/OpenAF && rm ~/.openaf*
+rm -rf /Applications/OpenAF && sudo rm /etc/paths.d/OpenAF && rm ~/.openaf*
 ````
 
 ### Windows

@@ -8,15 +8,15 @@ grand_parent: OpenAF docs
 
 _applies to version >= 20201111_
 
-When running OpenAF scripts it's possible to "ask" for user input. This can be achieve using one of four functions:
+When running OpenAF scripts it's possible to "ask" for user input. This can be achieved using one of these functions:
 
 | Function | Description |
 |----------|-------------|
 | ask | Asks for an entire input line optionally masking with a char (e.g. masking with '*' all characters). |
-| ask1 | Asks for just a single key of input from a list of possible key values. | 
+| ask1 | Asks for just a single key of input from a list of possible key values. |
 | askChoose | Displays a scrollable list of choices for the user to choose one (since version >= 20231222) |
 | askEncrypt | Asks for user input to produce an encrypted string. |
-| askN | Asks for multi-line input providing a function to decide each lien prompt and a stop function to decide when the input is finished. |  
+| askN | Asks for multi-line input providing a function to decide each line prompt and a stop function to decide when the input is finished. |
 
 ## Using 'ask'
 
@@ -46,8 +46,8 @@ Asking for a confirmation from the user:
 > var result = ask1("Do you want to continue (y/n)?", "ynYN"); print(result);
 Do you want to continue? (y/n)> n
 > result = String(result).toLowerCase();
-> if (result.toLowerCase() == "n") { 
-|    print("stopping....)    
+> if (result.toLowerCase() == "n") {
+|    print("stopping....")
 | }
 ````
 

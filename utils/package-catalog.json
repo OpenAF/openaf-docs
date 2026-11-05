@@ -1,0 +1,884 @@
+[
+  {
+    "directory": "APIs",
+    "name": "APIs",
+    "manifest": "APIs/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "AWS",
+    "name": "AWS",
+    "manifest": "AWS/.package.yaml",
+    "has_readme": true,
+    "guide": "aws.md"
+  },
+  {
+    "directory": "AsciiMo",
+    "name": "AsciiMo",
+    "manifest": "AsciiMo/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "Asciidoc",
+    "name": "Asciidoc",
+    "manifest": "Asciidoc/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "Avro",
+    "name": "Avro",
+    "manifest": "Avro/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "Badgen",
+    "name": "Badgen",
+    "manifest": "Badgen/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "Bench",
+    "name": "Bench",
+    "manifest": "Bench/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "BouncyCastle",
+    "name": "BouncyCastle",
+    "manifest": "BouncyCastle/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "BunnyNet",
+    "name": "BunnyNet",
+    "manifest": "BunnyNet/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "CHManager",
+    "name": "CHManager",
+    "manifest": "CHManager/.package.yaml",
+    "has_readme": true,
+    "guide": "chmanager.md"
+  },
+  {
+    "directory": "CmdUtils",
+    "name": "CmdUtils",
+    "manifest": "CmdUtils/.package.json",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "Compress",
+    "name": "Compress",
+    "manifest": "Compress/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "Compromise",
+    "name": "Compromise",
+    "manifest": "Compromise/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "Confluence",
+    "name": "Confluence",
+    "manifest": "Confluence/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "CopyFiles",
+    "name": "CopyFiles",
+    "manifest": "CopyFiles/.package.json",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "D3SVG",
+    "name": "D3SVG",
+    "manifest": "D3SVG/.package.yaml",
+    "has_readme": true,
+    "guide": "d3svg.md"
+  },
+  {
+    "directory": "DRProxy",
+    "name": "DRProxy",
+    "manifest": "DRProxy/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "Debug",
+    "name": "Debug",
+    "manifest": "Debug/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "Docker",
+    "name": "Docker",
+    "manifest": "Docker/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "DockerRegistry",
+    "name": "DockerRegistry",
+    "manifest": "DockerRegistry/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "Docsify",
+    "name": "Docsify",
+    "manifest": "Docsify/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "ElasticSearch",
+    "name": "ElasticSearch",
+    "manifest": "ElasticSearch/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "EncryptText",
+    "name": "EncryptText",
+    "manifest": "EncryptText/.package.json",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "FalkorDB",
+    "name": "FalkorDB",
+    "manifest": "FalkorDB/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "GCP",
+    "name": "GCP",
+    "manifest": "GCP/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "GCS",
+    "name": "GCS",
+    "manifest": "GCS/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "GIST",
+    "name": "GIST",
+    "manifest": "GIST/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "GPU",
+    "name": "GPU",
+    "manifest": "GPU/.package.yaml",
+    "has_readme": true,
+    "guide": "gpu.md"
+  },
+  {
+    "directory": "GenData",
+    "name": "GenData",
+    "manifest": "GenData/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "GitHub",
+    "name": "GitHub",
+    "manifest": "GitHub/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "GoogleCompiler",
+    "name": "GoogleCompiler",
+    "manifest": "GoogleCompiler/.package.json",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "GooglePhoneNumber",
+    "name": "GooglePhoneNumber",
+    "manifest": "GooglePhoneNumber/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "IMEICheck",
+    "name": "IMEICheck",
+    "manifest": "IMEICheck/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "InstallCert",
+    "name": "InstallCert",
+    "manifest": "InstallCert/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "Jira",
+    "name": "Jira",
+    "manifest": "Jira/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "KaTeX",
+    "name": "KaTeX",
+    "manifest": "KaTeX/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "Kafka",
+    "name": "Kafka",
+    "manifest": "Kafka/.package.yaml",
+    "has_readme": true,
+    "guide": "kafka.md"
+  },
+  {
+    "directory": "KeepAlive",
+    "name": "KeepAlive",
+    "manifest": "KeepAlive/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "Kube",
+    "name": "Kube",
+    "manifest": "Kube/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "LogsBrowser",
+    "name": "LogsBrowser",
+    "manifest": "LogsBrowser/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "MCPAuthd",
+    "name": "MCPAuthd",
+    "manifest": "MCPAuthd/.package.yaml",
+    "has_readme": true,
+    "guide": "mcpauthd.md"
+  },
+  {
+    "directory": "MDB",
+    "name": "MDB",
+    "manifest": "MDB/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "MSBot",
+    "name": "MSBot",
+    "manifest": "MSBot/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "Mac",
+    "name": "Mac",
+    "manifest": "Mac/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "Maven",
+    "name": "Maven",
+    "manifest": "Maven/.package.yaml",
+    "has_readme": true,
+    "guide": "maven.md"
+  },
+  {
+    "directory": "Mermaid",
+    "name": "Mermaid",
+    "manifest": "Mermaid/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "Mongo",
+    "name": "Mongo",
+    "manifest": "Mongo/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "Notifications",
+    "name": "Notifications",
+    "manifest": "Notifications/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "OpenAFLambda",
+    "name": "OpenAFLambda",
+    "manifest": "OpenAFLambda/.package.yaml",
+    "has_readme": true,
+    "guide": "openaflambda.md"
+  },
+  {
+    "directory": "OpenAFLambdaLayers",
+    "name": "OpenAFLambdaLayers",
+    "manifest": "OpenAFLambdaLayers/.package.yaml",
+    "has_readme": true,
+    "guide": "openaflambdalayers.md"
+  },
+  {
+    "directory": "OpenAI",
+    "name": "OpenAI",
+    "manifest": "OpenAI/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "OpenAPI",
+    "name": "OpenAPI",
+    "manifest": "OpenAPI/.package.yaml",
+    "has_readme": true,
+    "guide": "openapi.md"
+  },
+  {
+    "directory": "OpenTelemetry",
+    "name": "OpenTelemetry",
+    "manifest": "OpenTelemetry/.package.yaml",
+    "has_readme": true,
+    "guide": "opentelemetry.md"
+  },
+  {
+    "directory": "PEG",
+    "name": "PEG",
+    "manifest": "PEG/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "Parquet",
+    "name": "Parquet",
+    "manifest": "Parquet/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "Redis",
+    "name": "Redis",
+    "manifest": "Redis/.package.yaml",
+    "has_readme": true,
+    "guide": "redis.md"
+  },
+  {
+    "directory": "Robot",
+    "name": "Robot",
+    "manifest": "Robot/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "Rust",
+    "name": "Rust",
+    "manifest": "Rust/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "S3",
+    "name": "S3",
+    "manifest": "S3/.package.yaml",
+    "has_readme": true,
+    "guide": "s3.md"
+  },
+  {
+    "directory": "SQLDeveloperUtils",
+    "name": "SQLDeveloperUtils",
+    "manifest": "SQLDeveloperUtils/.package.json",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "SSHd",
+    "name": "SSHd",
+    "manifest": "SSHd/.package.yaml",
+    "has_readme": true,
+    "guide": "sshd.md"
+  },
+  {
+    "directory": "ScaleWay",
+    "name": "ScaleWay",
+    "manifest": "ScaleWay/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "SerializedObjects",
+    "name": "SerializedObjects",
+    "manifest": "SerializedObjects/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "SocksServer",
+    "name": "SocksServer",
+    "manifest": "SocksServer/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "SysBench",
+    "name": "SysBench",
+    "manifest": "SysBench/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "Terraform",
+    "name": "Terraform",
+    "manifest": "Terraform/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "Tika",
+    "name": "Tika",
+    "manifest": "Tika/.package.yaml",
+    "has_readme": true,
+    "guide": "tika.md"
+  },
+  {
+    "directory": "TimeLive",
+    "name": "TimeLive",
+    "manifest": "TimeLive/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "UnixPAM",
+    "name": "UnixPAM",
+    "manifest": "UnixPAM/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "XChart",
+    "name": "XChart",
+    "manifest": "XChart/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "asciinema",
+    "name": "asciinema",
+    "manifest": "asciinema/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "cq",
+    "name": "cq",
+    "manifest": "cq/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "etcd3",
+    "name": "etcd3",
+    "manifest": "etcd3/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "ghcopilot",
+    "name": "ghcopilot",
+    "manifest": "ghcopilot/.package.yaml",
+    "has_readme": true,
+    "guide": "ghcopilot.md"
+  },
+  {
+    "directory": "grpc",
+    "name": "grpc",
+    "manifest": "grpc/.package.yaml",
+    "has_readme": true,
+    "guide": "grpc.md"
+  },
+  {
+    "directory": "h3",
+    "name": "h3",
+    "manifest": "h3/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "inBrowser",
+    "name": "inBrowser",
+    "manifest": "inBrowser/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "initd",
+    "name": "initd",
+    "manifest": "initd/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-couchbase",
+    "name": "jdbc-couchbase",
+    "manifest": "jdbc-couchbase/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-couchbaseanalytics",
+    "name": "jdbc-couchbaseanalytics",
+    "manifest": "jdbc-couchbaseanalytics/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-csv",
+    "name": "jdbc-csv",
+    "manifest": "jdbc-csv/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-db2",
+    "name": "jdbc-db2",
+    "manifest": "jdbc-db2/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-drill",
+    "name": "jdbc-drill",
+    "manifest": "jdbc-drill/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-duckdb",
+    "name": "jdbc-duckdb",
+    "manifest": "jdbc-duckdb/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-h2",
+    "name": "jdbc-h2",
+    "manifest": "jdbc-h2/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-hsqldb",
+    "name": "jdbc-hsqldb",
+    "manifest": "jdbc-hsqldb/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-mariadb",
+    "name": "jdbc-mariadb",
+    "manifest": "jdbc-mariadb/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-mdb",
+    "name": "jdbc-mdb",
+    "manifest": "jdbc-mdb/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-mysql",
+    "name": "jdbc-mysql",
+    "manifest": "jdbc-mysql/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-neo4j",
+    "name": "jdbc-neo4j",
+    "manifest": "jdbc-neo4j/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-neptune",
+    "name": "jdbc-neptune",
+    "manifest": "jdbc-neptune/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-odbc",
+    "name": "jdbc-odbc",
+    "manifest": "jdbc-odbc/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-opendistro",
+    "name": "jdbc-opendistro",
+    "manifest": "jdbc-opendistro/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-oracle",
+    "name": "jdbc-oracle",
+    "manifest": "jdbc-oracle/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-paradox",
+    "name": "jdbc-paradox",
+    "manifest": "jdbc-paradox/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-postgresql",
+    "name": "jdbc-postgresql",
+    "manifest": "jdbc-postgresql/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-presto",
+    "name": "jdbc-presto",
+    "manifest": "jdbc-presto/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-sqlite",
+    "name": "jdbc-sqlite",
+    "manifest": "jdbc-sqlite/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-sqlserver",
+    "name": "jdbc-sqlserver",
+    "manifest": "jdbc-sqlserver/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-trino",
+    "name": "jdbc-trino",
+    "manifest": "jdbc-trino/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jdbc-yugabytedb",
+    "name": "jdbc-yugabytedb",
+    "manifest": "jdbc-yugabytedb/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "jexer",
+    "name": "jexer",
+    "manifest": "jexer/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "jsoup",
+    "name": "Jsoup",
+    "manifest": "jsoup/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "lanterna",
+    "name": "lanterna",
+    "manifest": "lanterna/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "lucene",
+    "name": "lucene",
+    "manifest": "lucene/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "md2email",
+    "name": "md2email",
+    "manifest": "md2email/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "mdconvert",
+    "name": "mdconvert",
+    "manifest": "mdconvert/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "morse",
+    "name": "Morse",
+    "manifest": "morse/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "oDoc2MD",
+    "name": "oDoc2MD",
+    "manifest": "oDoc2MD/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "oJobIO",
+    "name": "oJobIO",
+    "manifest": "oJobIO/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "oPackServer",
+    "name": "oPackServer",
+    "manifest": "oPackServer/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "oafproc",
+    "name": "oafproc",
+    "manifest": "oafproc/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "pastebin",
+    "name": "PasteBin",
+    "manifest": "pastebin/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "playwright",
+    "name": "playwright",
+    "manifest": "playwright/.package.yaml",
+    "has_readme": true,
+    "guide": "playwright.md"
+  },
+  {
+    "directory": "plugin-DesktopJavaFX",
+    "name": "plugin-DesktopJavaFX",
+    "manifest": "plugin-DesktopJavaFX/.package.yaml",
+    "has_readme": true,
+    "guide": "plugin-desktopjavafx.md"
+  },
+  {
+    "directory": "plugin-GIT",
+    "name": "plugin-GIT",
+    "manifest": "plugin-GIT/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "plugin-Ignite",
+    "name": "plugin-Ignite",
+    "manifest": "plugin-Ignite/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "plugin-SMB",
+    "name": "plugin-SMB",
+    "manifest": "plugin-SMB/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "plugin-SVN",
+    "name": "plugin-SVN",
+    "manifest": "plugin-SVN/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "plugin-XLS",
+    "name": "plugin-XLS",
+    "manifest": "plugin-XLS/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "prolog",
+    "name": "Prolog",
+    "manifest": "prolog/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "py-textual",
+    "name": "py-textual",
+    "manifest": "py-textual/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "qr",
+    "name": "QR",
+    "manifest": "qr/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "rocksdb",
+    "name": "rocksdb",
+    "manifest": "rocksdb/.package.yaml",
+    "has_readme": true,
+    "guide": null
+  },
+  {
+    "directory": "rss",
+    "name": "RSS",
+    "manifest": "rss/.package.yaml",
+    "has_readme": false,
+    "guide": null
+  },
+  {
+    "directory": "tunnels",
+    "name": "Tunnels",
+    "manifest": "tunnels/.package.json",
+    "has_readme": false,
+    "guide": null
+  }
+]

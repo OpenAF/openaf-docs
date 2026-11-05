@@ -5,6 +5,9 @@ parent: oafp
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [oafp `35a922f9`](https://github.com/OpenAF/oafp/blob/35a922f9cc218a31f032e6c95e1c743a24a7fd68/src/docs/TEMPLATE.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # OpenAF processor template
 
 The _output=template_ option uses javascript [Handlebars](https://handlebarsjs.com/guide/) library.
@@ -19,49 +22,50 @@ Here are some of the available helpers:
 |--------|-------------|
 | $stringify      | shows a JSON representation of the provided parameter |
 | $stringifyInLine| shows a JSON representation, without spaces, of the provided parameter |
-| $toYAML         | shows the YAML version of the parameter  | 
+| $toYAML         | shows the YAML version of the parameter  |
 | $toKYAML        | shows the KYAML version of the parameter  |
-| $toJSON         | shows the JSON version of the parameter  | 
+| $toJSON         | shows the JSON version of the parameter  |
 | $env            | shows the current environment variable identified by the parameter |
-| $escape         | shows an escaped version of the parameter | 
+| $escape         | shows an escaped version of the parameter |
 | $acolor         | shows an ansi color (first argument) escape sequence of the string parameter (second argument) |
-| $f              | uses the $f format function                | 
-| $ft             | uses the $ft format function               | 
-| $path           | uses the $path function to query objects   | 
-| $from           | uses the $from & fromNLinq to query objects | 
+| $f              | uses the $f format function                |
+| $ft             | uses the $ft format function               |
+| $path           | uses the $path function to query objects   |
+| $from           | uses the $from & fromNLinq to query objects |
 | $oafp           | uses the oafp function (inception) to parse the provided JSON/SLON string and return the results (tip: use with the #with helper) |
 | $toSLON         | shows the ow.format.toSLON version of an object |
 | $get            | shows the corresponding value for a key on $get |
 | $getObj         | equivalent to $get with the extra parameter for $$.get path |
-| $dateDiff       | shows a number of seconds for a provided date optionally (second argument) with minutes, hours, days, months, weeks or years and (third argument) a default value | 
-| $switch         | equivalent to a javascript switch          | 
-| $case           | to be used with $switch for each case      | 
-| $default        | to be used with $switch for each case      | 
+| $dateDiff       | shows a number of seconds for a provided date optionally (second argument) with minutes, hours, days, months, weeks or years and (third argument) a default value |
+| $switch         | equivalent to a javascript switch          |
+| $case           | to be used with $switch for each case      |
+| $default        | to be used with $switch for each case      |
 | $pbar           | shows an ansi ascii progress bar with a value and a max value, a min value, a size, an indicator and space char |
 | $pbars          | shows an ansi ascii tree of progress bars with a format string: "unit path:color:legend... [-min:0] [-max:100] [-hsize:40]"|
 | $ptable         | shows an ansi ascii printTable representation of an object  |
+| $mdtable        | shows a markdown table given an array of headers and an array of rows (objects, arrays, or scalars) |
 | $ptree          | shows an ansi ascii printTree representation of an object  |
 | $pchart         | shows an ansi ascii line chart with an object and a format string: "unit path:color:legend... [-min:0] [-max:100] [-hsize:40] [-vsize:10]" |
 | $output         | shows an $output representation of an object (aObj as 1st arg and options in slon as 2nd arg) |
 | $cjson          | shows an ansi ascii colority representation fo an object  |
 | $cslon          | shows an ansi ascii colored SLON representation of an object |
 | $pmap           | shows an ansi ascii printMap representation of an object |
-| $jsmap          | shows a HTML representation of an object | 
+| $jsmap          | shows a HTML representation of an object |
 | $t              | given a template and an object instance, as arguments, will process and return the template  |
-| $date           | converts the argument provided to date     | 
+| $date           | converts the argument provided to date     |
 | $isoDate        | converts the argument provided to an ISO date string  |
-| $number         | casts the argument provided to number      | 
-| $boolean        | casts the argument provided to boolean     | 
-| $string         | casts the argument provided to string      | 
+| $number         | casts the argument provided to number      |
+| $boolean        | casts the argument provided to boolean     |
+| $string         | casts the argument provided to string      |
 | $keys           | shows an array of keys of the provided map  |
 | $values         | shows an array of values of the provided map  |
 | $alen           | shows the ansi length of the argument provided  |
 | $len            | shows the string length of the argument provided  |
-| $repeat         | shortcut to the OpenAF's repeat function   | 
-| $range          | shortcut to the OpenAF's range function    | 
-| $a2m            | shortcut to the OpenAF's $a2m function     | 
-| $a4m            | shortcut to the OpenAF's $a4m function     | 
-| $m2a            | shortcut to the OpenAF's $m2a function     | 
+| $repeat         | shortcut to the OpenAF's repeat function   |
+| $range          | shortcut to the OpenAF's range function    |
+| $a2m            | shortcut to the OpenAF's $a2m function     |
+| $a4m            | shortcut to the OpenAF's $a4m function     |
+| $m2a            | shortcut to the OpenAF's $m2a function     |
 | $m4a            | shortcut to the OpenAF's $m4a function       |
 | $pass           | shows an empty string                      |
 | $p              | shows the provided literal                  |
@@ -112,7 +116,7 @@ Taking the JSON output from a weather service and converting it into a markdown 
 Let's start by creating the HandleBars template (save it as _weather.hbs_):
 
 ```handlebars
-{% raw %}# Weather report ({{nearest_area.0.areaName.0.value}}, {{nearest_area.0.country.0.value}})
+# Weather report ({{nearest_area.0.areaName.0.value}}, {{nearest_area.0.country.0.value}})
 
 ## Currently ({{current_condition.0.observation_time}})
 
@@ -143,7 +147,7 @@ Let's start by creating the HandleBars template (save it as _weather.hbs_):
 | {{$ft '%04d' ($number time)}} | {{weatherDesc.0.value}} | {{tempC}}°C ({{tempF}}°F) | {{FeelsLikeC}}°C ({{FeelsLikeF}}°F) | {{windspeedKmph}} km/h ({{windspeedMiles}} miles/h) from the {{winddir16Point}} | {{humidity}}% | {{precipMM}}mm | {{visibility}} km ({{visibilityMiles}} miles) | {{pressure}} mbar | {{uvIndex}} |
 {{/each}}
 ---
-{{/each}}{% endraw %}
+{{/each}}
 ```
 
 Now execute (changing the location if needed):
@@ -155,3 +159,4 @@ curl -s "wttr.in/Paris?view=j1" | oafp output=template template=weather.hbs | oa
 # Saving the generated markdown
 curl -s "wttr.in/New%20York?view=j1" | oafp output=template template=weather.hbs > weather.md
 ```
+{% endraw %}

@@ -23,7 +23,7 @@ The easiest way to have a quick glance at the list of ElasticSearch/OpenSearch i
 
 ````sh
 $ ./oafc
-> loadLib("elastisearch.js")
+> loadLib("elasticsearch.js")
 ````
 
 ### 2.1 Connecting

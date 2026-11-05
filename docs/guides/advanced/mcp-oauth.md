@@ -1,9 +1,12 @@
 ---
 layout: default
-title: "Localhost OAuth2 authentication"
+title: Localhost OAuth2 authentication
 parent: Advanced
 grand_parent: Guides
 ---
+
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/mcp-oauth.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
 
 # Localhost OAuth2 authentication
 
@@ -200,7 +203,7 @@ credentials; it does not revoke provider consent. A missing entry is harmless.
 Instead of the `sec` descriptor, provide a synchronous object:
 
 ```javascript
-tokenStore: {
+var options = { tokenStore: {
   profile: "alice",
   load: function(key) { /* Return a record, or undefined when absent. */ },
   save: function(key, record) { /* Persist the record before returning. */ },
@@ -209,7 +212,7 @@ tokenStore: {
     // Acquire your backend's lock, invoke fn() once, release in finally.
     // Return fn()'s result and propagate its exception.
   }
-}
+} };
 ```
 
 `load`, `save` and `clear` execute inside `withLock`. The adapter must coordinate all
@@ -240,3 +243,4 @@ a particular identity provider's app registration or consent policy.
 A single page retains its cache metadata. For multiple pages, `ttlMs` is bounded by the earliest remaining page lifetime; a missing or invalid lifetime prevents caching. Different cache scopes produce a private, non-cacheable aggregate (`ttlMs: 0`). After the existing 1,000-page limit, `nextCursor` remains available to indicate that enumeration is incomplete; it is removed only when enumeration finishes.
 
 An error, `input_required`, or malformed list response is returned unchanged, including when it follows successful pages. Callers must inspect the response before treating it as a list; these responses are not converted to empty or partial success.
+{% endraw %}

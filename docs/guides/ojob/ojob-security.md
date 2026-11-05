@@ -5,9 +5,12 @@ parent: oJob
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/ojob-security.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # oJob Security & Integrity
 
-[Index](../../../index.md) | [oJob Reference](ojob-yaml-reference.md) | [Security](ojob-security.md) | [Flags](../advanced/openaf-flags.md) | [Recipes](ojob-recipes.md) | [Advanced](../advanced/openaf-advanced-guide.md)
+[Index](../index.md) | [oJob Reference](ojob-yaml-reference.md) | [Security](ojob-security.md) | [Flags](../advanced/openaf-flags.md) | [Recipes](ojob-recipes.md) | [Advanced](../advanced/openaf-advanced-guide.md)
 
 This document details security-focused capabilities in oJob supplementing `ojob.md`.
 
@@ -85,7 +88,7 @@ ojob:
       pass       : pass1
       permissions: rw
     permissions : r                # default permission
-    audit       : "AUDIT | User: {% raw %}{{request.user}}{% endraw %} | Channel: {% raw %}{{name}}{% endraw %} | Operation: {% raw %}{{op}}{% endraw %} | Key: {% raw %}{{{key}}{% endraw %}}"
+    audit       : "AUDIT | User: {{request.user}} | Channel: {{name}} | Operation: {{op}} | Key: {{{key}}}"
 ```
 
 `audit: true` uses the default template. Providing a string overrides it.
@@ -130,9 +133,10 @@ The loader recognizes `.yaml.enc`, `.yml.enc`, `.json.enc`, and `.js.enc` defini
 
 The CLI blocks `-compile`, `-tojson`, `-jobs`, `-todo`, and `-deps` for an encrypted entry definition or detected encrypted `include`/`jobsInclude`. These are specific inspection restrictions, not a claim that all help or loading operations are blocked. Encryption and integrity/signature verification are separate mechanisms.
 
-## Combined Integrity / Signature (OpenAF)
+## OpenAF Script Validation
 
-OpenAF core can also enforce script integrity & signatures (`OAF_INTEGRITY`, `OAF_SIGNATURE_*`). Use together for full chain trust: platform JS + oJob YAML includes.
+OpenAF core can enforce script integrity with `OAF_INTEGRITY` and `OAF_INTEGRITY_STRICT`. A script signature format is not currently defined, so `OAF_SIGNATURE_STRICT` and `OAF_VALIDATION_STRICT` fail closed. Signed oJob definitions use their separately documented `__jwt` format.
 
 ---
 See also: `openaf-flags.md`, main `ojob.md`.
+{% endraw %}

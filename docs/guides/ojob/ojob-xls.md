@@ -115,7 +115,7 @@ Adds a table of data to a sheet with automatic formatting.
 
 **Default Header Style:**
 ```javascript
-{
+var example = {
   bold: true,
   fontPoints: 10,
   wrapText: true,
@@ -126,7 +126,7 @@ Adds a table of data to a sheet with automatic formatting.
 
 **Default Line Style:**
 ```javascript
-{
+var example = {
   valign: "top",
   fontPoints: 10,
   wrapText: true
@@ -135,7 +135,7 @@ Adds a table of data to a sheet with automatic formatting.
 
 **Position Map:**
 ```javascript
-{
+var example = {
   row: 1,        // Row number (1-based)
   column: 'A'    // Column letter
 }
@@ -369,10 +369,9 @@ jobs:
       ow.loadObj();
 
       var response = $rest()
-        .get("https://api.example.com/reports/sales")
-        .getResponse();
+        .get("https://api.example.com/reports/sales");
 
-      args.apiData = response.data;
+      args.apiData = response;
 
   - name: Export API Data
     deps:

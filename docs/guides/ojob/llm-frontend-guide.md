@@ -5,6 +5,9 @@ parent: oJob
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/llm-frontend-guide.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # OpenAF LLM Frontend Guide (Offline-First)
 
 Guidelines for generating `.html`, `.md`, `.js`, `.css`, and oJob `.yaml` files that maximize existing OpenAF HTTP server capabilities and local assets.
@@ -263,7 +266,7 @@ Follows CHManager patterns: viewport meta tag, CSS variables for theming, media 
     }
     * { box-sizing: border-box; }
     body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; }
-    
+
     /* Desktop: flex row layout */
     #layout { display: flex; min-height: 100vh; }
     #sidebar { width: 250px; background: var(--bg); border-right: 1px solid var(--border); padding: 16px; overflow-y: auto; }
@@ -272,14 +275,14 @@ Follows CHManager patterns: viewport meta tag, CSS variables for theming, media 
     #menu-toggle { display: none; cursor: pointer; font-size: 24px; }
     #topbar h1 { margin: 0; flex: 1; font-size: 18px; }
     #content { flex: 1; padding: 16px; overflow-y: auto; }
-    
+
     /* Responsive grid */
     .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
     .card { background: white; border: 1px solid var(--border); border-radius: 4px; padding: 16px; }
     @media (prefers-color-scheme: dark) {
       .card { background: #1e1e1e; }
     }
-    
+
     /* Mobile: hamburger menu, stacked layout */
     @media (max-width: 768px) {
       body { font-size: 16px; } /* Prevent zoom on iOS input focus */
@@ -310,12 +313,12 @@ Follows CHManager patterns: viewport meta tag, CSS variables for theming, media 
       <h1>My App</h1>
       <button class="btn" onclick="refreshData()">⟳</button>
     </div>
-    
+
     <div id="sidebar">
       <h3>Channels</h3>
       <div id="channel-list"></div>
     </div>
-    
+
     <div id="main">
       <div id="content">
         <div class="card-grid" id="cards"></div>
@@ -327,7 +330,7 @@ Follows CHManager patterns: viewport meta tag, CSS variables for theming, media 
     function toggleMenu() {
       document.getElementById('layout').classList.toggle('menu-open')
     }
-    
+
     function refreshData() {
       fetch('/api/data')
         .then(r => r.json())
@@ -337,7 +340,7 @@ Follows CHManager patterns: viewport meta tag, CSS variables for theming, media 
             .join('')
         })
     }
-    
+
     refreshData()
   </script>
 </body>
@@ -366,3 +369,4 @@ Follows CHManager patterns: viewport meta tag, CSS variables for theming, media 
 4. `https://github.com/OpenAF/mini-a/blob/main/mini-a-web.yaml`
 5. `https://github.com/OpenAF/openaf-opacks/blob/master/*/.package.yaml`
 6. `https://github.com/OpenAF/openaf-opacks/blob/master/CHManager/public/index.html` – Reference mobile-responsive design with theme switching, hamburger menu, and adaptive grids.
+{% endraw %}

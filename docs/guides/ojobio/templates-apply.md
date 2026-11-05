@@ -38,7 +38,7 @@ And you get the result in script.sh:
 ````bash
 echo Anne
 echo John
-echo Scott 
+echo Scott
 ````
 
 ## Putting everything on the same file
@@ -61,6 +61,8 @@ data:
   - Scott
 ````
 
+{% endraw %}
+
 And it's even simpler to execute:
 
 ````sh
@@ -73,7 +75,8 @@ $ ojob ojob.io/template/apply data=data.yaml
 
 Let's take our previous example and generate a Windows and an Unix script (data.yaml):
 
-{% raw %}````yaml
+{% raw %}
+````yaml
 template: &TEMPLATE |
   {{#if windows}}
   @echo off
@@ -98,7 +101,8 @@ data:
   _file    : script.bat
   windows  : true
   names    : *DATA
-````{% endraw %}
+````
+{% endraw %}
 
 Execute again and you will get the two different scripts:
 
@@ -122,7 +126,8 @@ echo Scott
 
 In your previous example you tried to just use one template and using HandleBars produce two scripts using the same template. But, if needed, you can actually use different templates (data.yaml):
 
-{% raw %}````yaml
+{% raw %}
+````yaml
 templateWin: &TEMPLATE_WIN |
   @echo off
   {{#each names}}
@@ -146,7 +151,8 @@ data:
 - _template: *TEMPLATE_UNIX
   _file    : script.sh
   names    : *DATA
-````{% endraw %}
+````
+{% endraw %}
 
 And executing in the same way as the previous example it will generate the same exact scripts.
 
@@ -154,7 +160,8 @@ And executing in the same way as the previous example it will generate the same 
 
 When it gets really interesting is when you generate other data files using a master data & template file. Let's say you need to generate some install scripts for your Java application in different architectures with different JREs. Your stepA.yaml could look like this:
 
-{% raw %}```yaml
+{% raw %}
+```yaml
 template: &TEMPLATE |
   _template: |
     \{{#if win}}
@@ -200,7 +207,8 @@ data:
   - stable
   - canary
   - nightly
-```{% endraw %}
+```
+{% endraw %}
 
 Executing ojob.io/template/apply on stepA.yaml generates a new stepB.yaml with 45 data entries:
 
@@ -213,7 +221,7 @@ stepB.yaml:
 ````yaml
 _template: &TEMPLATE
 # ...
-data: 
+data:
 - _file    : scripts/stable/amd64/8/install.sh
   _template: *TEMPLATE
   win      : false
@@ -227,7 +235,7 @@ data:
   jvm      : 8
   arch     : amd64
 # ...
-```
+````
 
 Executing stepB.yaml:
 
@@ -237,7 +245,7 @@ $ find scripts | grep install | wc -l
 45
 ````
 
-You get 45 install scripts. Now if there is any change you need you just need to change the original template and execute stepA.yaml and then stepB.yaml and the change will be propagated to 45 files. 
+You get 45 install scripts. Now if there is any change you need you just need to change the original template and execute stepA.yaml and then stepB.yaml and the change will be propagated to 45 files.
 
 Of couse, adding new architecures, JVM versions and application distributions is as easy as just changing the stepA.yaml file.
 

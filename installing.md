@@ -7,6 +7,8 @@ grand_parent: OpenAF docs
 
 # Specific installation instructions
 
+The current source baseline requires **Java 21 or later**. Bundled installers select a runtime; when supplying your own Java, verify its version and architecture. Stable and nightly downloads have separate release histories; see the [documentation baseline](docs/source-snapshot.md).
+
 ## Unix (x86 based)
 
 ````bash
@@ -38,7 +40,7 @@ $ ./oafc
 
 ````bash
 $ mkdir oaf && cd oaf
-$ curl -o install.sh https://openaf.io/macarm/install.sh 
+$ curl -o install.sh https://openaf.io/macarm/install.sh
 $ sh install.sh
 $ ./oafc
 ````

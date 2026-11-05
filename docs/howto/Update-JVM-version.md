@@ -7,35 +7,37 @@ grand_parent: OpenAF docs
 
 # How to - Update the JVM version
 
-OpenAF is a Java application thus it relies on an installed JVM. Whenever you run the OpenAF commands _"oaf"_ , _"oafc"_, _"ojob"_, _"opack"_, etc... you are actually running a script that execute an installed JVM together with OpenAF's Java binary (e.g. openaf.jar). 
+OpenAF launchers (`oaf`, `oafc`, `ojob`, `opack`) run a Java executable with `openaf.jar`. The current source baseline requires **Java 21 or later**. Choose a Java build for the host operating system and architecture; old Java 8 paths in historical examples are not suitable for this baseline.
 
-The system you are using might already have a Java JRE (Java Runtime Enviroment) on a specific path. Unfortunatelly it's common to include in the corresponding path the Java version: _/usr/java/jdk1.8.0_192-amd64/jre/bin/java_. So any change on the Java version will imply a change in the path.
- 
+Inspect the Java runtime actually used by OpenAF:
+
+```sh
+oaf -c 'print(java.lang.System.getProperty("java.version")); print(java.lang.System.getProperty("java.home"));'
+```
+
 ## When Java is on an operating system folder
 
-After a system adminsitrator has updated Java, on the system you are using, you just need to execute the following commands afterwards:
+Install the new Java runtime first, then regenerate launchers from the OpenAF installation directory using that runtime explicitly:
 
-````shell
-cd /to/the/openaf/folder
-/usr/java/jdk1.8.0_372-amd64/jre/bin/java -jar openaf.jar --install
-````
+```sh
+cd /path/to/openaf
+/path/to/jdk-21/bin/java -jar openaf.jar --install
+```
 
-This will regenerate the OpenAF's script, on the same folder, pointing now to the new Java version. 
+`--install` rewrites the launcher scripts to use the selected Java installation. Run the inspection command again to confirm the path and version. Restart long-running OpenAF processes separately; changing a launcher does not switch an already-running JVM.
 
 ## When there is a "jre" sub-folder
 
-If you are not using Java from an operating system folder chances are that you have a "jre" sub-folder on [OpenAF folder]/jre. If you have a new Java JRE/JDK installation:
+Stop processes that use the bundled runtime, keep a backup of the existing `jre` directory, and extract the replacement so that `jre/bin/java` exists. Verify its executable permissions and version, then regenerate launchers if the path has changed:
 
-1. Backup the existing "jre" folder to a different backup folder
-2. Delete the current "jre" folder
-3. Create a new "jre" folder and then extract your new JRE/JDK installation into it
+```sh
+cd /path/to/openaf
+./jre/bin/java -version
+./jre/bin/java -jar openaf.jar --install
+```
 
-That's it. Since Java is in the same path nothing needs to change.
-
-> Before starting the upgrade, on a system with Internet access and OpenAF, you can follow the [instructions to prepare a Java JRE tgz](../guides/ojobio/quickly_download_java.md).
-
-> You can use ```ojob ojob.io/oaf/javaUpdate``` to determine if an update is needed and download a jre.tgz accordingly.
+Preserve any deliberately configured truststore or JVM settings when migrating. See [portable Java downloads](../guides/ojobio/quickly_download_java.md) and [certificate installation](../guides/advanced/easily-add-ssl-cert.md).
 
 ## In container images
 
-There is no need to upgrade the JVM inside an OpenAF image. Just simply update the image and it should bring the latest JVM avalable at time of build.
+Select or rebuild an image containing the required Java version and recreate containers from it. Inspect the runtime inside the new container; a tag alone does not establish the Java version or update running containers.

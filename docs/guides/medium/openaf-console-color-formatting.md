@@ -40,7 +40,7 @@ So let's change and see the diference:
 
 Much easier to read. Of course, it all depends on your personal preferences:
 
-````javascript
+````json
 {
   "key": "UNDERLINE,WHITE",
   "number": "BG_WHITE,GREEN",

@@ -1,13 +1,16 @@
 ---
 layout: default
-title: "OpenAF Interactive Console (oafc / openaf-console)"
+title: OpenAF Interactive Console (oafc / openaf-console)
 parent: Advanced
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/console.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # OpenAF Interactive Console (oafc / openaf-console)
 
-[Index](../../../index.md) | [CLI Reference](cli.md) | [OpenAF Reference](openaf-reference.md) | [Flags](openaf-flags.md)
+[Index](../index.md) | [CLI Reference](cli.md) | [OpenAF Reference](openaf-reference.md) | [Flags](openaf-flags.md)
 
 The interactive console is OpenAF's REPL: a line editor (with history, completion and multi-line
 input) on top of the same JavaScript engine used to run scripts. Anything that isn't a built-in
@@ -67,7 +70,7 @@ searches the same offline help database used by `<odoc>`-documented functions (s
 | `desc` | Describe the available methods/properties of a class. | `desc AF` |
 | `scope` | List the current JS scope, optionally filtered by a regexp. | `scope sha` |
 | `alias` | Create (or list) an alias for a console command line. With no argument, lists current aliases. | `alias ola=print("hi");` |
-| `watch` | With no argument, reports whether watch is active. `watch on` / `watch off` toggle it without changing the expression. `watch <expr>` re-evaluates `<expr>` before every prompt. `watch <N> <expr>` live-refreshes `<expr>`'s output every `N` seconds until `q` is pressed. | `watch new Date();`, `watch 5 ow.server.getThreadsInfo()` |
+| `watch` | With no argument, reports whether watch is active. `watch on` / `watch off` toggle it without changing the expression. `watch <expr>` re-evaluates `<expr>` before every prompt. `watch <N> <expr>` live-refreshes `<expr>`'s output every `N` seconds until `q` is pressed. | `watch new Date();`, `watch 5 new Date()` |
 | `pause` | Toggle pausing long output at the terminal height (default on). | `pause` |
 | `table <expr>` | Evaluate `<expr>` and render an array-of-maps result as an ASCII table. | `table listFiles(".")` |
 | `tree` | With no argument, reports whether persistent tree rendering is active (default on). `tree on` / `tree off` switch all subsequent map/array output between tree and flat table view. `tree <expr>` renders `<expr>`'s result as a tree once, without changing the persistent mode. | `tree off`, `tree myObj` |
@@ -112,8 +115,13 @@ If dimensions remain unavailable, OpenAF retains the last known values
 The POSIX pipeline and resize regression can be run after building with
 `python3 tests/test-terminal-size.py openaf.jar` from the repository root.
 
+## Windows terminal
+
+On Windows the console uses a system terminal through JLine's JNI support (`OpenAFWinSysTerminal`), falling back to the previous behaviour if it cannot be initialised. The console is built on JLine 4.x (migrated from JLine 2.x), so key handling and terminal-size queries follow JLine 4 semantics.
+
 ## See also
 
 - [cli.md](cli.md) — full `openaf`/`oaf` flag reference and generated wrapper scripts.
 - [odoc.md](odoc.md) — the offline help database used by `help <term>`.
 - [openaf-flags.md](openaf-flags.md) — `noHomeComms` and other runtime flags.
+{% endraw %}

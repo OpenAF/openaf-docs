@@ -1,9 +1,12 @@
 ---
 layout: default
-title: "Generic instrumentation"
+title: Generic instrumentation
 parent: Advanced
 grand_parent: Guides
 ---
+
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/instrumentation.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
 
 # Generic instrumentation
 
@@ -155,3 +158,4 @@ forwarding; retries may duplicate a delivery, and abrupt exits may lose data.
 Inspection endpoints, forwarding and export operations suppress instrumentation
 to prevent feedback loops. `getStats()` reports provider errors, filtering,
 eviction, pending queues, rejected records, retries and overflow.
+{% endraw %}

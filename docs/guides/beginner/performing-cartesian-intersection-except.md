@@ -7,7 +7,7 @@ grand_parent: Guides
 
 # Performing cartesian product, intersection and except over two arrays
 
-The helper [_$from_](docs/concepts/OpenAF-nLinq.md) simplifies the handling of an array of maps but it can also help performing functions with other arrays of maps namely for a cartesian product, intersection and except operations. 
+The helper [_$from_](../../concepts/OpenAF-nLinq.md) simplifies the handling of an array of maps but it can also help performing functions with other arrays of maps namely for a cartesian product, intersection and except operations.
 
 ## Defining two sets of values
 

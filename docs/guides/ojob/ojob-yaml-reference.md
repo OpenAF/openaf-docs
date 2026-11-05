@@ -5,11 +5,14 @@ parent: oJob
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/ojob.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # oJob YAML Reference Guide
 
-[Index](../../../index.md) | [oJob Reference](ojob-yaml-reference.md) | [Security](ojob-security.md) | [Flags](../advanced/openaf-flags.md) | [Recipes](ojob-recipes.md) | [Advanced](../advanced/openaf-advanced-guide.md)
+[Index](../index.md) | [oJob Reference](ojob-yaml-reference.md) | [Security](ojob-security.md) | [Flags](../advanced/openaf-flags.md) | [Recipes](ojob-recipes.md) | [Advanced](../advanced/openaf-advanced-guide.md)
 
-oJob is OpenAF's job orchestration framework that allows you to define, schedule, and execute jobs using YAML configuration files. This guide describes the implementation in [owrap.oJob.js](https://github.com/OpenAF/openaf/blob/a5181af6/js/owrap.oJob.js) and the command-line entry point in [ojob.js](https://github.com/OpenAF/openaf/blob/a5181af6/js/ojob.js). Start with the runnable [recipes](ojob-recipes.md); use the [ojob.io examples map](ojob-examples.md) to find larger applications.
+oJob is OpenAF's job orchestration framework that allows you to define, schedule, and execute jobs using YAML configuration files. This guide describes the implementation in [owrap.oJob.js](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/js/owrap.oJob.js) and the command-line entry point in [ojob.js](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/js/ojob.js). Start with the runnable [recipes](ojob-recipes.md); use the [ojob.io examples map](ojob-examples.md) to find larger applications.
 
 ## Table of Contents
 
@@ -166,25 +169,25 @@ ojob:
   # Thread management
   numThreads: 4                # Force specific number of threads
   poolThreadFactor: 2          # Multiply cores by this factor
-  
+
   # Execution behavior
   async: false                 # Execute jobs async instead of sequential
   sequential: true             # Force sequential execution
   shareArgs: true              # Pass results between sequential todos
   daemon: false                # Keep running as daemon
   timeInterval: 50             # Daemon check interval in ms
-  
+
   # Dependencies
   depsWait: false              # Wait for dependencies even if others fail
   depsTimeout: 300000          # Max time to wait for dependencies (ms)
   depsOnFail: |                # Code to execute when dependency fails
     logErr("Dependency failed: " + job.name)
-  
+
   # Templates and arguments
-  templateArgs: true           # Process {% raw %}{{}}{% endraw %} handlebars in args
+  templateArgs: true           # Process {{}} handlebars in args
   argsFromEnvs: true           # Load environment variables as args
-  initTemplateEscape: false    # Escape {% raw %}{{ in init values
-  
+  initTemplateEscape: false    # Escape {{ in init values
+
   # Timing
   cronInLocalTime: false       # false selects UTC; true selects local time
 ```
@@ -203,17 +206,17 @@ ojob:
   logLimit: 3                  # Number of executions to keep in log
   logHistory: 10               # Factor of job logs to keep
   ignoreNoLog: false           # Ignore job-level nolog settings
-  
+
   # Console appearance
   conAnsi: true                # Enable ANSI terminal detection
   conWidth: 128                # Force console width
-  
+
   # File logging (all options mirror ow.ch.utils.setLogToFile)
   logToFile:
     logFolder: "/var/log"              # Where the current log file is written (default: '.')
-    filenameTemplate: "log-{{timedate}}{% endraw %}.log"  # Template for log filename (uses timedate)
+    filenameTemplate: "log-{{timedate}}.log"  # Template for log filename (uses timedate)
     fileDateFormat: "yyyy-MM-dd"       # Date format for filename (daily); use 'yyyy-MM-dd-HH' for hourly
-    lineTemplate: "{% raw %}{{timedate}}{% endraw %} | {% raw %}{{type}}{% endraw %} | {% raw %}{{{message}}{% endraw %}}\n"  # Template per log line
+    lineTemplate: "{{timedate}} | {{type}} | {{{message}}}\n"  # Template per log line
     lineDateFormat: "yyyy-MM-dd HH:mm:ss.SSS"  # Date format used inside each line
     HKRegExPattern: "log-\\d{4}-\\d{2}-\\d{2}\\.log"  # Regex to identify log files for housekeeping
     HKhowLongAgoInMinutes: 2880        # Minutes of logs to retain; older files are deleted (omit to disable)
@@ -221,7 +224,7 @@ ojob:
     backupFolder: "/var/log/backup"    # Move older log files here (omit to keep in logFolder)
     numberOfEntriesToKeep: 100         # In-memory OpenAF log channel entries to keep
     setLogOff: false                   # Set true to suppress console logging
-  
+
   # Structured logging
   log:
     format: json               # Use JSON format
@@ -234,18 +237,18 @@ ojob:
 ojob:
   # Include built-in oJob definitions
   includeOJob: true
-  
+
   # OpenAF Packages
   opacks:
   - openaf: ">=20230601"     # Minimum version
   - S3: ">=20230401"
   - oJob-common              # Latest version
-  
+
   # OpenWrap libraries
   owraps:
   - Server
   - Java
-  
+
   # JavaScript libraries
   loads:
   - anotherJS.js
@@ -261,11 +264,11 @@ ojob:
   unique:
     pidFile: "myjob.pid"       # PID file for uniqueness
     killPrevious: false        # Kill previous instance
-  
+
   # Error handling
   catch: |                     # Global error handler
     logErr("Global error: " + exception)
-  
+
   # Stall detection
   checkStall:
     everySeconds: 60           # Check interval
@@ -281,29 +284,29 @@ ojob:
   channels:
     recordLog       : false    # Record OpenAF logs
     recordLogHistory: -1       # Number of log entries to keep (-1 unlimited)
-    
+
     # Create channels
     create:
     - name: myChannel
       type: mvs
       options:
         file: data.db
-    
+
     # Expose channels via HTTP
     expose: true
     port: 8080
     host: "0.0.0.0"
-    
+
     # Authentication
     auth:
     - login: user1
       pass: pass1
       permissions: "rw"
-    
+
     # Peer connections
     peers:
     - "https://peer.example.com:8080/chs/myChannel"
-    
+
     # Clustering
     clusters:
     - name: mainCluster
@@ -322,28 +325,29 @@ ojob:
     port: 8080
     uri: "/metrics"
     openMetrics: true
+    openMetricsStrict: true # Default; false selects legacy Prometheus text
     openMetricsPrefix: "ojob"
-    
+
     # Active metrics (push to external systems)
     active:
       openmetrics:
         url: "http://pushgateway:9091/metrics/job/test"
         prefix: "myapp"
         metrics: ["custom-metric", "mem"]
-      
+
       nattrmon:
         url: "http://user:pass@nattrmon:7777/remote"
         attrPrefix: "oJob/"
         metrics: ["custom-metric", "mem"]
-      
+
       periodInMs: 5000
-    
+
     # Collect metrics to channel
     collect:
       ch: metricsChannel
       period: 5000
       some: ["mem", "cpu"]
-    
+
     # Custom metrics
     add:
       custom-metric: |
@@ -357,7 +361,7 @@ ojob:
   langs:
   - lang: mylang
     shell: "mylang -"
-    pre: "var args = JSON.parse('{% raw %}{{args}}{% endraw %}');\n"
+    pre: "var args = JSON.parse('{{args}}');\n"
     pos: "\nconsole.log(JSON.stringify(args));\n"
     returnRE: "\\s*#\\s+return (.+)[\\s\\n]*$"
     returnFn: |
@@ -375,7 +379,7 @@ ojob:
     - "https://remote.com/ojob": "md5:def456..."
     strict: true               # Require a registered hash when checking is active
     warn: false                # Abort on a hash mismatch
-  
+
   # Debugging
   debug: true                  # Enable debug mode for jobs
 ```
@@ -457,15 +461,15 @@ todo:
     dbHost: "${DB_HOST:-localhost}"
     dbPort: "${DB_PORT:-5432}"
     dbName: "${DB_NAME:-myapp}"
-    
+
     # Processing options with defaults
     batchSize: "${BATCH_SIZE:-1000}"
     timeout: "${TIMEOUT:-30000}"
-    
+
     # Feature flags with defaults
     dryRun: "${DRY_RUN:-false}"
     verbose: "${VERBOSE:-true}"
-    
+
     # Nested configuration defaults
     config:
       retryCount: "${config.retries:-3}"
@@ -602,7 +606,7 @@ jobs:
 
 Job `args` are merged during execution and can overwrite caller/todo values. Prefer `check.in` with `.default(...)` for overridable defaults. An array of argument maps runs the same job once per element; `typeArgs.single: true` processes the elements serially. This is independent of ordering between todo entries.
 
-`ojob.templateArgs: true` enables Handlebars expansion in string arguments, with `args` as the template root: use `{% raw %}{{input}}{% endraw %}`, not `{% raw %}{{args.input}}{% endraw %}`. A job can opt out with `typeArgs.noTemplateArgs: true`. `${...}` argument substitution is separate and does not require Handlebars. Set `initTemplateEscape: true` when `init` contains templates intended for a later rendering step.
+`ojob.templateArgs: true` enables Handlebars expansion in string arguments, with `args` as the template root: use `{{input}}`, not `{{args.input}}`. A job can opt out with `typeArgs.noTemplateArgs: true`. `${...}` argument substitution is separate and does not require Handlebars. Set `initTemplateEscape: true` when `init` contains templates intended for a later rendering step.
 
 
 ```yaml
@@ -610,7 +614,7 @@ jobs:
 - name: "Templated Job"
   args:
     defaultValue: "hello"
-    templateValue: "{% raw %}{{input}}{% endraw %}-processed"
+    templateValue: "{{input}}-processed"
   exec: | #js
     log("Default: " + args.defaultValue)
     log("Template result: " + args.templateValue)
@@ -683,7 +687,7 @@ jobs:
     import json
     print("Python is running")
     args['pythonResult'] = 'success'
-  
+
 # Shell/Bash
 - name: "Shell Job"
   lang: shell
@@ -692,11 +696,11 @@ jobs:
     # To use input args
     # echo $aInputArgs
     # OR
-    # echo {% raw %}{{aInputArgs}}{% endraw %}
+    # echo {{aInputArgs}}
     export RESULT="shell-success"
     # To output args
     echo '{"shellResult": "'$RESULT'"}'
-  
+
 # SSH Remote
 - name    : "Remote SSH Job"
   lang    : ssh
@@ -705,7 +709,7 @@ jobs:
     hostname
   typeArgs:
     shell: "/bin/bash"
-  
+
 # PowerShell
 - name: "PowerShell Job"
   lang: powershell
@@ -723,13 +727,13 @@ jobs:
   lang: go
   exec: | #go
     args["goResult"] = "success"
-  
+
 # Ruby
 - name: "Ruby Job"
   lang: ruby
   exec: | #ruby
     args['rubyResult'] = 'success'
-  
+
 # Node.js
 - name: "Node Job"
   lang: node
@@ -820,7 +824,7 @@ jobs:
       items    : isArray.default([])  # Must be array, default empty
       level    : isString.oneOf(['debug', 'info', 'warn', 'error']).default('info')
       timeout  : isNumber.between(1000, 60000).default(30000)  # Between 1-60 seconds
-    out:                     # Output validation  
+    out:                     # Output validation
       result: isString.oneOf(['success', 'failure'])  # Must be one of these values
       count : isNumber.default(0)  # Must be number, default 0
       data  : isMap.default({})    # Must be map, default empty object
@@ -829,10 +833,10 @@ jobs:
     // args.inputFile is guaranteed to be a string
     // args.port is guaranteed to be a number (converted from string if needed)
     // args.enabled is guaranteed to be a boolean
-    
+
     // Process the validated inputs
     log("Processing file: " + args.inputFile + " on port: " + args.port);
-    
+
     // Set outputs - these will be validated too
     args.result = "success"
     args.count = 42
@@ -883,7 +887,7 @@ jobs:
 - name: "Base Job"
   exec: | #js
     log("Base functionality")
-      
+
 - name: "Extended Job"
   from:
   - "Base Job"             # Execute before main job
@@ -1011,7 +1015,7 @@ ojob:
 todo:
 - (pass):
     name: World
-- (log): "Hello {% raw %}{{name}}{% endraw %}"
+- (log): "Hello {{name}}"
 - (output): args
   ((path)): name
   ((format)): json
@@ -1065,7 +1069,7 @@ The following mappings follow `parseTodo` in `js/owrap.oJob.js`. The CLI's `-sho
 
 ### Built-in Job Arguments Reference
 
-Each entry lists the registered shortcut attributes and the job arguments they populate. For descriptions, inspect `ojob your.yaml -jobhelp ojob output` (substitute the full built-in job name), or consult [ojob.yaml](https://github.com/OpenAF/openaf/blob/a5181af6/ojob.yaml).
+Each entry lists the registered shortcut attributes and the job arguments they populate. For descriptions, inspect `ojob your.yaml -jobhelp ojob output` (substitute the full built-in job name), or consult [ojob.yaml](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/ojob.yaml).
 
 **`(if)` → `ojob if`**
 
@@ -1317,3 +1321,4 @@ Custom shortcut names must be distinct from built-ins. Use `typeArgs.shortcut.no
 ## Examples
 
 The [recipe collection](ojob-recipes.md) provides complete examples for arguments, composition, query/output, fan-out, templates, periodic jobs, subscriptions, and error recovery. The [ojob.io examples map](ojob-examples.md) connects those patterns to real YAML definitions and their prerequisites.
+{% endraw %}

@@ -11,7 +11,7 @@ grand_parent: OpenAF docs
 ### $do
 The custom OpenAF promises (oPromise) can be used through ````$do````. They allow for easy asynchronous execution of a function or a chain of functions providing an object (aPromise) that allows us to manage it. The syntax to use is:
 
-````javascript
+````text
 $do(aDoFunction, aCatchFunction) : aPromise
 ````
 
@@ -24,7 +24,7 @@ $do((success, failure) => {
        success("OK");
     } catch(e) {
        failure("NOT OK: " + e.message);
-    } 
+    }
 }, (aError) => {
     logErr("There was an error: " + aError);
 })
@@ -107,4 +107,4 @@ The promises are executed asynchronously but you might reach the end of the inte
 $doWait(anyDownloads)
 ````
 
-The $doWait function will synchronously wait (pausing the current thread execution) for the a close state on the provided promise (running on a different thread). 
+The $doWait function will synchronously wait (pausing the current thread execution) for the a close state on the provided promise (running on a different thread).

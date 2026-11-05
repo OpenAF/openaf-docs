@@ -1,9 +1,12 @@
 ---
 layout: default
-title: "JSON extraction and interactive prompts"
+title: JSON extraction and interactive prompts
 parent: Advanced
 grand_parent: Guides
 ---
+
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/json-extraction-and-prompts.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
 
 # JSON extraction and interactive prompts
 
@@ -61,3 +64,4 @@ never closed by prompt helpers or oJob.
 
 Set `__flags.OJOB_INTERACTIVETTY = true` in the OpenAF profile to use an independent
 terminal for the `ojob file.yaml -i` argument wizard. The default is `false`.
+{% endraw %}

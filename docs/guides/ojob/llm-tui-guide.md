@@ -5,6 +5,9 @@ parent: oJob
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/llm-tui-guide.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # OpenAF LLM TUI Guide (Offline-First)
 
 Guidelines for generating terminal user interface `.js` and oJob `.yaml` files that maximise existing OpenAF TUI primitives and avoid external dependencies.
@@ -74,7 +77,7 @@ All functions below are available in every OpenAF runtime without installing add
 | `ow.format.term.getCapabilities(opts)` | `{ isTTY, ansi, width, height, colorDepth, colorMode, unicode, term }` |
 | `ow.format.term.getPalette(mode, overrides)` | `{ title, accent, positive, warning, negative, muted, gridLine }` |
 
-`colorMode` values: `"none"` (no color), `"16"`, `"256"`, `"truecolor"`.  
+`colorMode` values: `"none"` (no color), `"16"`, `"256"`, `"truecolor"`.
 `getCapabilities()` results are cached; pass `{ refresh: true }` to force a re-read.
 
 ### Visualization
@@ -479,3 +482,4 @@ if (isDef(asciiMoPath)) {
 1. `https://github.com/OpenAF/mini-a/blob/main/mini-a-con.js` — Reference interactive console session
 2. `https://github.com/OpenAF/openaf/blob/master/js/owrap.format.js` — Full `ow.format` / `viz` / `term` API
 3. `https://github.com/OpenAF/openaf/blob/master/js/openaf.js` — `printTable`, `ansiColor`, `printTree`, `printBars`
+{% endraw %}

@@ -1,9 +1,12 @@
 ---
 layout: default
-title: "Query JSON with $jq"
+title: Query JSON with $jq
 parent: Advanced
 grand_parent: Guides
 ---
+
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/jq.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
 
 # Query JSON with `$jq`
 
@@ -90,7 +93,7 @@ JQ_REFERENCE=/path/to/jq-1.6 java -jar ../openaf.jar -f jq/differential.js
 ```
 
 Compatibility results and measured performance are recorded in
-[the benchmark notes](https://github.com/OpenAF/openaf/blob/a5181af6/tests/benchmarks/jq/README.md).
+[the benchmark notes](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/tests/benchmarks/jq/README.md).
 
 ## Caching
 
@@ -103,3 +106,4 @@ The FIFO cache retains at most 262,144 expression characters and skips individua
 expressions longer than 16,384 characters. Oversized expressions still execute.
 The character budget bounds retained source text, not exact compiled heap size.
 Built-ins initialize lazily once per classloader and use a read-only root scope.
+{% endraw %}

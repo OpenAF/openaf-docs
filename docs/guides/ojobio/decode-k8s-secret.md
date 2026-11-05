@@ -10,7 +10,7 @@ grand_parent: Guides
 If you need to decode an existing Kubernetes file-based secret you can execute the following commands easily to obtain the original copies of the files used in the secret:
 
 ```bash
-kubectl get my-secret -n my-namespace -o yaml | ojob ojob.io/kube/expandSecret toFolder=output
+kubectl get secret my-secret -n my-namespace -o yaml | ojob ojob.io/kube/expandSecret toFolder=output
 ```
 
 This will actually retrieve _my-secret_ from the _my-namespace_ Kubernetes namespace, pipe the YAML contents to the _ojob.io/kube/expandSecret_ and create the corresponding files in the _output_ folder (using the "toFolder" argument).

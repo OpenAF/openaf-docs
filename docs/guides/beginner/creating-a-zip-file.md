@@ -13,17 +13,20 @@ In this case we will show how easy is to create a ZIP file. We have two local fi
 
 ````javascript
 plugin("ZIP");
+var zip = new ZIP();
 
-zip.putFile("src/myclass.java", "myclass.java");
-zip.putFile("bin/myclass.class", "myclass.class");
+zip.putFile("src/myclass.java", io.readFileBytes("myclass.java"));
+zip.putFile("bin/myclass.class", io.readFileBytes("myclass.class"));
 
 zip.generate2File("myclass.zip", { compressionLevel: 9 });
 zip.close();
 ````
 
-If you look carefully we are taking two local files, from the same folder, but storing them in different folders inside the ZIP file (e.g. _zip.putFile(target, source)_).
+If you look carefully we are taking two local files, from the same folder, but storing them in different folders inside the ZIP file (e.g. _zip.putFile(entryName, bytes)_).
 
 The ZIP file will get written when you call the _zip.generate2File(aFilePath, mapOptions)_ function. Besides creating the _"myclass.zip"_ we are also specifying that we want the maximum compression possible (e.g. level 9).
+
+For files that may fail to read or write, place `zip.close()` in a `finally` block.
 
 You can explore the contents of this newly created zip file using _zip.list(aZipFile)_ function:
 

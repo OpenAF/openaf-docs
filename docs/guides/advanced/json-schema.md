@@ -1,9 +1,12 @@
 ---
 layout: default
-title: "JSON Schema validation"
+title: JSON Schema validation
 parent: Advanced
 grand_parent: Guides
 ---
+
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/json-schema.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
 
 # JSON Schema validation
 
@@ -203,3 +206,4 @@ Errors use `instancePath` instead of `dataPath`, messages use “must” instead
 `loadAjv()` still exposes the global draft-07 `Ajv` constructor. Direct `new Ajv(...)` users must follow the v8 API and arrange their own format registration and runtime-compatible code generation; OpenAF's compatibility settings are applied by `ow.obj.schemaInit`, not by the raw constructor. Custom keyword implementations and v6 internal instance fields are outside the compatibility contract.
 
 See the [Ajv options reference](https://ajv.js.org/options.html), [v6-to-v8 migration guide](https://ajv.js.org/v6-to-v8-migration.html), and [JSON Schema draft reference](https://ajv.js.org/json-schema.html).
+{% endraw %}

@@ -179,7 +179,7 @@ Evaluates rules and conditionally adds jobs to the queue based on rule results.
 **Rule Object Structure:**
 
 ```javascript
-{
+var example = {
   rule: "expression",  // JavaScript expression to evaluate
   job: "JobName"       // Job to trigger if rule evaluates to true
 }
@@ -514,9 +514,8 @@ jobs:
       log("Calling API for: " + args.endpoint)
 
       try {
-        var response = $rest()
+        var response = $rest({ throwExceptions: true, timeout: 5000 })
           .get(args.apiBase + args.endpoint)
-          .getResponse()
 
         log("API success: " + args.endpoint)
 
@@ -524,7 +523,7 @@ jobs:
         if (isDef(args.resultHandler)) {
           $job(args.resultHandler, {
             endpoint: args.endpoint,
-            data: response.data
+            data: response
           })
         }
 

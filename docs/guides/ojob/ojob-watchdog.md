@@ -7,6 +7,10 @@ grand_parent: Guides
 
 # oJob WatchDog - Process Monitoring and Auto-Recovery
 
+This guide follows `oJobWatchDog.yaml` in the [oJob-common snapshot](ojob-common-reference.md). `$rest().get()` returns the decoded body; the health examples assume your service returns a JSON `status` field. Adapt the expected value to your endpoint. A failed custom check must return `false`: an uncaught exception aborts the job rather than triggering its restart sequence.
+
+Each invocation performs one check cycle. Schedule repeated runs externally and avoid overlapping invocations. Stop/start code runs synchronously; named jobs are queued with `ow.oJob.add2Todo`, so queued jobs are not blocking lifecycle hooks. PID checks may install a default `pidKill` stop action when no explicit stop code or command is configured.
+
 The oJob WatchDog provides automated monitoring and restart capabilities for daemon processes, checking process health through multiple methods and performing recovery actions when issues are detected.
 
 ## Table of Contents
@@ -186,17 +190,11 @@ jobs:
 
             try {
               // Check HTTP endpoint
-              var response = $rest()
-                .get("http://localhost:8080/health")
-                .getResponse();
-
-              if (response.status != 200) {
-                log("Health check failed: status " + response.status);
-                return false;
-              }
+              var response = $rest({ throwExceptions: true, timeout: 5000 })
+                .get("http://localhost:8080/health");
 
               // Check response content
-              if (response.data.status != "healthy") {
+              if (response.status != "healthy") {
                 log("Service reports unhealthy status");
                 return false;
               }
@@ -264,10 +262,9 @@ jobs:
             // Check HTTP health endpoint
             ow.loadObj();
             try {
-              var res = $rest({ throwExceptions: false })
-                .get("http://localhost:8080/actuator/health")
-                .getResponse();
-              return (res.status == 200);
+              var res = $rest({ throwExceptions: true, timeout: 5000 })
+                .get("http://localhost:8080/actuator/health");
+              return res.status == "UP";
             } catch(e) {
               return false;
             }
@@ -305,9 +302,9 @@ jobs:
         custom:
           exec: |
             // Try to connect to database
-            plugin("DB");
+            loadLib("jdbc-postgresql.js"); // opack install jdbc-postgresql
             try {
-              var db = new DB(
+              var db = DBpostgresql(
                 "jdbc:postgresql://localhost:5432/testdb",
                 "dbuser",
                 "dbpass"
@@ -384,7 +381,7 @@ jobs:
         custom:
           exec: |
             try {
-              return $rest().get("http://localhost:80").getResponse().status == 200;
+              return isString($rest({ throwExceptions: true, timeout: 5000 }).get("http://localhost:80"));
             } catch(e) {
               return false;
             }
@@ -471,8 +468,7 @@ jobs:
       while (!ready && attempts < 30) {
         sleep(1000, true);
         try {
-          ready = $rest().get("http://localhost:8080/health")
-            .getResponse().status == 200;
+          ready = $rest({ throwExceptions: true, timeout: 5000 }).get("http://localhost:8080/health").status == "UP";
         } catch(e) {}
         attempts++;
       }
@@ -800,11 +796,10 @@ jobs:
           exec: |
             ow.loadObj();
             try {
-              var health = $rest({ timeout: 5000 })
-                .get("http://localhost:8080/health")
-                .getResponse();
+              var health = $rest({ throwExceptions: true, timeout: 5000 })
+                .get("http://localhost:8080/health");
 
-              return (health.status == 200 && health.data.status == "UP");
+              return health.status == "UP";
             } catch(e) {
               logErr("Health check failed: " + e.message);
               return false;
@@ -822,13 +817,12 @@ jobs:
         log("Starting application");
         sh("/opt/myapp/bin/startup.sh");
 
-        # Wait for application to be ready
+        // Wait for application to be ready
         var ready = false;
         for (var i = 0; i < 60 && !ready; i++) {
           sleep(1000, true);
           try {
-            ready = $rest().get("http://localhost:8080/health")
-              .getResponse().status == 200;
+            ready = $rest({ throwExceptions: true, timeout: 5000 }).get("http://localhost:8080/health").status == "UP";
           } catch(e) {}
         }
 

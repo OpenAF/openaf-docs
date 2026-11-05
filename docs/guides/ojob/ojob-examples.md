@@ -1,13 +1,16 @@
 ---
 layout: default
-title: "Learning oJob from ojob.io"
+title: Learning oJob from ojob.io
 parent: oJob
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/ojob-examples.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # Learning oJob from ojob.io
 
-[Index](../../../index.md) | [Reference](ojob-yaml-reference.md) | [Runnable recipes](ojob-recipes.md)
+[Index](../index.md) | [Reference](ojob-yaml-reference.md) | [Runnable recipes](ojob-recipes.md)
 
 The reference and recipes were checked against `js/owrap.oJob.js`, `js/ojob.js`, the built-in definitions in `ojob.yaml`, and the sibling `ojob.io` checkout. The September 2026 inventory read all 457 `.yaml`/`.yml` files recursively, including hidden directories: all parsed, and 451 contained a top-level `jobs` or `todo` array. The remaining files include workflow/configuration/data files. This was a source review, not execution of the integration collection.
 
@@ -58,3 +61,4 @@ Generator YAML often holds a second YAML document as a string in `init`. Disting
 5. Use the CLI's `-jobs`, `-todo`, `-deps`, and `-compile` on a trusted local copy to inspect resolved definitions. These options still load dependencies; use a plain YAML reader if you only need the original document.
 
 The [local recipes](ojob-recipes.md) isolate these orchestration patterns from package, cloud, credential, and service prerequisites.
+{% endraw %}

@@ -1,9 +1,12 @@
 ---
 layout: default
-title: "Oniguruma regular expressions"
+title: Oniguruma regular expressions
 parent: Advanced
 grand_parent: Guides
 ---
+
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/joni.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
 
 # Oniguruma regular expressions
 
@@ -85,3 +88,4 @@ empty separators advance by code point, and `limit` uses JavaScript unsigned
 Invalid arguments throw `TypeError`; invalid patterns throw `SyntaxError`.
 Matching and substitution are synchronous and results are collected in memory.
 No execution-speed improvement over Java or Rhino regex is promised.
+{% endraw %}

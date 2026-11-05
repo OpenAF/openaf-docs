@@ -1,9 +1,12 @@
 ---
 layout: default
-title: "OpenAF AI GPT Types Reference Guide"
+title: OpenAF AI GPT Types Reference Guide
 parent: Advanced
 grand_parent: Guides
 ---
+
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/ow-ai-gpttypes.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
 
 # OpenAF AI GPT Types Reference Guide
 
@@ -23,6 +26,15 @@ The GPT types system provides a consistent API across different LLM providers th
 | gemini    | ✔    | ✔       | ✔     | ✔          | ✖         |
 | ollama    | ✔    | ✔       | ✔     | ✔          | ✖         |
 | anthropic | ✔    | ✔       | ✖     | ✔          | ✖         |
+
+### Responses API
+
+For the `openai` provider, structured decisions use the OpenAI Responses API (`/responses`, JSON Schema `text.format`) by default; `decisionTransport: "chat"` (or `providerOptions.transport`) selects Chat Completions. Regular prompts that carry a response schema try `/responses` first and fall back to `/chat/completions` once if the endpoint is reported unavailable; the outcome is cached per wrapper instance.
+
+### Prompt caching and usage statistics
+
+- Anthropic: constructor option `promptCaching: true` adds `cache_control` markers (default `false`); no beta header is required.
+- OpenAI-compatible models report cached prompt tokens in `getLastStats().tokens.cached` when the provider returns them (also via the `*WithStats` methods). Gemini reports `cachedContentTokenCount` the same way.
 
 ### OpenAI-Compatible Transport Modes
 
@@ -275,8 +287,10 @@ requestHeaders: merge({
 
 #### API Key in URL Parameter (Gemini)
 ```javascript
+switch (method) {
 case "GET" : return _fnh($rest(__m).get2Stream(aOptions.url + "/" + aURI + "?key=" + Packages.openaf.AFCmdBase.afc.dIP(_key)))
 case "POST": return _fnh($rest(__m).post2Stream(aOptions.url + "/" + aURI + "?key=" + Packages.openaf.AFCmdBase.afc.dIP(_key), aData))
+}
 ```
 
 #### No Authentication (Ollama)
@@ -327,6 +341,8 @@ promptImage: (aPrompt, aImage, aDetailLevel, aRole, aModel, aTemperature, aJsonF
     // Provider-specific image format handling
 }
 ```
+
+`ow.ai.prepareImage(aImage, aOptions)` normalizes a file path or base64 image before sending. Options: `maxSide` (2048; `0` disables scaling), `maxBytes` (5242880), `maxPixels` (25000000), `format` (auto/jpeg/png), `quality` (0.85), `background` (`#ffffff`). It returns `base64`, `mediaType`, `width`, `height`, `resized`, `originalBytes` and `bytes`. Gateways can set `imageMaxSide`, `imageMaxBytes`, `imageMaxPixels`, `imageFormat`, `imageQuality`, `imageBackground` or `imageResize: false` (keep original bytes). Base64 validation and PNG detection avoid decoding a full bitmap. Uses JDK ImageIO; in containers set `OAF_JARGS=-Djava.awt.headless=true`.
 
 ### 7. JSON Response Handling
 
@@ -465,3 +481,4 @@ Capabilities contain `contractVersion: 1`, `inputTypes: ["text", "json"]`, `stre
 `rawDecide()` returns `{ contractVersion, provider, model, strategy, raw }`; it does not require a second inference. `decideWithStats()` receives statistics from the execution result rather than rereading mutable shared state. Last-call statistics remain compatible but are not a concurrency-safe result channel. A failed native request never triggers structured generation, and an OpenAI structured request never uses the legacy chat fallback cache.
 
 Gemini's explicit schema helper defaults to `structuredOutputProfile: "response-format"`, using `generationConfig.responseFormat.text.{mimeType,schema}` with `APPLICATION_JSON`. Explicit `legacy-schema` uses the older responseMimeType/responseSchema representation. The new helper rejects inherited schema/MIME conflicts; legacy chat pass-through behavior remains intact. Only the declared supported schema subset is translated, and output validation does not depend on global Ajv coercion/default settings.
+{% endraw %}

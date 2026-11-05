@@ -13,7 +13,7 @@ AWS provides a simple message queueing service called [AWS SQS](https://aws.amaz
 
 The functionality is available with the AWS opack. To install it simple execute:
 
-````javascript
+````sh
 opack install AWS
 ````
 

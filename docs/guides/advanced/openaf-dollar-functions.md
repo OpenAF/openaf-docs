@@ -1,13 +1,16 @@
 ---
 layout: default
-title: "Additional OpenAF $ Functions"
+title: Additional OpenAF $ Functions
 parent: Advanced
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/openaf-dollar-functions.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # Additional OpenAF `$` Functions
 
-[Index](../../../index.md) | [Core reference](openaf-reference.md) | [Advanced guide](openaf-advanced-guide.md)
+[Index](../index.md) | [Core reference](openaf-reference.md) | [Advanced guide](openaf-advanced-guide.md)
 
 This reference fills gaps in the guides for public functions and aliases defined in `js/openaf.js` whose names start with `$`. Signatures below use `...` for positional arguments; timeout and TTL values are in milliseconds unless stated otherwise. Helpers load their supporting libraries automatically where needed.
 
@@ -32,7 +35,7 @@ The following helpers already have documentation elsewhere under `docs/`:
 Alias for `templify`: renders a Handlebars template and returns a string. If `someData` is omitted, the calling context (`this`) supplies the data. An undefined or empty template returns an empty string. See the [template engine](openaf-reference.md#template-engine) for helpers and syntax.
 
 ```javascript
-$t("Hello {% raw %}{{name}}{% endraw %}", { name: "Ana" }); // "Hello Ana"
+$t("Hello {{name}}", { name: "Ana" }); // "Hello Ana"
 ```
 
 ### `$f(aString, ...)` and `$ft(aString, ...)`
@@ -309,7 +312,7 @@ $doWait(request);
 
 ### `$ssh(aMap)`
 
-Creates a fluent SSH client from a map (`host`, `port`, `login`, `pass`, `id` for a key-file path, `key` for inline key content, `compress`, `timeout`), an SSH URL, or an existing `SSH` plugin instance. Map defaults are port `22` and compression `false`. See [the SSH plugin](https://github.com/OpenAF/openaf/blob/a5181af6/docs/plugins/SSH.md) for connection details.
+Creates a fluent SSH client from a map (`host`, `port`, `login`, `pass`, `id` for a key-file path, `key` for inline key content, `compress`, `timeout`), an SSH URL, or an existing `SSH` plugin instance. Map defaults are port `22` and compression `false`. See [the SSH plugin](plugin-ssh.md) for connection details.
 
 `.sh(command, stdin)` queues commands; `.get(index)` executes them and captures `{ stdout, stderr, exitcode }`, returning the indexed result or the result array. `.getJson(index)` parses captured JSON output; `.exec(index)` executes with inherited output. Other methods include `.timeout(ms)`, `.pty(flag)`, `.cb(callback)`, `.prefix(prefix, template)`, `.exit(callback)`, file operations `.getFile(source, target)`/`.putFile(source, target)`, `.listFiles(path)`, `.mkdir(path)`, `.rename(source, target)`, `.rm(path)`, `.rmdir(path)`, and tunnel creation/deletion helpers. `.close()` releases the connection and any temporary inline-key file.
 
@@ -370,3 +373,4 @@ try {
   print(diagnostic);
 }
 ```
+{% endraw %}

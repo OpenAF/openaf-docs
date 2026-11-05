@@ -18,12 +18,12 @@ Let's starts creating a simple Javascript map:
 ````javascript
 var example = {
     name: "point",
-    coordinates: { x: -1, y: 1 }
+    coordinates: { x: -1, y: 1 },
     labels: [ "point", "dot" ]
 }
 ````
 
-To write it to a JSON file simply execute: 
+To write it to a JSON file simply execute:
 
 ````javascript
 io.writeFileJSON("example.json", example)

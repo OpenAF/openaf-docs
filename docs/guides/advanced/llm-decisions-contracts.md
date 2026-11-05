@@ -1,13 +1,16 @@
 ---
 layout: default
-title: "Decision adapter contract records"
+title: Decision adapter contract records
 parent: Advanced
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/llm-decisions-contracts.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # Decision adapter contract records
 
-Verification date: **3 October 2026**. Starting commit: `e41865387d334211029a9b3284cc2de0e420f637` on `t8`. Reviewed AI source blob: `5aa4f774555114a5314cf7da3ce1a6249e43b493`.
+Verification date: **3 October 2026**. Starting commit: `e41865387d334211029a9b3284cc2de0e420f637` on `t8`. Reviewed AI source blob: `5aa4f774555114a5314cf7da3ce1a6249e43b493`. The implementation preserved the existing staged JSON Schema, Java, documentation, and test-registration work.
 
 These records distinguish verified HTTP documentation, synthetic fixtures, and live execution. No fixture here is evidence of live inference.
 
@@ -64,3 +67,4 @@ Verified **14 October 2026** against the [Microsoft Learn deployment/API guide](
 - Response: named answers and underlying model identifier, which may differ from the deployment name. Choice returns the selected key and probabilities; noul returns P(true); score returns per-level probabilities, legend, weighted score, and confidence. Shared named-answer validation uses four-decimal tolerance, preserving probabilities and confidence. The Microsoft example's score distribution 0.0004/0.0124/0.9872 yields 1.9868, with separate confidence 0.9808.
 - Statistics reuse execution-scoped OpenAI usage parsing, retaining zero values and raw usage. Account/deployment availability remains unknown. No retry or HTTP strategy fallback.
 - Provenance: `microsoftFixture()` and registered Microsoft tests in `tests/autoTestAll.AIDecisions.js` are synthetic contract fixtures. They cover mapping, response validation, HTTP routing/authentication, isolation, and compatibility. The opt-in live smoke selects native for this selector; live inference has not been established by fixtures.
+{% endraw %}

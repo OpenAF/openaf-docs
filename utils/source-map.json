@@ -1,0 +1,897 @@
+{
+  "checked_on": "2026-11-05",
+  "repositories": {
+    "openaf": {
+      "repository": "OpenAF/openaf",
+      "branch": "master",
+      "revision": "06414cd9204e918daa1e2971ce904783299db333"
+    },
+    "ojob-common": {
+      "repository": "OpenAF/oJob-common",
+      "branch": "master",
+      "revision": "130addf46fb52ca733da6a66bf7b990430006caf"
+    },
+    "oafp": {
+      "repository": "OpenAF/oafp",
+      "branch": "main",
+      "revision": "35a922f9cc218a31f032e6c95e1c743a24a7fd68"
+    },
+    "openaf-opacks": {
+      "repository": "OpenAF/openaf-opacks",
+      "branch": "master",
+      "revision": "87b07e9774902bccee8bf16632201e319dcfca0d"
+    }
+  },
+  "imports": [
+    {
+      "repository": "openaf",
+      "source": "docs/authoring-recipes.md",
+      "destination": "docs/guides/ojob/authoring-recipes.md",
+      "parent": "oJob",
+      "title": "Authoring recipes for scripts and oJobs"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/authoring-testing.md",
+      "destination": "docs/guides/ojob/authoring-testing.md",
+      "parent": "oJob",
+      "title": "Test and troubleshoot your automation"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/authoring.md",
+      "destination": "docs/guides/ojob/script-to-ojob.md",
+      "parent": "oJob",
+      "title": "From an OpenAF script to an oJob"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/cds.md",
+      "destination": "docs/guides/advanced/cds.md",
+      "parent": "Advanced",
+      "title": "Shared archive coverage"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/channel-graph.md",
+      "destination": "docs/guides/advanced/channel-graph.md",
+      "parent": "Advanced",
+      "title": "Graph channels: operate and navigate a knowledge graph"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/channel-timeseries.md",
+      "destination": "docs/guides/advanced/channel-timeseries.md",
+      "parent": "Advanced",
+      "title": "Time series channels: record, retain and query labelled metrics"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/cli.md",
+      "destination": "docs/guides/advanced/cli.md",
+      "parent": "Advanced",
+      "title": "OpenAF Command-Line Interface Reference"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/console.md",
+      "destination": "docs/guides/advanced/console.md",
+      "parent": "Advanced",
+      "title": "OpenAF Interactive Console (oafc / openaf-console)",
+      "corrections": [
+        {
+          "old": "watch 5 ow.server.getThreadsInfo()",
+          "new": "watch 5 new Date()"
+        }
+      ]
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/desktop.md",
+      "destination": "docs/guides/advanced/desktop.md",
+      "parent": "Advanced",
+      "title": "Desktop windows and terminal views"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/documentation-coverage.md",
+      "destination": "docs/guides/advanced/documentation-coverage.md",
+      "parent": "Advanced",
+      "title": "Documentation coverage and executable examples",
+      "corrections": [
+        {
+          "old": "(./index.md#portable-authoring-skills)",
+          "new": "(https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/index.md#portable-authoring-skills)"
+        }
+      ]
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/getting-started.md",
+      "destination": "docs/guides/beginner/getting-started.md",
+      "parent": "Beginner",
+      "title": "Getting Started with OpenAF"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/highlight-js.md",
+      "destination": "docs/guides/advanced/highlight-js.md",
+      "parent": "Advanced",
+      "title": "Bundled highlight.js"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/instrumentation.md",
+      "destination": "docs/guides/advanced/instrumentation.md",
+      "parent": "Advanced",
+      "title": "Generic instrumentation"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/jakarta-xml-binding-migration.md",
+      "destination": "docs/guides/advanced/jakarta-xml-binding-migration.md",
+      "parent": "Advanced",
+      "title": "Jakarta XML Binding migration"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/jdbc-url-policy.md",
+      "destination": "docs/guides/advanced/jdbc-url-policy.md",
+      "parent": "Advanced",
+      "title": "JDBC URL execution policy"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/joni.md",
+      "destination": "docs/guides/advanced/joni.md",
+      "parent": "Advanced",
+      "title": "Oniguruma regular expressions"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/jq.md",
+      "destination": "docs/guides/advanced/jq.md",
+      "parent": "Advanced",
+      "title": "Query JSON with $jq"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/json-extraction-and-prompts.md",
+      "destination": "docs/guides/advanced/json-extraction-and-prompts.md",
+      "parent": "Advanced",
+      "title": "JSON extraction and interactive prompts"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/json-schema.md",
+      "destination": "docs/guides/advanced/json-schema.md",
+      "parent": "Advanced",
+      "title": "JSON Schema validation"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/llm-decisions-contracts.md",
+      "destination": "docs/guides/advanced/llm-decisions-contracts.md",
+      "parent": "Advanced",
+      "title": "Decision adapter contract records"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/llm-decisions.md",
+      "destination": "docs/guides/advanced/llm-decisions.md",
+      "parent": "Advanced",
+      "title": "Stateless LLM decisions"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/llm-frontend-guide.md",
+      "destination": "docs/guides/ojob/llm-frontend-guide.md",
+      "parent": "oJob",
+      "title": "LLM Frontend Guide"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/llm-guide.md",
+      "destination": "docs/guides/ojob/llm-guide.md",
+      "parent": "oJob",
+      "title": "OpenAF Guide for LLM Code Generation",
+      "corrections": [
+        {
+          "old": "#### 2. `_$` - Parameter Validation\n\n```javascript\n// Basic validation with error throwing\n_$(username, \"username\").isString().$_();\n_$(age, \"age\").isNumber().default(18);\n_$(email, \"email\").isString().notEquals(\"\");\n\n// Type conversion\n_$(value, \"value\").toNumber();\n_$(value, \"value\").toString();\n_$(value, \"value\").toBoolean();\n\n// String validations\n_$(email, \"email\").isEmail();\n_$(id, \"id\").isUUID();\n_$(text, \"text\").minLength(5).maxLength(100);\n\n// Number validations\n_$(age, \"age\").isNumber().between(0, 150);\n_$(score, \"score\").isNumber().multipleOf(0.5);\n\n// Array validations\n_$(items, \"items\").isArray().minLength(1);\n_$(emails, \"emails\").isArray().eachIsString();\n\n// Object validations\n_$(config, \"config\").isMap().hasKeys(['host', 'port']);\n_$(data, \"data\").isSchema(schema);\n\n// Conditional validation\n_$(value, \"value\").check(v => v > 0, \"Value must be positive\");\n_$(user, \"user\").expr(\"v.age >= 18\", \"User must be an adult\");\n```\n\n",
+          "new": "#### 2. `_$` - Parameter Validation\n\nUse one complete predicate when all constraints must hold. Finish with `.$_()` to require a value or `.default(...)` for an optional value. See the [validation guide](https://docs.openaf.io/docs/guides/medium/parameter-validation) for snapshot-specific helper limitations.\n\n```javascript\nvar username = _$(\"Ana\", \"username\").check(v => isString(v) && v.length > 0).$_();\nvar port = _$(\"8080\", \"port\").toNumber().check(v => isNumber(v) && v >= 1 && v <= 65535).$_();\nvar title = _$(undefined, \"title\").isString().default(\"Untitled\");\n```\n\n"
+        },
+        {
+          "old": "### Common Validation Patterns\n\n```javascript\n// JavaScript\n_$(arg, \"name\").isString().$_();\n_$(arg, \"name\").isNumber().between(0, 100).default(50);\n_$(arg, \"name\").isBoolean().default(false);\n_$(arg, \"name\").isArray().minLength(1);\n_$(arg, \"name\").isMap().hasKeys(['a', 'b']);\n_$(arg, \"name\").isString().oneOf(['a', 'b', 'c']);\n```\n\n```yaml\n# oJob\ncheck:\n  in:\n    arg: isString\n    arg: toNumber.isNumber.between(0,100).default(50)\n    arg: toBoolean.default(false)\n    arg: isArray.minLength(1)\n    arg: isMap.hasKeys(['a','b'])\n    arg: isString.oneOf(['a','b','c'])\n```\n\n",
+          "new": "### Common Validation Patterns\n\n```javascript\n_$(arg, \"name\").isString().$_();\n_$(arg, \"name\").check(v => isArray(v) && v.length > 0).$_();\n_$(arg, \"name\").check(v => isMap(v) && isDef(v.a) && isDef(v.b)).$_();\n```\n\n```yaml\ncheck:\n  in:\n    name: isString\n    port: 'toNumber.check(v => isNumber(v) && v >= 1 && v <= 65535).default(8080)'\n    enabled: toBoolean.default(false)\n    items: 'check(v => isArray(v) && v.length > 0)'\n    config: 'check(v => isMap(v) && isDef(v.a) && isDef(v.b))'\n    mode: 'check(v => isString(v) && [\"a\",\"b\",\"c\"].indexOf(v) >= 0)'\n```\n\n"
+        }
+      ]
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/llm-tui-guide.md",
+      "destination": "docs/guides/ojob/llm-tui-guide.md",
+      "parent": "oJob",
+      "title": "LLM TUI Guide"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/mcp-oauth.md",
+      "destination": "docs/guides/advanced/mcp-oauth.md",
+      "parent": "Advanced",
+      "title": "Localhost OAuth2 authentication",
+      "corrections": [
+        {
+          "old": "```javascript\ntokenStore: {\n  profile: \"alice\",\n  load: function(key) { /* Return a record, or undefined when absent. */ },\n  save: function(key, record) { /* Persist the record before returning. */ },\n  clear: function(key) { /* Remove this entry. */ },\n  withLock: function(key, fn) {\n    // Acquire your backend's lock, invoke fn() once, release in finally.\n    // Return fn()'s result and propagate its exception.\n  }\n}",
+          "new": "```javascript\nvar options = { tokenStore: {\n  profile: \"alice\",\n  load: function(key) { /* Return a record, or undefined when absent. */ },\n  save: function(key, record) { /* Persist the record before returning. */ },\n  clear: function(key) { /* Remove this entry. */ },\n  withLock: function(key, fn) {\n    // Acquire your backend's lock, invoke fn() once, release in finally.\n    // Return fn()'s result and propagate its exception.\n  }\n} };"
+        }
+      ]
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/native-compilation.md",
+      "destination": "docs/guides/advanced/native-compilation.md",
+      "parent": "Advanced",
+      "title": "Native JavaScript compilation"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/oafp.md",
+      "destination": "docs/guides/oafp/oafp-reference.md",
+      "parent": "oafp",
+      "title": "OpenAF Processor (oafp) Reference Guide"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/obook.md",
+      "destination": "docs/guides/advanced/obook.md",
+      "parent": "Advanced",
+      "title": "OpenAF Interactive Notebooks (oBook) Guide"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/odoc.md",
+      "destination": "docs/guides/advanced/odoc.md",
+      "parent": "Advanced",
+      "title": "ODoc: API lookup and documentation generation"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/ojob-examples.md",
+      "destination": "docs/guides/ojob/ojob-examples.md",
+      "parent": "oJob",
+      "title": "Learning oJob from ojob.io"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/ojob-recipes.md",
+      "destination": "docs/guides/ojob/ojob-recipes.md",
+      "parent": "oJob",
+      "title": "oJob Recipes"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/ojob-security.md",
+      "destination": "docs/guides/ojob/ojob-security.md",
+      "parent": "oJob",
+      "title": "oJob Security & Integrity"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/ojob.md",
+      "destination": "docs/guides/ojob/ojob-yaml-reference.md",
+      "parent": "oJob",
+      "title": "oJob YAML Reference"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/opacks.md",
+      "destination": "docs/guides/advanced/opacks.md",
+      "parent": "Advanced",
+      "title": "oPacks \u2014 OpenAF Packages"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/openaf-advanced.md",
+      "destination": "docs/guides/advanced/openaf-advanced-guide.md",
+      "parent": "Advanced",
+      "title": "OpenAF Advanced Guide",
+      "corrections": [
+        {
+          "old": "ow.server.httpd.mapWithExistingFn",
+          "new": "ow.server.httpd.mapWithExistingRoutes"
+        }
+      ]
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/openaf-dollar-functions.md",
+      "destination": "docs/guides/advanced/openaf-dollar-functions.md",
+      "parent": "Advanced",
+      "title": "Additional OpenAF $ Functions"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/openaf-flags.md",
+      "destination": "docs/guides/advanced/openaf-flags.md",
+      "parent": "Advanced",
+      "title": "OpenAF & oJob Flags Reference"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/openaf.md",
+      "destination": "docs/guides/advanced/openaf-reference.md",
+      "parent": "Advanced",
+      "title": "OpenAF Reference Guide",
+      "body_file": "utils/overrides/openaf-reference.md",
+      "legacy_anchors": [
+        "openaf-reference-guide",
+        "overview",
+        "table-of-contents",
+        "basic-validation-and-type-checking",
+        "advanced-validations",
+        "conditional-and-complex-validation",
+        "integration-with-ojob-validation",
+        "rest-client",
+        "owai---artificial-intelligence",
+        "ownet---network-utilities",
+        "basic-channel-management",
+        "publishsubscribe",
+        "peer-to-peer-communication",
+        "basic-usage",
+        "query-methods",
+        "aggregation-functions",
+        "data-manipulation",
+        "set-operations",
+        "advanced-features",
+        "owsec---security-buckets",
+        "features",
+        "owserver---server-utilities",
+        "owtemplate---handlebars-integration",
+        "features-1",
+        "owtest---testing-utilities",
+        "example-test-suite",
+        "owpython---python-interoperability",
+        "server-mode",
+        "features-2",
+        "toon-token-oriented-object-notation",
+        "streaming-conversions",
+        "slon-parser",
+        "nlinq-parser",
+        "schema-validation",
+        "custom-validation",
+        "templify-template-expansion",
+        "sh---shell-command-runner",
+        "ftp---ftp--ftps-client",
+        "tb---thread-box-timeout--stop-controller",
+        "do--dov--asynchronous-opromise-helpers",
+        "ch-shortcut",
+        "logging-helpers-with-templates",
+        "process-integrity--signatures",
+        "timeout-aware-sleep--stopwhen",
+        "parallel-foreach-heuristics",
+        "terminal-capability-and-palette-helpers",
+        "compact-renderers",
+        "dashboard-composition",
+        "live-updates",
+        "best-practices",
+        "error-handling",
+        "performance-optimization",
+        "security-best-practices",
+        "conclusion"
+      ]
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/openai-schema-hooks.md",
+      "destination": "docs/guides/advanced/openai-schema-hooks.md",
+      "parent": "Advanced",
+      "title": "OpenAI-compatible schema output"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/ow-ai-gpttypes.md",
+      "destination": "docs/guides/advanced/ow-ai-gpttypes.md",
+      "parent": "Advanced",
+      "title": "OpenAF AI GPT Types Reference Guide",
+      "corrections": [
+        {
+          "old": "```javascript\ncase \"GET\" : return _fnh($rest(__m).get2Stream(aOptions.url + \"/\" + aURI + \"?key=\" + Packages.openaf.AFCmdBase.afc.dIP(_key)))\ncase \"POST\": return _fnh($rest(__m).post2Stream(aOptions.url + \"/\" + aURI + \"?key=\" + Packages.openaf.AFCmdBase.afc.dIP(_key), aData))",
+          "new": "```javascript\nswitch (method) {\ncase \"GET\" : return _fnh($rest(__m).get2Stream(aOptions.url + \"/\" + aURI + \"?key=\" + Packages.openaf.AFCmdBase.afc.dIP(_key)))\ncase \"POST\": return _fnh($rest(__m).post2Stream(aOptions.url + \"/\" + aURI + \"?key=\" + Packages.openaf.AFCmdBase.afc.dIP(_key), aData))\n}"
+        }
+      ]
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/path-java.md",
+      "destination": "docs/guides/advanced/path-java.md",
+      "parent": "Advanced",
+      "title": "Java $path() engine"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/plugins.md",
+      "destination": "docs/guides/advanced/plugins.md",
+      "parent": "Advanced",
+      "title": "OpenAF Core Java Plugins Reference Guide"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/python.md",
+      "destination": "docs/guides/advanced/python-integration.md",
+      "parent": "Advanced",
+      "title": "Python Integration"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/sigil.md",
+      "destination": "docs/guides/advanced/sigil.md",
+      "parent": "Advanced",
+      "title": "Sigil: object inspection and parameter validation",
+      "body_file": "utils/overrides/sigil.md",
+      "legacy_anchors": [
+        "openaf-sigil-macro--template-engine-guide",
+        "table-of-contents",
+        "environment-variables-env",
+        "secret-buckets-sigilsec-",
+        "javascript-expressions-expr",
+        "map--scope-variables-var",
+        "built-in-filters"
+      ]
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/testing.md",
+      "destination": "docs/guides/ojob/testing-openaf.md",
+      "parent": "oJob",
+      "title": "Testing OpenAF: how to add and run tests"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/plugins/BSDiff.md",
+      "destination": "docs/guides/advanced/plugin-bsdiff.md",
+      "parent": "Advanced",
+      "title": "BSDiff plugin"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/plugins/Beautifiers.md",
+      "destination": "docs/guides/advanced/plugin-beautifiers.md",
+      "parent": "Advanced",
+      "title": "Beautifiers plugin"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/plugins/Console.md",
+      "destination": "docs/guides/advanced/plugin-console.md",
+      "parent": "Advanced",
+      "title": "Console plugin"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/plugins/Email.md",
+      "destination": "docs/guides/advanced/plugin-email.md",
+      "parent": "Advanced",
+      "title": "Email plugin"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/plugins/FTP.md",
+      "destination": "docs/guides/advanced/plugin-ftp.md",
+      "parent": "Advanced",
+      "title": "FTP plugin"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/plugins/HTTP.md",
+      "destination": "docs/guides/advanced/plugin-http.md",
+      "parent": "Advanced",
+      "title": "HTTP plugin"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/plugins/HTTPServer.md",
+      "destination": "docs/guides/advanced/plugin-httpserver.md",
+      "parent": "Advanced",
+      "title": "HTTPServer plugin"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/plugins/JMX.md",
+      "destination": "docs/guides/advanced/plugin-jmx.md",
+      "parent": "Advanced",
+      "title": "JMX plugin"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/plugins/SNMP.md",
+      "destination": "docs/guides/advanced/plugin-snmp.md",
+      "parent": "Advanced",
+      "title": "SNMP plugin"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/plugins/SSH.md",
+      "destination": "docs/guides/advanced/plugin-ssh.md",
+      "parent": "Advanced",
+      "title": "SSH plugin"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/plugins/Threads.md",
+      "destination": "docs/guides/advanced/plugin-threads.md",
+      "parent": "Advanced",
+      "title": "Threads plugin"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/plugins/XML.md",
+      "destination": "docs/guides/advanced/plugin-xml.md",
+      "parent": "Advanced",
+      "title": "XML plugin"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/plugins/ZIP.md",
+      "destination": "docs/guides/advanced/plugin-zip.md",
+      "parent": "Advanced",
+      "title": "ZIP plugin"
+    },
+    {
+      "repository": "oafp",
+      "source": "src/docs/USAGE.md",
+      "destination": "docs/guides/oafp/oafp-usage.md",
+      "parent": "oafp",
+      "title": "OpenAF processor usage"
+    },
+    {
+      "repository": "oafp",
+      "source": "src/docs/FILTERS.md",
+      "destination": "docs/guides/oafp/oafp-filters.md",
+      "parent": "oafp",
+      "title": "OpenAF processor filters"
+    },
+    {
+      "repository": "oafp",
+      "source": "src/docs/TEMPLATE.md",
+      "destination": "docs/guides/oafp/oafp-template.md",
+      "parent": "oafp",
+      "title": "OpenAF processor template"
+    },
+    {
+      "repository": "oafp",
+      "source": "src/docs/EXAMPLES.md",
+      "destination": "docs/guides/oafp/oafp-basic-examples.md",
+      "parent": "oafp",
+      "title": "oafp basic examples"
+    },
+    {
+      "repository": "oafp",
+      "source": "src/docs/JSON-SCHEMA.md",
+      "destination": "docs/guides/oafp/json-schemas.md",
+      "parent": "oafp",
+      "title": "oafp with JSON schemas"
+    },
+    {
+      "repository": "ojob-common",
+      "source": "README.md",
+      "destination": "docs/guides/ojob/ojob-common-reference.md",
+      "parent": "oJob",
+      "title": "oJob-common job reference",
+      "corrections": [
+        {
+          "old": "Run `openaf -f tests/openmetrics.js` from this checkout with the updated runtime\nto check the default handlers across all three HTTP backends.",
+          "new": "The upstream README names `tests/openmetrics.js`, but that fixture is absent from this pinned checkout. Validate these endpoints in your own local service fixture; the referenced command cannot be reproduced from this snapshot alone."
+        }
+      ]
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "OpenAFLambda/README.md",
+      "destination": "docs/guides/opacks/openaflambda.md",
+      "parent": "oPacks",
+      "title": "OpenAFLambda"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "OpenAFLambdaLayers/README.md",
+      "destination": "docs/guides/opacks/openaflambdalayers.md",
+      "parent": "oPacks",
+      "title": "OpenAFLambdaLayers"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "grpc/README.md",
+      "destination": "docs/guides/opacks/grpc.md",
+      "parent": "oPacks",
+      "title": "grpc",
+      "corrections": [
+        {
+          "old": "```javascript\nservices: { 'demo.Greeter': {\n  Watch: function(request, call, output) {\n    for (var i = 0; i < Number(request.count); i++) {\n      if (call.isCancelled()) return;\n      output.write({ name: String(i) });\n    }\n  },\n  Collect: function(input, call) {\n    var names = [];\n    while (true) {\n      var next = input.read();\n      if (next.done) break;\n      names.push(next.value.name);\n    }\n    return { name: names.join(',') };\n  },\n  Chat: function(stream, call) {\n    while (true) {\n      var next = stream.read();\n      if (next.done) return;\n      stream.write(next.value);\n    }\n  }\n} }",
+          "new": "```javascript\nvar options = { services: { 'demo.Greeter': {\n  Watch: function(request, call, output) {\n    for (var i = 0; i < Number(request.count); i++) {\n      if (call.isCancelled()) return;\n      output.write({ name: String(i) });\n    }\n  },\n  Collect: function(input, call) {\n    var names = [];\n    while (true) {\n      var next = input.read();\n      if (next.done) break;\n      names.push(next.value.name);\n    }\n    return { name: names.join(',') };\n  },\n  Chat: function(stream, call) {\n    while (true) {\n      var next = stream.read();\n      if (next.done) return;\n      stream.write(next.value);\n    }\n  }\n} } };"
+        }
+      ]
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "AWS/README.md",
+      "destination": "docs/guides/opacks/aws.md",
+      "parent": "oPacks",
+      "title": "AWS"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "ghcopilot/README.md",
+      "destination": "docs/guides/opacks/ghcopilot.md",
+      "parent": "oPacks",
+      "title": "ghcopilot"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "MCPAuthd/README.md",
+      "destination": "docs/guides/opacks/mcpauthd.md",
+      "parent": "oPacks",
+      "title": "MCPAuthd"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "OpenAPI/README.md",
+      "destination": "docs/guides/opacks/openapi.md",
+      "parent": "oPacks",
+      "title": "OpenAPI"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "OpenTelemetry/README.md",
+      "destination": "docs/guides/opacks/opentelemetry.md",
+      "parent": "oPacks",
+      "title": "OpenTelemetry"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "CHManager/README.md",
+      "destination": "docs/guides/opacks/chmanager.md",
+      "parent": "oPacks",
+      "title": "CHManager"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "GPU/README.md",
+      "destination": "docs/guides/opacks/gpu.md",
+      "parent": "oPacks",
+      "title": "GPU"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "D3SVG/README.md",
+      "destination": "docs/guides/opacks/d3svg.md",
+      "parent": "oPacks",
+      "title": "D3SVG"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "Maven/README.md",
+      "destination": "docs/guides/opacks/maven.md",
+      "parent": "oPacks",
+      "title": "Maven"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "Tika/README.md",
+      "destination": "docs/guides/opacks/tika.md",
+      "parent": "oPacks",
+      "title": "Tika"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "Kafka/README.md",
+      "destination": "docs/guides/opacks/kafka.md",
+      "parent": "oPacks",
+      "title": "Kafka"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "S3/README.md",
+      "destination": "docs/guides/opacks/s3.md",
+      "parent": "oPacks",
+      "title": "S3"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "Redis/README.md",
+      "destination": "docs/guides/opacks/redis.md",
+      "parent": "oPacks",
+      "title": "Redis"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "SSHd/README.md",
+      "destination": "docs/guides/opacks/sshd.md",
+      "parent": "oPacks",
+      "title": "SSHd"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "playwright/README.md",
+      "destination": "docs/guides/opacks/playwright.md",
+      "parent": "oPacks",
+      "title": "playwright"
+    },
+    {
+      "repository": "openaf-opacks",
+      "source": "plugin-DesktopJavaFX/README.md",
+      "destination": "docs/guides/opacks/plugin-desktopjavafx.md",
+      "parent": "oPacks",
+      "title": "plugin-DesktopJavaFX"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/ojob.md",
+      "destination": "docs/reference/ojob.md",
+      "parent": "Reference",
+      "grand_parent": "OpenAF docs",
+      "title": "oJob Reference Guide"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/llm-guide.md",
+      "destination": "docs/guides/advanced/llm-code-generation.md",
+      "parent": "Advanced",
+      "title": "LLM code generation guide",
+      "corrections": [
+        {
+          "old": "#### 2. `_$` - Parameter Validation\n\n```javascript\n// Basic validation with error throwing\n_$(username, \"username\").isString().$_();\n_$(age, \"age\").isNumber().default(18);\n_$(email, \"email\").isString().notEquals(\"\");\n\n// Type conversion\n_$(value, \"value\").toNumber();\n_$(value, \"value\").toString();\n_$(value, \"value\").toBoolean();\n\n// String validations\n_$(email, \"email\").isEmail();\n_$(id, \"id\").isUUID();\n_$(text, \"text\").minLength(5).maxLength(100);\n\n// Number validations\n_$(age, \"age\").isNumber().between(0, 150);\n_$(score, \"score\").isNumber().multipleOf(0.5);\n\n// Array validations\n_$(items, \"items\").isArray().minLength(1);\n_$(emails, \"emails\").isArray().eachIsString();\n\n// Object validations\n_$(config, \"config\").isMap().hasKeys(['host', 'port']);\n_$(data, \"data\").isSchema(schema);\n\n// Conditional validation\n_$(value, \"value\").check(v => v > 0, \"Value must be positive\");\n_$(user, \"user\").expr(\"v.age >= 18\", \"User must be an adult\");\n```\n\n",
+          "new": "#### 2. `_$` - Parameter Validation\n\nUse one complete predicate when all constraints must hold. Finish with `.$_()` to require a value or `.default(...)` for an optional value. See the [validation guide](https://docs.openaf.io/docs/guides/medium/parameter-validation) for snapshot-specific helper limitations.\n\n```javascript\nvar username = _$(\"Ana\", \"username\").check(v => isString(v) && v.length > 0).$_();\nvar port = _$(\"8080\", \"port\").toNumber().check(v => isNumber(v) && v >= 1 && v <= 65535).$_();\nvar title = _$(undefined, \"title\").isString().default(\"Untitled\");\n```\n\n"
+        },
+        {
+          "old": "### Common Validation Patterns\n\n```javascript\n// JavaScript\n_$(arg, \"name\").isString().$_();\n_$(arg, \"name\").isNumber().between(0, 100).default(50);\n_$(arg, \"name\").isBoolean().default(false);\n_$(arg, \"name\").isArray().minLength(1);\n_$(arg, \"name\").isMap().hasKeys(['a', 'b']);\n_$(arg, \"name\").isString().oneOf(['a', 'b', 'c']);\n```\n\n```yaml\n# oJob\ncheck:\n  in:\n    arg: isString\n    arg: toNumber.isNumber.between(0,100).default(50)\n    arg: toBoolean.default(false)\n    arg: isArray.minLength(1)\n    arg: isMap.hasKeys(['a','b'])\n    arg: isString.oneOf(['a','b','c'])\n```\n\n",
+          "new": "### Common Validation Patterns\n\n```javascript\n_$(arg, \"name\").isString().$_();\n_$(arg, \"name\").check(v => isArray(v) && v.length > 0).$_();\n_$(arg, \"name\").check(v => isMap(v) && isDef(v.a) && isDef(v.b)).$_();\n```\n\n```yaml\ncheck:\n  in:\n    name: isString\n    port: 'toNumber.check(v => isNumber(v) && v >= 1 && v <= 65535).default(8080)'\n    enabled: toBoolean.default(false)\n    items: 'check(v => isArray(v) && v.length > 0)'\n    config: 'check(v => isMap(v) && isDef(v.a) && isDef(v.b))'\n    mode: 'check(v => isString(v) && [\"a\",\"b\",\"c\"].indexOf(v) >= 0)'\n```\n\n"
+        }
+      ]
+    }
+  ],
+  "copies": [
+    {
+      "repository": "openaf",
+      "source": "examples/authoring/bounded-periodic.yaml",
+      "destination": "docs/examples/authoring/bounded-periodic.yaml"
+    },
+    {
+      "repository": "openaf",
+      "source": "examples/authoring/bounded-workers.yaml",
+      "destination": "docs/examples/authoring/bounded-workers.yaml"
+    },
+    {
+      "repository": "openaf",
+      "source": "examples/authoring/cleanup.yaml",
+      "destination": "docs/examples/authoring/cleanup.yaml"
+    },
+    {
+      "repository": "openaf",
+      "source": "examples/authoring/code-separation.yaml",
+      "destination": "docs/examples/authoring/code-separation.yaml"
+    },
+    {
+      "repository": "openaf",
+      "source": "examples/authoring/composition.yaml",
+      "destination": "docs/examples/authoring/composition.yaml"
+    },
+    {
+      "repository": "openaf",
+      "source": "examples/authoring/filter-records.js",
+      "destination": "docs/examples/authoring/filter-records.js"
+    },
+    {
+      "repository": "openaf",
+      "source": "examples/authoring/filter-records.yaml",
+      "destination": "docs/examples/authoring/filter-records.yaml"
+    },
+    {
+      "repository": "openaf",
+      "source": "examples/authoring/http-json.js",
+      "destination": "docs/examples/authoring/http-json.js"
+    },
+    {
+      "repository": "openaf",
+      "source": "examples/authoring/http-json.yaml",
+      "destination": "docs/examples/authoring/http-json.yaml"
+    },
+    {
+      "repository": "openaf",
+      "source": "examples/authoring/package.yaml",
+      "destination": "docs/examples/authoring/package.yaml"
+    },
+    {
+      "repository": "openaf",
+      "source": "examples/authoring/process.js",
+      "destination": "docs/examples/authoring/process.js"
+    },
+    {
+      "repository": "openaf",
+      "source": "examples/authoring/process.yaml",
+      "destination": "docs/examples/authoring/process.yaml"
+    },
+    {
+      "repository": "openaf",
+      "source": "examples/authoring/records.json",
+      "destination": "docs/examples/authoring/records.json"
+    },
+    {
+      "repository": "openaf",
+      "source": "examples/authoring/test-code-separation.js",
+      "destination": "docs/examples/authoring/test-code-separation.js"
+    },
+    {
+      "repository": "openaf",
+      "source": "examples/authoring/test-filter.js",
+      "destination": "docs/examples/authoring/test-filter.js"
+    },
+    {
+      "repository": "openaf",
+      "source": "docs/ojob-all.yaml",
+      "destination": "docs/examples/ojob-all.yaml"
+    }
+  ],
+  "anchor_corrections": {
+    "ow-ch---channels": "owch---channels",
+    "$path--jmespath-inspired-query--transform": "path--jmespath-inspired-query--transform",
+    "calling-back-into-openaf-from-independent-python-code---oafpy": "calling-back-into-openaf-from-independent-python-code-oafpy",
+    "running-py-files-from-the-command-line---py--pyoaf": "running-py-files-from-the-command-line-py--pyoaf",
+    "using-a-llm-to-generate-a-table": "input-llm-using-a-llm-to-generate-a-table",
+    "oJobRest": "ojobrest"
+  },
+  "reference_corrections": {
+    "ow.server": {
+      "ow.server.rest.reply": [
+        {
+          "old": "// Create and return a map },",
+          "new": "/* Create and return a map */ return {}; },"
+        },
+        {
+          "old": "// Get and return a map },",
+          "new": "/* Get and return a map */ return {}; },"
+        },
+        {
+          "old": "// Set and return a map },",
+          "new": "/* Set and return a map */ return {}; },"
+        },
+        {
+          "old": "// Remove and return a map }",
+          "new": "/* Remove and return a map */ return {}; }"
+        },
+        {
+          "old": ")}}, function(req)",
+          "new": ")}}), function(req)"
+        }
+      ],
+      "ow.server.rest.replyData": [
+        {
+          "old": "   });",
+          "new": "   }\n}), function(req) { return hs.replyNotFound(); });"
+        }
+      ]
+    },
+    "scope": {
+      "io.unzip": [
+        {
+          "old": "```javascript",
+          "new": "```text"
+        }
+      ],
+      "io.zip": [
+        {
+          "old": "```javascript",
+          "new": "```text"
+        }
+      ]
+    },
+    "scopesigil": {
+      "$$.unset": [
+        {
+          "old": "$$(a).set(\"b.c\")",
+          "new": "$$(a).unset(\"b.c\")"
+        }
+      ]
+    }
+  },
+  "site_baseline_revision": "199adef052eefd20033a8d0f43cbd0499bc44e04"
+}

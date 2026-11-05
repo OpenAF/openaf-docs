@@ -7,65 +7,38 @@ grand_parent: Guides
 
 # How to run OpenAF code from shell script
 
-To run an OpenAF script you just need to execute: _'openaf -f myScript.js'_. But what if you wanted to include some OpenAF code without having to create a separate file. There are several ways to achived this with OpenAF.
+Use `oaf -f myScript.js` for a separate script, `-c` for inline code, or `-i script -p` to read a script from standard input. These examples use local data and require no external API.
 
 ## Inline code
 
-The simplest way it's using the _'-c'_ option:
+Single quotes protect JavaScript dollar signs and double quotes from shell expansion:
 
-````bash
-$ openaf -c 'var res = $rest().get("https://uinames.com/api"); print(printMap(res, void 0, "plain", true))'
-+----------+---------------+
-|    name: | John          |
-| surname: | Lawrence      |
-|  gender: | male          |
-|  region: | United States |
-+----------+---------------+
-````
+```sh
+oaf -c 'print($path({ person: { name: "Ana" } }, "person.name"))'
+```
 
-Incorporating into a shell script:
+Capture standard output in a POSIX shell script:
 
-````bash
+```sh
 #!/bin/sh
+name=$(oaf -c 'print("Ana")')
+printf 'Hi %s\n' "$name"
+```
 
-name=$(openaf -c 'print($rest().get("https://uinames.com/api").name)')
-echo Hi $name
-````
-
-Running:
-
-````bash
-$ sh sayHi.sh
-Hi Andrea
-````
+Use `printErr` for diagnostics that should not become part of the captured value. Quote shell variable expansions when using the result.
 
 ## Multiline code
 
-For simple code inline code works well but for multi line code it may become hard to read. Another option is using the _'-p'_ option that will receive input from _stdin_.
+A quoted heredoc delimiter disables shell expansion inside the JavaScript block, including `$` functions and template literals:
 
-````bash
-#!/bin/bash
-
-output=$(openaf -i script -p << __endScript
-
-  // OpenAF javascript code
-  var res = \$rest().get("https://uinames.com/api/?ext");
-  print(res.name + " " + res.surname + ";" + res.phone);
-
-__endScript
+```sh
+#!/bin/sh
+output=$(oaf -i script -p <<'OPENAF_SCRIPT'
+var person = { name: "Ana", surname: "Silva", phone: "123-456" };
+print(person.name + " " + person.surname + ";" + person.phone);
+OPENAF_SCRIPT
 )
+printf '%s\n' "$output"
+```
 
-# interpreting result in bash
-IFS='\;'
-read -a strarr <<< "$output"
-
-echo Name : ${strarr[0]}
-echo Phone: ${strarr[1]}
-````
-
-And the result of mixing shell script and OpenAF:
-
-````bash
-Name : Angela Johnston
-Phone: (134) 382 2457
-````
+This prints `Ana Silva;123-456`. To pass values from the shell, export environment variables and read them with `getEnv("NAME")`, or pass arguments using the CLI's documented `-e` option. See the [CLI guide](../advanced/cli.md).

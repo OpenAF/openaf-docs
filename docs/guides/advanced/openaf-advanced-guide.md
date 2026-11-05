@@ -5,9 +5,12 @@ parent: Advanced
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/openaf-advanced.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # OpenAF Advanced Guide
 
-[Index](../../../index.md) | [oJob Reference](../ojob/ojob-yaml-reference.md) | [Security](../ojob/ojob-security.md) | [Flags](openaf-flags.md) | [Recipes](../ojob/ojob-recipes.md) | [Advanced](openaf-advanced-guide.md)
+[Index](../index.md) | [oJob Reference](../ojob/ojob-yaml-reference.md) | [Security](../ojob/ojob-security.md) | [Flags](openaf-flags.md) | [Recipes](../ojob/ojob-recipes.md) | [Advanced](openaf-advanced-guide.md)
 
 Deeper coverage of selected modules and patterns.
 
@@ -89,7 +92,7 @@ Add namespaced helpers:
 ```javascript
 ow.loadTemplate();
 ow.template.addHelpers('x', { upper: s => s.toUpperCase() });
-print(templify('Hi {% raw %}{{x_upper name}}{% endraw %}', { name:'dev' }));
+print(templify('Hi {{x_upper name}}', { name:'dev' }));
 ```
 
 ## 10. Structured Logging Strategies
@@ -162,26 +165,26 @@ ojob:
     port   : 9101
     uri    : "/metrics"
     host   : "0.0.0.0"
-    
+
     # Active metrics (push to external systems)
     add:
       customMetric: | #js
         return { value: Math.random() * 100 }
       processedItems: | #js
         return { value: $get("itemsProcessed") || 0 }
-    
+
     # Push to OpenMetrics/Prometheus
     openmetrics:
       url: "http://pushgateway:9091/metrics/job/myapp"
       period: 30000
       metrics: ["customMetric", "mem", "cpu"]
-    
+
     # Push to nAttrMon
     nattrmon:
       url: "http://nattrmon:8080/cvals"
       period: 60000
       metrics: ["customMetric", "processedItems"]
-    
+
     # Collect to channel for historical analysis
     collect:
       active: true
@@ -197,10 +200,10 @@ ow.loadServer();
 
 // Passive telemetry endpoint
 ow.server.telemetry.passive(9102, "/health", true, "myapp", {
-  "requests_total": { 
-    text: "Total requests", 
-    help: "Number of requests processed", 
-    type: "counter" 
+  "myapp_requests_total": {
+    text: "Total requests",
+    help: "Number of requests processed",
+    type: "counter"
   }
 });
 
@@ -223,22 +226,41 @@ ow.server.telemetry.active(sender, 60000);
 
 ### OpenMetrics Format Support
 
+Passive telemetry with `useOpenMetrics=true` serves OpenMetrics 1.0 text with
+`application/openmetrics-text; version=1.0.0; charset=utf-8` and a final `# EOF` line.
+It omits scrape timestamps. Pass `false` as the sixth argument of
+`ow.server.telemetry.passive`, or set `ojob.metrics.openMetricsStrict: false`, to
+select the legacy Prometheus text response. The JSON response and `f=json` query
+override are also available; `f=om` selects the configured metrics text mode.
+
+The object formatter retains its legacy output unless its sixth argument is `true`.
+Strict mode supports scalar `unknown` (default), `gauge` and `counter` families;
+other types need a structured metric model and are rejected. Help-map keys are the
+fully prefixed sample names. Counter metadata uses the family name without
+`_total`, while the sample uses `_total`. Strict mode groups each family, escapes
+labels and help, uses `<prefix>_id` for array indexes, and rejects colliding names,
+duplicate series, invalid timestamps and carriage returns in text. Numeric
+timestamps are epoch seconds; a string timestamp argument selects a date label.
+
 ```javascript
 // Convert metrics to OpenMetrics format
 var openMetrics = ow.metrics.fromObj2OpenMetrics(
   ow.metrics.getAll(),      // metrics object
   "myapp",                  // prefix
-  new Date(),               // timestamp
+  undefined,                // omit timestamps for a scrape
   {                         // help text mapping
-    "cpu": { text: "CPU usage percentage", type: "gauge" },
-    "mem": { text: "Memory usage bytes", type: "gauge" }
-  }
+    "myapp_cpu_load": { help: "CPU load", type: "gauge" },
+    "myapp_mem_used": { help: "Memory used bytes", type: "gauge" }
+  },
+  undefined,                // optional value conversion map
+  true                      // strict OpenMetrics 1.0
 );
 
 // Expose via HTTP server
 var httpd = ow.server.httpd.start(9090);
 ow.server.httpd.route(httpd, "/metrics", function(req) {
-  return httpd.replyOKText(openMetrics);
+  return httpd.reply(openMetrics,
+    "application/openmetrics-text; version=1.0.0; charset=utf-8", 200, {});
 });
 ```
 
@@ -252,7 +274,7 @@ ojob:
       type: mvs
       options:
         file: metrics.db
-  
+
   metrics:
     collect:
       active: true
@@ -392,8 +414,8 @@ OpenAF provides comprehensive AI capabilities through `ow.ai` for both tradition
 ow.loadAI();
 
 // Create a neural network
-var nn = new ow.ai.network({ 
-  type: "perceptron", 
+var nn = new ow.ai.network({
+  type: "perceptron",
   args: [2, 3, 1]  // 2 inputs, 3 hidden, 1 output
 });
 
@@ -518,7 +540,7 @@ var openai = ow.ai.gpt({
 
 // Anthropic Claude
 var claude = ow.ai.gpt({
-  type: "anthropic", 
+  type: "anthropic",
   key : process.env.ANTHROPIC_KEY,
   model: "claude-3-sonnet-20240229"
 });
@@ -544,7 +566,7 @@ var gemini = ow.ai.gpt({
 var llm = ow.ai.gpt({ type: "openai", key: "...", model: "gpt-3.5-turbo" });
 
 // Register a tool
-llm.setTool("getCurrentWeather", 
+llm.setTool("getCurrentWeather",
   "Get the current weather for a location",
   {
     type: "object",
@@ -618,7 +640,7 @@ llm.setConversation($get("chatHistory"));
 
 // JSON structured responses
 var jsonResponse = llm.prompt(
-  "Return product info as JSON", 
+  "Return product info as JSON",
   "gpt-3.5-turbo",
   0.1,  // low temperature for consistency
   true  // JSON flag
@@ -645,7 +667,7 @@ var results = [];
 // Example with error handling and retry
 function robustLLMCall(prompt, maxRetries = 3) {
   var llm = ow.ai.gpt({...});
-  
+
   for (var i = 0; i < maxRetries; i++) {
     try {
       return llm.prompt(prompt);
@@ -706,7 +728,7 @@ var httpd = ow.server.httpd.start(8080);
 var link = ow.server.httpd.withPrefix(httpd, "/about"); // "/app/about"
 
 // Strip prefix for internal route matching
-ow.server.httpd.route(httpd, ow.server.httpd.mapWithExistingFn(httpd, {
+ow.server.httpd.route(httpd, ow.server.httpd.mapWithExistingRoutes(httpd, {
   "/about": function(req) {
     return httpd.replyOKText("About page");
   }
@@ -806,3 +828,4 @@ client.initialize();
 
 ---
 See also: `ojob-security.md`, `openaf-flags.md`, and main references.
+{% endraw %}

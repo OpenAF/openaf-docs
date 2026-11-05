@@ -9,7 +9,7 @@ grand_parent: Guides
 
 On the article [Micro remote HTTP file browser](https://openafs.blogspot.com/2019/07/micro-remote-http-file-browser.html) we described a fast way to build a micro HTTP server serving files from the current folder. But some (myself included) need faster ways to do it instead of creating an oJob file and executing it.
 
-So doing the same thing on one line that you can just copy+paste whenever you need can be very pratical. But you will be sacrifying readability by anyone else and you. Since oJobs can be used in YAML or JSON this enables you to build a YAML oJob file and then convert it to JSON string where initilization parameters can be easily change. Additionally you can convert back to YAML very easily. 
+So doing the same thing on one line that you can just copy+paste whenever you need can be very pratical. But you will be sacrifying readability by anyone else and you. Since oJobs can be used in YAML or JSON this enables you to build a YAML oJob file and then convert it to JSON string where initilization parameters can be easily change. Additionally you can convert back to YAML very easily.
 
 ## Example
 
@@ -68,7 +68,7 @@ To stop just hit "Ctrl-C".
 
 If you need to change the folder, port or uri used it's easy to just direclty change on the first init map:
 
-````javascript
+````text
 {"init":{"port":8080,"path":".","uri":"/"},
 ````
 

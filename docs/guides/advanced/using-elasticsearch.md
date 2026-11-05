@@ -9,7 +9,7 @@ grand_parent: Guides
 
 OpenAF comes with builtin support for ElasticSearch. So, among other things, it can log directly to ElasticSearch whenever you use the _log*_ functions. Nevertheless there is an oPack to make it all a little easier. Let's start by installing it:
 
-````javascript
+````sh
 $ opack install elasticsearch
 ````
 
@@ -30,7 +30,7 @@ To create an index you just need to:
 > es.createIndex("test", 1, 1);
 ````
 
-This will create a new index "test" with 1 primary shard and 1 replica. This operation isn't usually necessary as ElasticSearch will just create any index you try to use. 
+This will create a new index "test" with 1 primary shard and 1 replica. This operation isn't usually necessary as ElasticSearch will just create any index you try to use.
 
 You can check that it was created by executing:
 
@@ -58,11 +58,11 @@ To add new data just use the newly created channel:
 $ch("testCh").set({
     canonicalPath: "/",
 }, {
-    isDirectory: yes,
-    isFile: no,
+    isDirectory: true,
+    isFile: false,
     filename: "noname",
     filepath: "/",
-    canonicalPath: "/"
+    canonicalPath: "/",
     lastModified: 0,
     createTime: 0,
     size: 0

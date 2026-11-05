@@ -1,9 +1,12 @@
 ---
 layout: default
-title: "Authoring recipes for scripts and oJobs"
+title: Authoring recipes for scripts and oJobs
 parent: oJob
 grand_parent: Guides
 ---
+
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/authoring-recipes.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
 
 # Authoring recipes for scripts and oJobs
 
@@ -16,7 +19,7 @@ Linked files are canonical runnable examples. Run from their directory or copy t
 | Filter JSON | [filter-records.js](../../examples/authoring/filter-records.js) | [filter-records.yaml](../../examples/authoring/filter-records.yaml) | Identical arrays on stdout and in the optional file |
 | Get JSON over HTTP | [http-json.js](../../examples/authoring/http-json.js) | [http-json.yaml](../../examples/authoring/http-json.yaml) | Array, or diagnostic and exit 1 |
 | Run a process | [process.js](../../examples/authoring/process.js) | [process.yaml](../../examples/authoring/process.yaml) | `{stdout, stderr, exitcode}` on success; exit 1 on child failure |
-| Load Badgen | [badge.js](../../examples/authoring/badge.js) | [package.yaml](../../examples/authoring/package.yaml) | SVG; requires the installed Badgen oPack |
+| Load Badgen | [badge.js](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/skills/openaf-opacks/assets/badge.js) | [package.yaml](../../examples/authoring/package.yaml) | SVG; requires the installed Badgen oPack |
 
 ## HTTP
 
@@ -29,7 +32,7 @@ ojob http-json.yaml url=http://127.0.0.1:8080/records.json
 
 Both print the input array. Change the path to `/missing.json` to exercise HTTP failure; stop the server with Ctrl-C afterwards. Python is only a fixture prerequisite here. `$rest(...).get()` returns decoded JSON, not a browser `Response`. The examples enable `throwExceptions` and set `connectionTimeout: 5000`, then validate the response shape. This is not a complete workflow deadline; the test runner supplies one.
 
-Do not reuse this contract for `$fetch`, which returns an oPromise wrapping a response with body readers and cleanup. See [HTTP and process contracts](https://github.com/OpenAF/openaf/blob/a5181af6/skills/openaf-javascript/references/http-process.md).
+Do not reuse this contract for `$fetch`, which returns an oPromise wrapping a response with body readers and cleanup. See [HTTP and process contracts](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/skills/openaf-javascript/references/http-process.md).
 
 ## Processes
 
@@ -61,8 +64,9 @@ Run `ojob composition.yaml` using [composition.yaml](../../examples/authoring/co
 
 Run `ojob bounded-workers.yaml` using [bounded-workers.yaml](../../examples/authoring/bounded-workers.yaml): expect `record: 1`, `record: 2`, and `record: 3`, in any order. The producer emits three maps to at most two concurrent consumers and the process completes after consumption.
 
-[bounded-work.js](../../examples/authoring/bounded-work.js) uses two consumers, waits, and asserts two successes and one observed failure. It prints `concurrency: ok`. The [producer/consumer recipe](ojob-recipes.md#5-producerconsumer-fan-out) demonstrates `each` and `eachThreads`; this differs from sequential `(each)`. Parallel outputs need not retain input order; ordinary shared variables are not automatically synchronized.
+[bounded-work.js](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/skills/openaf-concurrency/assets/bounded-work.js) uses two consumers, waits, and asserts two successes and one observed failure. It prints `concurrency: ok`. The [producer/consumer recipe](ojob-recipes.md#5-producerconsumer-fan-out) demonstrates `each` and `eachThreads`; this differs from sequential `(each)`. Parallel outputs need not retain input order; ordinary shared variables are not automatically synchronized.
 
 [bounded-periodic.yaml](../../examples/authoring/bounded-periodic.yaml) registers a one-second cron job and stops after at least two ticks. `waitForFinish` prevents overlap; `daemonFunc` returns true to stop. A shutdown job prints `cleanup: ok`. Run `ojob bounded-periodic.yaml`; expect two or more ticks, cleanup, and termination. The test runner adds a deadline so scheduler failures cannot hang CI.
 
 [cleanup.yaml](../../examples/authoring/cleanup.yaml) deliberately throws after opening a file. `finally` closes and removes it, `catch` handles the known error, and a later job verifies recovery. `to` must not run. Execute only in a scratch directory: it owns `temporary.txt`.
+{% endraw %}

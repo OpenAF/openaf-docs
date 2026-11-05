@@ -53,7 +53,7 @@ jobs:
 When launching an oJobRT container you just need to specify the OJOB_JSONLOG environment variable to "true":
 
 ````bash
-docker run --rm -ti -v "$(pwd)":/test -e OJOB_CONFIG=/test/mytest.yaml -e OJOB_METHOD=local -e OJOB_JSONLOG=true -e OJOB_CONFIG=/ojob/main.yaml openaf/ojobrt
+docker run --rm -ti -v "$(pwd)":/test -e OJOB_CONFIG=/test/mytest.yaml -e OJOB_METHOD=local -e OJOB_JSONLOG=true openaf/ojobrt
 ````
 
 Check the [openaf-dockers project](https://github.com/OpenAF/openaf-dockers/blob/master/oJobRT/README.md) for more details.

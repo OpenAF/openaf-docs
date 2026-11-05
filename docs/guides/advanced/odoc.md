@@ -1,15 +1,18 @@
 ---
 layout: default
-title: "ODoc: API lookup and documentation generation"
+title: 'ODoc: API lookup and documentation generation'
 parent: Advanced
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/odoc.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # ODoc: API lookup and documentation generation
 
-[Index](../../../index.md) | [CLI](cli.md) | [Coverage](https://github.com/OpenAF/openaf/blob/a5181af6/docs/documentation-coverage.md)
+[Index](../index.md) | [CLI](cli.md) | [Coverage](documentation-coverage.md)
 
-ODoc extracts documentation from JavaScript and Java comments. OpenAF packages a ZIP-format `.odoc.db` and can generate gzip files for web publication. Contracts live in [odoc.js](https://github.com/OpenAF/openaf/blob/a5181af6/js/odoc.js) and [openaf.js](https://github.com/OpenAF/openaf/blob/a5181af6/js/openaf.js).
+ODoc extracts documentation from JavaScript and Java comments. OpenAF packages a ZIP-format `.odoc.db` and can generate gzip files for web publication. Contracts live in [odoc.js](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/js/odoc.js) and [openaf.js](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/js/openaf.js).
 
 ## Look up an API
 
@@ -45,6 +48,8 @@ function greeting(aName) {
 The parser does not create searchable fields for `<category>`, `<author>`, `<version>`, or `<see>`. Put compatibility and related-API information in the body instead.
 
 ## Opt in to Markdown
+
+Use Markdown when an entry contains more than one paragraph or includes examples. Keep simple, single-paragraph descriptions as plain text. Use blank lines between paragraphs, lists for options, backticks for parameter names and short expressions, and fenced blocks with a language label for standalone examples.
 
 Mark an individual entry with `format="markdown"` or its alias `format="md"`:
 
@@ -108,7 +113,7 @@ Call `loadHelp()` before constructing these objects:
 | `saveHelp(directory, filesBySubject)` | Extract and save local help. |
 | `saveHelpWeb(directory, filesBySubject)` | Extract and save compressed web data. |
 
-The [build script](https://github.com/OpenAF/openaf/blob/a5181af6/buildos.js) uses these helpers for distribution help. Generating help does not verify example behavior; run the [documentation checks](https://github.com/OpenAF/openaf/blob/a5181af6/docs/documentation-coverage.md) too.
+The [build script](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/buildos.js) uses these helpers for distribution help. Generating help does not verify example behavior; run the [documentation checks](documentation-coverage.md) too.
 
 ## Regression checks
 
@@ -127,3 +132,4 @@ node tools/docs/test_odoc_browser.js
 ```
 
 The terminal check requires a POSIX pseudo-terminal. The browser check requires Node.js, Playwright, and Chrome; it uses a temporary headless profile and mocked HTTP responses.
+{% endraw %}

@@ -35,12 +35,12 @@ Additionally you can use the openaf-console (oafc) auto-complete, _desc_ and _sc
 | Function | Description |
 |----------|-------------|
 | compare | Compares two javascript objects (with deep map search). |
-| clone | Clones the provided javascript object to a new instance. | 
+| clone | Clones the provided javascript object to a new instance. |
 | merge | Merges two javascript maps and/or arrays into a new object. |
 | inherit | Given an parent and a child object it will copy the parent javascript prototype to the child prototype. |
 | load | Given an OpenAF javascript file it will interpret and compile the corresponding code. Will search the current installed oPack paths if not found on the current path. |
 | loadLib | Sames as _load_ but keeping track of previously loaded OpenAF javascript files to avoid re-execution. |
-| plugin | Loads a Java-based OpenAF plugin that must be on the classpath. If found on current installed oPack paths it will try to dynamically added to the classpath (when using the custom class loader). | 
+| plugin | Loads a Java-based OpenAF plugin that must be on the classpath. If found on current installed oPack paths it will try to dynamically added to the classpath (when using the custom class loader). |
 | require | Loads an OpenAF javascript with declared exports returning a map with the same. |
 | exit | Immediatelly exits the current execution with the provided exit code. |
 | arrayContains | Tries to determine if an array contains an object. |
@@ -55,7 +55,7 @@ The one-line type checking propose it's to be used for checking arguments of a f
 
 The syntax of usage is:
 
-````javascript
+````text
 // For values that must be defined
 _$([aVariable], [anOptionalDescription]).[combination of check functions].$_(anOptionalExceptionDescription)
 
@@ -81,7 +81,7 @@ function useEvenNumber(aEvenNumber) {
 function modifyChild(aChildUUID, aParentUUID) {
     // Check mandatory
     _$(aChildUUID, "aChildUUID").isUUID().$_("a child uuid must be provided");
-    
+
     // Check and assign defaults
     aParentUUID = _$(aParentUUID, "aParentUUID").isUUID().default("ed258253-a8e3-2df1-5d74-b106e8cd7e9a");
 
@@ -94,7 +94,7 @@ For check functions any combination can be used (each function includes also a s
 | Function | Checking propose |
 |----------|------------------|
 | anyOf    | Determine if the array provided only has values from a pre-provided array of values. |
-| between | Determines if a number is between a minimum and maximum values exclusively. | 
+| between | Determines if a number is between a minimum and maximum values exclusively. |
 | betweenEquals | Determines if a number is between a minimum and maximum values inclusively. |
 | check   | Uses the provided javascript function to check. |
 | contains | Determines if a string value contains a sub-string. |
@@ -102,33 +102,33 @@ For check functions any combination can be used (each function includes also a s
 | ends     | Determines if the provided string ends with the provided sub-string. |
 | equals   | Determines if the provided string is equals to the provided string. |
 | greater  | Determines if the provided value is bigger than the provided value. |
-| greaterEquals | Determines if the provided value if bigger or equal than the provided value. | 
+| greaterEquals | Determines if the provided value if bigger or equal than the provided value. |
 | isArray  | Determines if a variable is an array.  |
 | isBoolean | Determines if a variable is a boolean. |
 | isDate | Determines if a variable is a date.|
-| isFunction | Determines if a variable is a function. | 
+| isFunction | Determines if a variable is a function. |
 | isInstanceOf | Determines if the provided Java object is an instance of a given Java class. |
 | isJavaObject | Determines if a variable is a Java object. |
-| isMap | Determines if a variable is a map. | 
-| isNotNull | Determines if a variable is not null. | 
-| isNumber | Determines if a variable is a number. | 
-| isObject | Determines if a variable is a object (e.g. map, array) | 
+| isMap | Determines if a variable is a map. |
+| isNotNull | Determines if a variable is not null. |
+| isNumber | Determines if a variable is a number. |
+| isObject | Determines if a variable is a object (e.g. map, array) |
 | isRegExp | Determines if a variable is a javascript regular expression. |
 | isSchema | Determines if a provided map is according with the provided JSON schema. |
 | isString | Determines if a variable is a string. |
 | isTNumber | Determines if the type of a number provided, independently of it's conversion from number, is a Number. |
 | isUUID | Determines if a variable is an UUID |
 | javaRegexp | Determines if a Java object provided is a Java regular expression. |
-| less | Determines if a provided number is less than a number. | 
+| less | Determines if a provided number is less than a number. |
 | lessEquals | Determines if a provided number is less or equal than a number. |
 | notContains | Determines if a provided string doesn't contain a sub-string. |
-| notEmpty | Determines if a variable isn't empty. | 
+| notEmpty | Determines if a variable isn't empty. |
 | notEnds | Determines if a string doesn't end with a sub-string. |
-| notEquals | Determines if the provided string is not equal to a specific string. | 
+| notEquals | Determines if the provided string is not equal to a specific string. |
 | notStarts | Determines if a string doesn't start with a sub-string |
 | oneOf | Determines if the value is one of the array of values provided. |
 | regexp | Given a regular expression tests if the value matches it. |
-| starts | Determines if a string starts with a sub-string. |  
+| starts | Determines if a string starts with a sub-string. |
 
 ### Function type checking
 
@@ -154,7 +154,7 @@ For function-based type checking there are a set of functions prefixed with "is"
 | isString      | Determines if the provided variable is a string. |
 | isTNumber     | Determines if the provided variable, independently of the possible conversion to number, is of javascript type Number |
 | isUUID        | Determines if the provided variable string is a UUID. |
-| isUnDef       | Determines if the provided variable is not defined. |  
+| isUnDef       | Determines if the provided variable is not defined. |
 
 ## Printing
 
@@ -197,7 +197,7 @@ OpenAF provides utility helpers to improve diagnostics and recoverability when e
 
 There are a set of libraries includes to help to "navigate" through javascript arrays and maps:
 
-| Function | Description | 
+| Function | Description |
 |----------|-------------|
 | $from | See more in [$from](OpenAF-nLinq.md) |
 | $path | Uses the [JMESPath library](http://jmespath.org) |
@@ -332,7 +332,7 @@ _tbc_
 
 ## oWrap and other included libraries
 
-The following is a list of the OpenAF and external libraries included. Most of the libraries are automatically loaded by OpenAF when required but _ow.load*_ and _load*_ functions can be used to ensure they are loaded. These load functions can be used repeatedly as OpenAF ensures that they are only loaded on the first call. 
+The following is a list of the OpenAF and external libraries included. Most of the libraries are automatically loaded by OpenAF when required but _ow.load*_ and _load*_ functions can be used to ensure they are loaded. These load functions can be used repeatedly as OpenAF ensures that they are only loaded on the first call.
 
 Most of the none basic OpenAF functionality is kept in included "ow" (OpenWrap) _wrapper_ libraries:
 
@@ -342,11 +342,11 @@ Most of the none basic OpenAF functionality is kept in included "ow" (OpenWrap) 
 | Obj | One of the main libraries with object manipulation functionality | ````ow.loadObj();```` |
 | Server | One of the main libraries with server related functionality when OpenAF code is run as a daemon | ````ow.loadServer();```` |
 | Ch | One of the main libraries with [OpenAF channel](OpenAF-Channels.md) functionality | ````ow.loadCh();```` |
-| Template | One of the main libraries providing templating functionality (HandleBards based) | ````ow.loadTemplate();```` | 
+| Template | One of the main libraries providing templating functionality (HandleBards based) | ````ow.loadTemplate();```` |
 | Sec | Includes all the [OpenAF 'secure buckets'](sBuckets.md) functionality | ````ow.loadSec();```` |
 | Net | Includes network related functionality | ````ow.loadNet();```` |
 | Metrics | Includes self monitoring and telemetry functionality | ````ow.loadMetrics();```` |
-| Test | Includes unitary test helper functionality | ````ow.loadTest();```` | 
+| Test | Includes unitary test helper functionality | ````ow.loadTest();```` |
 | Java | Java integration functionality | ````ow.loadJava();```` |
 | Python | Python integration functionality | ````ow.loadPython();```` |
 | AI | Includes some basic AI functionality | ````ow.loadAI();```` |
@@ -354,7 +354,7 @@ Most of the none basic OpenAF functionality is kept in included "ow" (OpenWrap) 
 
 External javascript based libraries are also included:
 
-| Library | To load | 
+| Library | To load |
 |---------|---------|
 | Underscore (Lodash) | ````loadUnderscore()```` |
 | FuseJS | ````loadFuse()```` |

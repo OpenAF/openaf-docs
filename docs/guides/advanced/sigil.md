@@ -1,174 +1,85 @@
 ---
 layout: default
-title: "OpenAF Sigil Macro & Template Engine Guide"
+title: 'Sigil: object inspection and parameter validation'
 parent: Advanced
 grand_parent: Guides
 ---
 
-# OpenAF Sigil Macro & Template Engine Guide
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/sigil.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
 
-`Sigil` encompasses both OpenAF's dynamic string interpolation macro engine (`<sigil:...>`) and its fluent object inspection (`$$`) and defensive parameter validation (`_$`) libraries.
+> This page is curated against the implementation to correct discrepancies in the upstream prose.
 
----
+<!-- Preserve earlier section bookmarks. -->
+<a id="openaf-sigil-macro--template-engine-guide"></a>
+<a id="table-of-contents"></a>
+<a id="environment-variables-env"></a>
+<a id="secret-buckets-sigilsec-"></a>
+<a id="javascript-expressions-expr"></a>
+<a id="map--scope-variables-var"></a>
+<a id="built-in-filters"></a>
 
-## Table of Contents
-1. [Overview & Syntax](#overview--syntax)
-2. [Sigil Handlers & Types](#sigil-handlers--types)
-   - [Environment Variables (`${ENV}`)](#environment-variables-env)
-   - [Secret Buckets (`<sigil:sec ...>`)](#secret-buckets-sigilsec-)
-   - [JavaScript Expressions (`#{expr}`)](#javascript-expressions-expr)
-   - [Map & Scope Variables (`{% raw %}{{var}}{% endraw %}`)](#map--scope-variables-var)
-3. [Filter Pipelines & Transformations](#filter-pipelines--transformations)
-4. [JavaScript Macro API (`$sigil`)](#javascript-macro-api-sigil)
-5. [Object Inspection API (`$$`)](#object-inspection-api-)
-6. [Fluent Parameter Validation API (`_$`)](#fluent-parameter-validation-api-_)
-7. [oJob Sigil Integration](#ojob-sigil-integration)
+# Sigil: object inspection and parameter validation
 
----
-
-## Overview & Syntax
-
-Sigil expressions are enclosed within delimiters or `<sigil:...>` tags. When evaluated by the Sigil engine, expressions are replaced with their resolved runtime values.
-
-```yaml
-# Example Sigil expansions in configuration
-db:
-  host: "${DB_HOST:-localhost}"
-  user: "{% raw %}{{appUser}}{% endraw %}"
-  pass: "<sigil:sec repo='main' bucket='db' key='pass'>"
-  url : "jdbc:postgresql://#{getDBHost()}:5432/#{getDBName()}"
-```
-
----
-
-## Sigil Handlers & Types
-
-### Environment Variables (`${ENV}`)
-Interpolates environment variables with optional default fallback syntax:
-
-```bash
-${PORT:-8080}              # Resolves PORT or falls back to 8080
-${DATABASE_URL}           # Resolves DATABASE_URL
-```
-
-### Secret Buckets (`<sigil:sec ...>`)
-Securely fetches secrets from encrypted SBuckets (`ow.sec`) without hardcoding credentials:
-
-```xml
-<sigil:sec repo="main" bucket="db" key="password">
-<sigil:sec repo="system" key="apiToken">
-```
-
-### JavaScript Expressions (`#{expr}`)
-Evaluates JavaScript code snippets inline and substitutes the return value:
-
-```bash
-#{now()}                             # Inserts current timestamp
-#{ (1024 * 1024).toString() }        # Evaluates arithmetic
-#{ getEnv('NODE_ENV') || 'dev' }     # Inline function call
-```
-
-### Map & Scope Variables (`{% raw %}{{var}}{% endraw %}`)
-Resolves properties from a provided context object or map:
-
-```bash
-{% raw %}{{user.name}}{% endraw %}
-{% raw %}{{config.http.port}}{% endraw %}
-```
-
----
-
-## Filter Pipelines & Transformations
-
-Sigil expressions support pipe filters (`|`) to transform values during expansion:
-
-```bash
-${DB_PASS | base64}                  # Base64 encodes the resolved value
-${SERVICE_NAME | lower}              # Converts string to lowercase
-${PATH_LIST | split(',')}            # Splits string into array
-```
-
-### Built-in Filters
-
-| Filter | Description | Example |
-| :--- | :--- | :--- |
-| `upper` / `lower` | Case conversion. | `${NAME \| upper}` |
-| `trim` | Whitespace trimming. | `${TOKEN \| trim}` |
-| `base64` / `unbase64` | Base64 encoding/decoding. | `${RAW \| base64}` |
-| `json` / `yaml` | Format serialization. | `{% raw %}{{obj \| json}}{% endraw %}` |
-| `default(val)` | Default fallback if value is null/undefined. | `{% raw %}{{missing \| default('N/A')}}{% endraw %}` |
-
----
-
-## JavaScript Macro API (`$sigil`)
-
-Expand Sigil templates programmatically using `$sigil(...)` or `ow.format.sigil`:
-
-```javascript
-// Basic string interpolation with scope map
-var template = "Hello {% raw %}{{user.name}}{% endraw %}, your port is ${PORT:-8080}.";
-var result = $sigil(template, { user: { name: "Alice" } });
-
-// Register custom handler
-$sigil.setHandler("custom", function(aKey, aScope) {
-  return "Custom_" + aKey;
-});
-```
-
----
+The core `js/openafsigil.js` module defines `$$` for inspecting and modifying objects and `_$` for validating parameters. These helpers are available in OpenAF scripts without loading an extra library.
 
 ## Object Inspection API (`$$`)
 
-The `$$` helper provides deep object inspection, path retrieval, and type predicate checks:
-
 ```javascript
 var user = { name: "Alice", roles: ["admin", "dev"], meta: { active: true } };
-
-// Path navigation with dot/bracket notation
-$$(user).get("meta.active");          // true
-$$(user).get("roles[0]");              // "admin"
-$$(user).getI("META.ACTIVE");         // Case-insensitive retrieval
-$$(user).set("meta.level", 5);        // Sets nested property
-$$(user).unset("meta.active");        // Removes property
-
-// Type predicates
-$$(user).isMap();                     // true
-$$(user).get("roles").isArray();       // true
+print($$(user).get("meta.active"));      // true
+print($$(user).get("roles[0]"));         // admin
+print($$(user).getI("META.ACTIVE"));     // true
+$$(user).set("meta.level", 5);
+$$(user).unset("meta.active");
+print($$(user).isMap());                 // true
+print($$($$(user).get("roles")).isArray()); // true
 ```
 
----
+`get` and `getI` return the selected value, not another builder. Wrap the returned value in `$$` to inspect its type. Create a fresh `$$` wrapper for each independent path operation: path traversal changes the wrapper's current object. `getI` resolves map keys case-insensitively.
 
 ## Fluent Parameter Validation API (`_$`)
 
-`_$()` provides defensive parameter checking, type coercion, and fluent assertion chains:
-
 ```javascript
-function createUser(name, email, age) {
-  // Parameter validation with descriptive error messages
-  _$(name, "name").isString().notEmpty().$_("Name is required");
-  _$(email, "email").isString().contains("@").$_("Valid email required");
-  _$(age, "age").isNumber().between(18, 120).default(21);
+function createUser(name, age) {
+  name = _$(name, "name").check(v => isString(v) && v.length > 0).$_();
+  age = _$(age, "age").check(v => isNumber(v) && v >= 18 && v <= 120).default(21);
+  return { name: name, age: age };
 }
-
-// Chainable assertions
-_$(val, "val").isNumber().greater(0).lessEquals(100).$_();
-_$(ip, "ip").isString().regexp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$").$_();
+print(createUser("Alice", 30));
 ```
 
----
+Finish a builder with `.$_()` or `.default(...)`. Use one combined predicate when all conditions must hold. See [parameter validation](../medium/parameter-validation.md#snapshot-compatibility) for current chaining behavior, conversion rules and source defects affecting individual helpers.
+
+## Overview & Syntax
+
+Object paths use dot and bracket notation, such as `meta.level` or `roles[0]`. These paths are separate from [JMESPath queries](openaf-reference.md#path--jmespath-inspired-query--transform) and [Handlebars templates](../cheat-sheet/templating.md).
+
+## Sigil Handlers & Types
+
+The pinned core does not expose a `$sigil` macro evaluator or a `<sigil:sec ...>` tag engine. Use the actual APIs for the value you need:
+
+| Value | API |
+| --- | --- |
+| Environment variable | `getEnv("NAME")` |
+| Template from a context map | `$t("Hello {{name}}", { name: "Alice" })` |
+| Computed configuration | Compute the value explicitly in a job and pass it to `$job` |
+| Secret-store access | `$sec(...)` with the configured repository and bucket |
+
+## Filter Pipelines & Transformations
+
+Perform transformations in JavaScript or use the documented Handlebars helpers. Shell `${NAME:-default}` syntax belongs to the shell; OpenAF does not automatically expand it in arbitrary YAML strings.
+
+```javascript
+var name = _$(getEnv("DOCS_NAME")).isString().default("Guest");
+print($t("Hello {{name}}", { name: name.toUpperCase() }));
+```
+
+## JavaScript Macro API (`$sigil`)
+
+Older prose described `$sigil.setHandler` and `ow.format.sigil`; these APIs are absent from this source snapshot. Use [templates](../cheat-sheet/templating.md), [dollar helpers](openaf-dollar-functions.md), and the [secret API reference](../../reference/ow_sec.md) instead.
 
 ## oJob Sigil Integration
 
-oJobs automatically process Sigil expressions across job arguments, inputs, and environment configurations:
-
-```yaml
-jobs:
-  - name: Connect DB
-    check:
-      dbUser: "isString.default('admin')"
-      dbPort: "isNumber.between(1024, 65535)"
-    exec:
-      dbUser: "${DB_USER:-admin}"
-      dbPass: "<sigil:sec repo='main' bucket='db' key='pass'>"
-      dbHost: "#{ getHost() }"
-```
+Place parameter validation under `check.in` / `check.out`; job `exec` is executable code. Environment arguments, computed values and Handlebars expansion each have their own contracts. See the [oJob YAML reference](../ojob/ojob-yaml-reference.md), [validation examples](../medium/parameter-validation.md#ojob-integration), and [source ODoc reference](../../reference/scopesigil.md).
+{% endraw %}

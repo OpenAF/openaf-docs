@@ -1,0 +1,216 @@
+{
+  "checked_on": "2026-11-05",
+  "sources": {
+    "openaf": {
+      "repository": "OpenAF/openaf",
+      "branch": "master",
+      "revision": "06414cd9204e918daa1e2971ce904783299db333"
+    },
+    "ojob-common": {
+      "repository": "OpenAF/oJob-common",
+      "branch": "master",
+      "revision": "130addf46fb52ca733da6a66bf7b990430006caf"
+    },
+    "oafp": {
+      "repository": "OpenAF/oafp",
+      "branch": "main",
+      "revision": "35a922f9cc218a31f032e6c95e1c743a24a7fd68"
+    },
+    "openaf-opacks": {
+      "repository": "OpenAF/openaf-opacks",
+      "branch": "master",
+      "revision": "87b07e9774902bccee8bf16632201e319dcfca0d"
+    }
+  },
+  "runtime": {
+    "source": "openaf",
+    "source_revision": "06414cd9204e918daa1e2971ce904783299db333",
+    "build_stamp": "20261105",
+    "java_major": 27,
+    "jar_sha256": "50084e58f13c09b2a2abf08aebfb4c49c74cf90a9098166f71ddae601034bfe6",
+    "isolated_build": true
+  },
+  "coverage": {
+    "published_pages_before": 293,
+    "published_pages_after": 345,
+    "new_pages": 52,
+    "source_document_mappings": 85,
+    "copied_source_files": 16,
+    "reference_subjects": 39,
+    "reference_entries": 1823,
+    "common_modules": 25,
+    "common_jobs": 120,
+    "opacks": 126,
+    "focused_package_readmes": 19
+  },
+  "authoring_tests": {
+    "successful": true,
+    "tests": 14,
+    "skipped": 1,
+    "passed_tests": [
+      "test_code_separation",
+      "test_composition_and_workers",
+      "test_concurrent_worker_output",
+      "test_existing_skill_assets",
+      "test_filter_failures",
+      "test_filter_pair",
+      "test_http_pair",
+      "test_lifecycle",
+      "test_missing_argument",
+      "test_odoc_roundtrip",
+      "test_process_pair",
+      "test_standalone_assertions",
+      "test_yaml_parsing"
+    ],
+    "checked_at": "2026-11-05T05:18:46.456450+00:00",
+    "runner_sha256": "89afd1387540db739c32f742572af5d869bf077f67ceec01a42fdb0a8d15095c"
+  },
+  "documentation_runtime_tests": {
+    "jar_sha256": "50084e58f13c09b2a2abf08aebfb4c49c74cf90a9098166f71ddae601034bfe6",
+    "results": [
+      {
+        "name": "validation success and failure",
+        "source": "docs/guides/medium/parameter-validation.md",
+        "passed": true
+      },
+      {
+        "name": "Sigil path operations and validation",
+        "source": "utils/overrides/sigil.md",
+        "passed": true
+      },
+      {
+        "name": "ZIP bytes roundtrip",
+        "source": "docs/concepts/plugins.md",
+        "passed": true
+      },
+      {
+        "name": "metrics registration and strict OpenMetrics",
+        "source": "docs/guides/medium/metrics-collection.md",
+        "passed": true
+      },
+      {
+        "name": "metrics channel lifecycle",
+        "source": "docs/guides/medium/metrics-collection.md",
+        "passed": true
+      },
+      {
+        "name": "H2 query and cleanup",
+        "source": "docs/guides/opacks/jdbc-drivers.md",
+        "passed": true
+      },
+      {
+        "name": "graph keys traversal and persistence",
+        "source": "docs/guides/advanced/channel-graph.md",
+        "passed": true
+      },
+      {
+        "name": "time-series samples and persistence",
+        "source": "docs/guides/advanced/channel-timeseries.md",
+        "passed": true
+      },
+      {
+        "name": "jq array selection",
+        "source": "OpenAF bundled processor",
+        "passed": true
+      },
+      {
+        "name": "jq record output",
+        "source": "OpenAF bundled processor",
+        "passed": true
+      },
+      {
+        "name": "oafp H2 input",
+        "source": "OpenAF bundled processor",
+        "passed": true
+      }
+    ],
+    "passed": 11,
+    "total": 11
+  },
+  "documentation_mcp_tests": {
+    "source": "docs/guides/ojob/build-mcp-server.md",
+    "passed": 4,
+    "checks": [
+      "initialize",
+      "tool discovery",
+      "tool result",
+      "unknown tool rejected"
+    ]
+  },
+  "common_mcp_notification_tests": {
+    "passed": 18,
+    "failed": 0,
+    "runner": ".github/tests/mcp-notifications.js"
+  },
+  "javascript_syntax": {
+    "compiled": 851,
+    "skipped": 267,
+    "errors": [],
+    "skip_reasons": {
+      "console transcript": 182,
+      "abbreviated snippet or spread syntax; manual review": 85
+    },
+    "skipped_blocks": "syntax-skips.json",
+    "scope": "Complete JavaScript fences compile without execution; transcripts and abbreviated snippets are listed separately."
+  },
+  "tooling_tests": {
+    "passed": 4,
+    "failed": 0,
+    "runner": "python3 -m unittest discover -s utils -p test_tooling.py -v"
+  },
+  "generation_check": {
+    "generated_files": 147,
+    "changed_files": []
+  },
+  "fresh_source_export_check": {
+    "passed": true,
+    "method": "A second export of all four pinned commits produced identical generated content."
+  },
+  "reference_ojob_wrapper": {
+    "passed": true,
+    "generated_files": 41
+  },
+  "jekyll": {
+    "build_passed": true,
+    "theme": "pmarsceill/just-the-docs",
+    "theme_revision_pinned": false
+  },
+  "links": {
+    "markdown": {
+      "pages": 346,
+      "errors": []
+    },
+    "rendered": {
+      "html_pages": 345,
+      "local_links_checked": 129199,
+      "errors": []
+    }
+  },
+  "browser_review": {
+    "surface": "desktop",
+    "pages": [
+      "/",
+      "/docs/guides/opacks/catalog.html",
+      "/docs/reference/scopesigil.html"
+    ],
+    "reviewed": [
+      "navigation",
+      "tables",
+      "code blocks"
+    ],
+    "passed": true
+  },
+  "sibling_working_trees_unchanged": {
+    "openaf": true,
+    "ojob-common": true,
+    "oafp": true,
+    "openaf-opacks": true
+  },
+  "limitations": [
+    "Standalone oafp source build references absent src/include/inputLineFns.js. Runtime processor tests use the pinned core-bundled implementation.",
+    "The optional Badgen authoring integration was skipped.",
+    "Retained pages receive structural, link and applicable syntax checks; they are not all individually integration-tested.",
+    "Cloud providers, optional native packages, GUI behavior, remote ojob.io jobs, nAttrMon and all external URLs were not integration-tested.",
+    "The configured remote-theme branch can change independently of the locked gems."
+  ]
+}

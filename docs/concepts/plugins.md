@@ -2,390 +2,77 @@
 layout: default
 title: Plugins
 parent: Concepts
+grand_parent: OpenAF docs
 nav_order: 8
 ---
 
-# OpenAF Plugins
+{% raw %}
+# OpenAF plugins
 
-OpenAF plugins extend the core functionality by providing access to Java libraries and additional features through a simple JavaScript interface.
+Plugins expose Java functionality to OpenAF's JavaScript runtime. Load a plugin with `plugin("Name")`; load JavaScript wrapper modules with their `ow.load…()` function or an oPack's documented `loadLib()` entry point.
 
-## Overview
+## Core and optional plugins
 
-Plugins are dynamically loaded Java components that expose specialized functionality to OpenAF scripts. They provide:
+| Capability | Load / documentation |
+| --- | --- |
+| HTTP client and WebSockets | `plugin("HTTP")`; [HTTP guide](../guides/advanced/plugin-http.md) |
+| HTTP server | `plugin("HTTPServer")`; [server guide](../guides/advanced/plugin-httpserver.md) |
+| SSH and SFTP | `plugin("SSH")`; [SSH guide](../guides/advanced/plugin-ssh.md) |
+| ZIP archives | `plugin("ZIP")`; [ZIP guide](../guides/advanced/plugin-zip.md) |
+| Threads and scheduling | `plugin("Threads")`; [Threads guide](../guides/advanced/plugin-threads.md) |
+| Email | `plugin("Email")`; [Email guide](../guides/advanced/plugin-email.md) |
+| XML | [Java XML plugin](../guides/advanced/plugin-xml.md) and [E4X](../guides/medium/accessing-xml-using-e4x.md) |
+| SNMP / JMX | [SNMP](../guides/advanced/plugin-snmp.md), [JMX](../guides/advanced/plugin-jmx.md) |
+| Spreadsheets | Install `plugin-XLS`, then `plugin("XLS")`; [spreadsheet guide](../guides/ojob/ojob-xls.md) |
+| Git, SMB, SVN, Ignite and JavaFX | Separate oPacks; see the [package catalog](../guides/opacks/catalog.md) |
 
-- **Java integration** - Access Java libraries from JavaScript
-- **Extended functionality** - Features beyond core OpenAF
-- **Performance optimization** - Native Java performance for heavy operations
-- **Third-party integration** - Leverage existing Java ecosystems
+`HTTPd` and `HTTPws` are not core plugin names. Use `HTTPServer` for servers and the HTTP plugin's WebSocket methods. XLS and Ignite are optional packages, not part of every core installation.
 
----
+## HTTP requests
 
-## Loading Plugins
-
-### Basic Syntax
-
-```javascript
-plugin("PluginName");
-```
-
-### Available Core Plugins
-
-| Plugin | Purpose | Common Uses |
-|--------|---------|-------------|
-| `HTTP` | HTTP client operations | REST API calls, web requests |
-| `HTTPd` | HTTP server | Web servers, REST APIs |
-| `HTTPws` | WebSocket support | Real-time communication |
-| `ZIP` | Archive operations | Compress/decompress files |
-| `SSH` | SSH client | Remote command execution |
-| `XML` | XML processing | Parse/generate XML |
-| `SNMP` | SNMP client | Network monitoring |
-| `SNMPServer` | SNMP server | Expose SNMP endpoints |
-| `JMX` | JMX client | Java application monitoring |
-| `JMXServer` | JMX server | Expose JMX beans |
-| `Threads` | Threading support | Parallel execution |
-| `Console` | Console operations | Terminal colors, formatting |
-| `Email` | Email sending | SMTP email |
-| `XLS` | Excel files | Read/write spreadsheets |
-| `Ignite` | Apache Ignite | Distributed computing |
-| `Beautifiers` | Code formatting | Pretty-print code |
-| `BSDiff` | Binary diff/patch | Binary file operations |
-
----
-
-## Common Plugin Usage
-
-### HTTP Plugin
+For JSON APIs, `$rest()` returns the decoded result directly:
 
 ```javascript
-plugin("HTTP");
-
-var http = new HTTP("https://api.example.com");
-var response = http.get("/endpoint");
-print(response);
+var data = $rest({ throwExceptions: true }).get("https://api.example.com/data");
+print(data);
 ```
 
-Or use the simplified `$rest()` API:
+Do not chain `.getResponse()` onto the object returned by `$rest().get()`. The lower-level HTTP client has its own request and response methods; see the [HTTP reference](../reference/http.md).
 
-```javascript
-ow.loadObj();
+## SSH sessions
 
-var data = $rest()
-  .get("https://api.example.com/data")
-  .getResponse();
-```
-
-### SSH Plugin
+The constructor opens the session. Close it when the work is complete:
 
 ```javascript
 plugin("SSH");
-
-var ssh = new SSH("hostname", 22, "username", "password");
-ssh.connect();
-
-var output = ssh.exec("ls -la");
-print(output);
-
-ssh.disconnect();
-```
-
-### ZIP Plugin
-
-```javascript
-plugin("ZIP");
-
-// Create ZIP
-var zip = new ZIP();
-zip.generate("output.zip", [
-  { file: "data.txt" },
-  { file: "config.json" }
-]);
-
-// Extract ZIP
-zip.unzip("archive.zip", "./extracted/");
-```
-
-### XML Plugin
-
-```javascript
-plugin("XML");
-
-// Parse XML
-var xml = new XML("<root><item>value</item></root>");
-var value = xml.getPath("/root/item");
-print(value);
-
-// Generate XML
-var doc = new XML();
-doc.addElement("root");
-doc.addElement("item", "value");
-print(doc.toString());
-```
-
-### Threads Plugin
-
-```javascript
-plugin("Threads");
-
-var t = new Threads();
-
-// Add thread function
-t.addThread(function() {
-  log("Thread 1 running");
-  sleep(1000, true);
-});
-
-t.addThread(function() {
-  log("Thread 2 running");
-  sleep(1000, true);
-});
-
-// Start and wait
-t.start();
-```
-
-### Email Plugin
-
-```javascript
-plugin("Email");
-
-var email = new Email();
-email.send({
-  server: "smtp.example.com",
-  from: "sender@example.com",
-  to: ["recipient@example.com"],
-  subject: "Test Email",
-  body: "This is a test message"
-});
-```
-
-### XLS Plugin
-
-```javascript
-plugin("XLS");
-
-// Create Excel file
-var xls = new XLS();
-var sheet = xls.getSheet("Data");
-
-xls.setCellValue(sheet, "A1", "Name");
-xls.setCellValue(sheet, "B1", "Value");
-xls.setCellValue(sheet, "A2", "Item 1");
-xls.setCellValue(sheet, "B2", 100);
-
-xls.writeFile("output.xlsx");
-xls.close();
-```
-
----
-
-## Plugin Patterns
-
-### Conditional Loading
-
-```javascript
-// Load plugin only if needed
-if (needsSSH) {
-  plugin("SSH");
-  var ssh = new SSH(host, port, user, pass);
-  // Use SSH
-}
-```
-
-### Error Handling
-
-```javascript
+var ssh = new SSH("host.example", 22, "user", "password");
 try {
-  plugin("HTTP");
-  var http = new HTTP(url);
-  var response = http.get("/api");
-} catch(e) {
-  logErr("HTTP request failed: " + e.message);
-}
-```
-
-### Resource Cleanup
-
-```javascript
-plugin("SSH");
-
-var ssh = new SSH(host, port, user, pass);
-
-try {
-  ssh.connect();
-  var result = ssh.exec(command);
-  // Process result
+  print(ssh.exec("uname -s"));
 } finally {
-  ssh.disconnect();
+  ssh.close();
 }
 ```
 
----
+The host and credentials are placeholders. Follow the [SSH reference](../reference/ssh.md) for private keys, host-key handling, timeouts and return options.
 
-## Custom Plugins
-
-### Plugin Structure
-
-Custom plugins follow Java conventions:
-
-```java
-package openaf.plugins;
-
-public class MyPlugin {
-    public String doSomething(String input) {
-        return "Processed: " + input;
-    }
-}
-```
-
-### Loading Custom Plugins
+## ZIP archives
 
 ```javascript
-// Load from classpath
-plugin("openaf.plugins.MyPlugin");
-
-// Use plugin
-var mp = new MyPlugin();
-var result = mp.doSomething("test");
-```
-
----
-
-## Plugin Best Practices
-
-### 1. Load Plugins Early
-
-```javascript
-// Good - load at start
-plugin("HTTP");
 plugin("ZIP");
-
-// Then use throughout script
-var http = new HTTP(url);
 var zip = new ZIP();
-```
-
-### 2. Reuse Plugin Instances
-
-```javascript
-// Good - create once, use multiple times
-plugin("SSH");
-var ssh = new SSH(host, port, user, pass);
-ssh.connect();
-
-ssh.exec("command1");
-ssh.exec("command2");
-
-ssh.disconnect();
-
-// Bad - creating multiple instances
-plugin("SSH");
-new SSH(host, port, user, pass).exec("command1");
-new SSH(host, port, user, pass).exec("command2");
-```
-
-### 3. Use Wrapper Functions
-
-OpenAF provides wrapper modules for common plugins:
-
-```javascript
-// Instead of direct plugin usage
-plugin("HTTP");
-var http = new HTTP(url);
-
-// Use wrapper
-ow.loadObj();
-var data = $rest().get(url).getResponse();
-```
-
-### 4. Check Plugin Availability
-
-```javascript
 try {
-  plugin("OptionalPlugin");
-  // Use plugin
-} catch(e) {
-  log("Optional plugin not available, using fallback");
-  // Fallback implementation
+  zip.putFile("hello.txt", af.fromString2Bytes("Hello\n"));
+  io.writeFileBytes("example.zip", zip.generate({ compressionLevel: 9 }));
+} finally {
+  zip.close();
 }
 ```
 
----
+`putFile` receives bytes for the archive entry. To archive a local file, pass `io.readFileBytes(path)`. The [ZIP reference](../reference/zip.md) also documents streaming operations and resource ownership.
 
-## When to Use Plugins
+## Loading and troubleshooting
 
-### Use Plugins For:
+Install an optional package before loading its plugin, and check its JVM/native requirements. Use `opack list` to inspect installed packages and `help` in `oafc` to inspect the runtime's API. `ClassNotFoundException` usually requires checking the package's JARs, classpath and Java version.
 
-- ✅ Java library integration
-- ✅ Performance-critical operations
-- ✅ System-level operations (SSH, SNMP)
-- ✅ Binary file handling
-- ✅ Protocol implementations
-
-### Use Built-in Functions For:
-
-- ✅ File I/O operations
-- ✅ JSON/YAML processing
-- ✅ String manipulation
-- ✅ Array/object operations
-- ✅ Basic HTTP requests (use `$rest()`)
-
----
-
-## Plugin Dependencies
-
-### OpenWrap Modules Using Plugins
-
-Many `ow.*` modules load plugins automatically:
-
-- `ow.loadFormat()` → loads `Console`
-- `ow.loadServer()` → loads `HTTPServer`, `Threads`
-- `ow.loadObj()` → loads `HTTP`
-- `ow.loadJava()` → loads `JMX`, `XML`, `ZIP`
-
-### Checking Plugin Dependencies
-
-```javascript
-// View which plugins a module uses
-var deps = af.getOPackDeps("ModuleName");
-print(af.toYAML(deps));
-```
-
----
-
-## Troubleshooting
-
-### Plugin Not Found
-
-**Error:** `Plugin 'PluginName' not found`
-
-**Solutions:**
-1. Check spelling
-2. Ensure OpenAF is properly installed
-3. Check if plugin is available in your OpenAF version
-
-### ClassNotFoundException
-
-**Error:** `java.lang.ClassNotFoundException`
-
-**Solutions:**
-1. Add required JARs to classpath
-2. Use `af.externalAddClasspath(path)`
-3. Check plugin installation
-
-### Version Conflicts
-
-If you encounter version conflicts:
-
-```javascript
-// Specify exact plugin class
-plugin("openaf.plugins.HTTP", "HTTP");
-```
-
----
-
-## See Also
-
-- [HTTP Plugin Usage](../guides/beginner/rest-calls.md)
-- [SSH Plugin Guide](../guides/beginner/ojob-ssh-basics.md)
-- [XLS Plugin Guide](../guides/ojob/ojob-xls.md)
-- [Threads Reference](../reference/threads.md)
+A Java class alone is not automatically a scriptable OpenAF plugin. Follow the [core plugin guide](../guides/advanced/plugins.md) and an existing plugin implementation for Rhino bindings, constructors and exported methods.
+{% endraw %}

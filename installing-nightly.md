@@ -5,6 +5,8 @@ parent: How To
 grand_parent: OpenAF docs
 ---
 
+The current source baseline requires **Java 21 or later**. Bundled installers select a runtime; when supplying your own Java, verify its version and architecture. Stable and nightly downloads have separate release histories; see the [documentation baseline](docs/source-snapshot.md).
+
 ## Installing the nightly build
 
 ### Unix (x86 based)

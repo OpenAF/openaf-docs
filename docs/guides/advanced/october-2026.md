@@ -7,6 +7,8 @@ grand_parent: Guides
 
 # October 2026 source updates
 
+> Historical snapshot. See the [current documentation baseline](../../source-snapshot.md) and current topic guides for later changes.
+
 This refresh covers changes after `v20260728` through [OpenAF commit a5181af6](https://github.com/OpenAF/openaf/commit/a5181af6). The local JAR identifies itself as `20261014 nightly`; the committed version is `20261011` with a pending version bump. These pages document that source snapshot, without claiming a new stable release or historical compatibility for the new APIs. Check your installed version with `openaf -c 'print(getVersion());'`.
 
 ## AI and MCP

@@ -15,7 +15,7 @@ This guide provides quick usage examples for OpenAF channel types implemented by
 // opack install Mongo
 loadLib("mongo.js")
 
-$ch("users").create("mongo", {
+$ch("users").create(true, "mongo", {
   url: "mongodb://127.0.0.1:27017",
   database: "app",
   collection: "users"
@@ -31,7 +31,7 @@ print($ch("users").get({ _id: "u1" }).name)
 // opack install etcd3
 loadLib("etcd3.js")
 
-$ch("cfg").create("etcd3", {
+$ch("cfg").create(true, "etcd3", {
   host: "127.0.0.1",
   port: 2379,
   namespace: "openaf/"
@@ -47,7 +47,7 @@ print($ch("cfg").get({ key: "featureA" }).enabled)
 // opack install Redis
 loadLib("redis.js")
 
-$ch("cache").create("redis", {
+$ch("cache").create(true, "redis", {
   host: "127.0.0.1",
   port: 6379
 })
@@ -62,7 +62,7 @@ print($ch("cache").get({ key: "greeting" }).value)
 // opack install rocksdb
 loadLib("rocksdb.js")
 
-$ch("state").create("rocksdb", { path: "./db/state" })
+$ch("state").create(true, "rocksdb", { path: "./db/state" })
 $ch("state").set({ id: "job-1" }, { id: "job-1", status: "running" })
 print($ch("state").get({ id: "job-1" }).status)
 ```
@@ -73,7 +73,7 @@ print($ch("state").get({ id: "job-1" }).status)
 // opack install S3
 loadLib("s3.js")
 
-$ch("bucketData").create("s3", {
+$ch("bucketData").create(true, "s3", {
   s3url: "https://play.min.io:9000",
   s3accessKey: "minioadmin",
   s3secretKey: "minioadmin",
@@ -92,7 +92,7 @@ print($ch("bucketData").get({ id: "1" }).value)
 // opack install cq
 loadLib("cq.js")
 
-$ch("events").create("cq", {
+$ch("events").create(true, "cq", {
   path: "./queue-data/events",
   cycle: "DAILY"
 })
@@ -107,7 +107,7 @@ print($ch("events").size())
 // opack install GIST
 loadLib("gist.js")
 
-$ch("snippets").create("gist", {
+$ch("snippets").create(true, "gist", {
   user: "your-github-user",
   token: "ghp_xxx"
 })
@@ -122,7 +122,7 @@ print(r.id)
 // opack install AWS
 loadLib("aws_dynamo.js")
 
-$ch("orders").create("dynamo", {
+$ch("orders").create(true, "dynamo", {
   region: "us-east-1",
   tableName: "orders"
 })
@@ -140,7 +140,7 @@ This channel type is mainly used by `$sec`.
 // requires AWS credentials + AWS_REGION in the environment
 loadLib("aws_secrets_sec.js")
 
-$ch("___openaf_sbuckets-awssecrets").create("awssecrets", {})
+$ch("___openaf_sbuckets-awssecrets").create(true, "awssecrets", {})
 var secret = $sec("awssecrets", "arn:aws:secretsmanager:us-east-1:123456789012:secret:my-secret").get("SecretString")
 print(secret.username)
 ```
@@ -151,7 +151,7 @@ print(secret.username)
 // opack install lucene
 loadLib("lucene.js")
 
-$ch("embeddings").create("vectordb", {
+$ch("embeddings").create(true, "vectordb", {
   path: "./data/embeddings",
   dimension: 3
 })
@@ -167,7 +167,7 @@ print(hits.length)
 // opack install lucene
 loadLib("lucene.js")
 
-$ch("docs").create("searchdb", {
+$ch("docs").create(true, "searchdb", {
   path: "./data/search",
   idField: "id",
   contentField: "content"

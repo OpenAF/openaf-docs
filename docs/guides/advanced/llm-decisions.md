@@ -1,9 +1,12 @@
 ---
 layout: default
-title: "Stateless LLM decisions"
+title: Stateless LLM decisions
 parent: Advanced
 grand_parent: Guides
 ---
+
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/llm-decisions.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
 
 # Stateless LLM decisions
 
@@ -107,11 +110,11 @@ var capabilities = $llm(config).getCapabilities();
 // { implemented, contract, questionTypes, probabilities, availability }
 ```
 
-Capabilities also include `contractVersion`, `inputTypes`, and `streaming`. Contract states are `verified`, `unverified`, or `unsupported`. Availability is usually `unknown`; known incompatible Ollama cloud model tags and OpenAI models other than `gpt-6-luna` report `incompatible` for native execution. Implemented support describes adapter code, not installed models, endpoint presence, account access, or calibrated probabilities. The public capability snapshot describes the configured model; an override is evaluated separately at execution time. Adapters without new hooks retain their existing operations and report unsupported decisions.
+Capabilities also include `contractVersion`, `inputTypes`, and `streaming`. Contract states are `verified`, `unverified`, or `unsupported`. Availability is usually `unknown`; OpenAI models other than `gpt-6-luna` report `incompatible` for native execution. Ollama cloud models are checked by the provider; a `:cloud` routing suffix may be absent from the returned model name. Implemented support describes adapter code, not installed models, endpoint presence, account access, or calibrated probabilities. The public capability snapshot describes the configured model; an override is evaluated separately at execution time. Adapters without new hooks retain their existing operations and report unsupported decisions.
 
 | Provider | Native decisions | Structured decisions | Runtime availability |
 | --- | --- | --- | --- |
-| Ollama | Implemented; verified System One contract | Unsupported | Requires caller-supplied compatible local model/runner |
+| Ollama | Implemented; verified System One contract | Unsupported | Requires a compatible local model/runner or cloud decision model (for example `clef:cloud`, through a signed-in Ollama v0.40.5+ server) |
 | Gemini | Unsupported | Implemented; GenerateContent | Model/endpoint/account availability unknown |
 | OpenAI | Implemented; verified Decisions contract for official endpoints and `gpt-6-luna` | Implemented; Responses or explicit Chat | Account availability unknown; other models incompatible with native |
 | Other existing adapters | Unsupported without optional hooks | Unsupported without optional hooks | Existing operations unchanged |
@@ -203,7 +206,7 @@ The legacy Schema profile additionally rejects null types, nonstring enums, and 
 
 ## Errors and troubleshooting
 
-Errors are Error objects with stable `code`, sanitized `provider`, and numeric HTTP `status` when available. Ordinary errors omit provider bodies, state, URLs containing credentials, and authentication headers.
+Errors are Error objects with stable `code`, sanitized `provider`, and numeric HTTP `status` when available. Provider failures include the provider's `error` string or `error.message` in the exception message and `providerMessage`, plus HTTP status in the message when available. Provider messages have control characters removed and are limited to 2048 characters. Other response fields, non-JSON bodies, and transport exception details are omitted. Provider-authored messages may include details from the request.
 
 | Code | Meaning |
 | --- | --- |
@@ -297,3 +300,33 @@ Requests contain only `{model, state, questions}`; state remains text or JSON, a
 Explicit `strategy: "structured"` still uses the configured Foundry generation transport, subject to that deployment's support. For both generation and decisions, use a resource-root `url` and, if needed, a separate native `decisionUrl`. Foundry configurations without `decisionApi: "microsoft"` retain their existing behavior.
 
 For an opt-in live smoke, supply this configuration through `OAF_MODEL` and run `OPENAF_DECISIONS_LIVE=1 java -jar openaf.jar -f tests/ai-decisions-live.js`. The script selects native and requires probabilities. Synthetic fixtures do not establish live Foundry access or inference quality.
+
+## Schema responses with native tools
+
+`jsonSchemaPromptWithStats(prompt, descriptor, model, temperature, tools)` returns
+`{ response, stats }`. On OpenAI, omitted `tools` selects registered tools; an
+explicit empty array disables them. Schema validation does not coerce or remove
+response fields.
+
+Set `schemaTransport: "responses"` for Responses API requests (`text.format`, flat
+function declarations, and `function_call_output` continuation), or `"chat"` for
+Chat Completions (`response_format`, nested function declarations, and tool
+messages). Native-tool requests default to Responses on the official OpenAI
+endpoint and Chat Completions on compatible endpoints. Tool-free requests retain
+the existing Responses default. Explicit transport selection takes precedence;
+there is no automatic replay across endpoints. Model and endpoint support must
+still be verified for each provider.
+
+`getCapabilities().structuredOutput` describes schema implementation, schema
+profile, native tools, and streaming support separately from decision capabilities.
+Schema native-tool calls aggregate token statistics across requests. Ollama keeps
+its tool phase separate from its final schema-constrained request.
+
+OpenAI and Ollama execution errors expose `toolsExecuted` and `safeToRetry`.
+Callers must also check the error code: retry safety alone does not authorize a
+JSON-mode downgrade. Confirmed OpenAI schema-format compatibility rejections before
+tool execution use `LLM_DECISION_UNSUPPORTED`; invalid schemas, malformed responses,
+authentication, and transient failures retain their existing error categories.
+After tools execute, callers must never restart the whole invocation through a
+fallback API. Successful tool results remain in conversation history on failure.
+{% endraw %}

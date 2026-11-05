@@ -18,12 +18,12 @@ Data in OpenAF channels is represented by a set of key/value pairs. This set can
 
 The keys and values used can be simple Strings or JSON Maps.
 
-Using the example: _For every copied file the copyFiles.js script can set a key/value pair like the following_: 
+Using the example: _For every copied file the copyFiles.js script can set a key/value pair like the following_:
 
 ````javascript
 Key = { "filename": "someData1234.dat" }
- 
-Value = { 
+
+Value = {
     "filename": "someData1234.dat",
     "filepath": "/some/input/folder/someData1234.dat",
     "dateReceived": "2016-12-02 12:34:56",
@@ -31,7 +31,7 @@ Value = {
 }
 ````
 
-Then preProcess.js can simply invoke the shift method on the same channel to obtain the first key/value pair added to the channel. 
+Then preProcess.js can simply invoke the shift method on the same channel to obtain the first key/value pair added to the channel.
 
 ## How to be notified of a change on a channel?
 
@@ -84,7 +84,7 @@ You can find runnable examples for all oPack channel implementations in [OpenAF 
 
 The default implementation, until version 20181210, Big uses the OpenWrap Big Objects functionality (from the OpenWrap Object library). You don't need to know how this functionality works internally. For the sake of simplicity let's assume it's like an internal JavaScript Array of a Map with a Key and Value.
 
-The remote implementation allows for the creation of a channel whose implementation is held on a different OpenAF script that can be accessed for a REST API. We will get into the details of how this is done and setup later but this implementation is important to access channels with local script storage (like the default implementation is). 
+The remote implementation allows for the creation of a channel whose implementation is held on a different OpenAF script that can be accessed for a REST API. We will get into the details of how this is done and setup later but this implementation is important to access channels with local script storage (like the default implementation is).
 
 ### Channel basics
 
@@ -94,20 +94,20 @@ To access the channel functionality you can use functions in the ow.ch (OpenWrap
 
 #### Channel maintenance
 
-Before using a channel you always need to create it. 
+Before using a channel you always need to create it.
 
 ````javascript
 > $ch("mychannel").create() // default
 > $ch("mychannel").create(true, "myimpl", {"option1": "value1"}) // to create a channel with a myimpl implementation
 ````
 
-You can list the current created channels by: 
+You can list the current created channels by:
 
 ````javascript
 > $ch().list()
 ````
 
-When you no longer need a channel and corresponding data you can destroy it by: 
+When you no longer need a channel and corresponding data you can destroy it by:
 
 ````javascript
 > $ch("mychannel").destroy()
@@ -115,7 +115,7 @@ When you no longer need a channel and corresponding data you can destroy it by:
 
 #### Channel value get/set/unset
 
-You can add/set a key/value on a channel by: 
+You can add/set a key/value on a channel by:
 ````javascript
 > $ch("mychannel1").set(1, "hello")
 > $ch("mychannel1").set(2, "hello")
@@ -184,11 +184,11 @@ If you need to check and set an entry in one single “transaction” you just n
 > $ch("mychannel").getSet({status: "toExecute"}, {jobId: 123}, { jobId: 123, runCommand: "processStuff.sh", status: "executing"})
 ````
 
-Note: Usually it's a good practice to have the key elements as part of the value also thus setAll keeps the key elements also on the value map for each array element. 
+Note: Usually it's a good practice to have the key elements as part of the value also thus setAll keeps the key elements also on the value map for each array element.
 
 #### Using a channel as a queue
 
-Ordering in channels is, by default, over the last modify time stamps. To retrieve the first element removing it from the channel: 
+Ordering in channels is, by default, over the last modify time stamps. To retrieve the first element removing it from the channel:
 
 ````javascript
 > var myvalue = $ch("mychannel").shift()
@@ -218,13 +218,13 @@ To execute a function over all elements:
 
 #### Channel subscription
 
-One of the most important functions of a channel is the ability to subscribe it for any change: 
+One of the most important functions of a channel is the ability to subscribe it for any change:
 
 ````javascript
 > $ch("mychannel").subscribe(function(aChannelName, aOperation, aKeyOrKeys , aValueOrValues) { ... }, onlyFromNowOn)
 ````
 
-The subscribe function will receive: 
+The subscribe function will receive:
 * aChannelName identifying the channel (only useful when you want to use a generic subscribing function);
 * aOperation which will have a value of “set”, “setall” or “unset”;
 * aKeyOrKeys representing the key or keys for the setall operation;
@@ -234,7 +234,7 @@ Once a function is provided subscribing a channel, it will be executed with a �
 
 The subscribing function will always run in a separate thread so that the channel basic set, setall and unset operations performance is not directly affected by the number or performance of the subscribing functions. This is currently by design option.
 
-For each subscribe instruction a corresponding UUID will be returned. You can use this UUID to unsubscribe the function from the channel if needed: 
+For each subscribe instruction a corresponding UUID will be returned. You can use this UUID to unsubscribe the function from the channel if needed:
 
 ````javascript
 > $ch("mychannel").unsubscribe(anUUID)
@@ -265,7 +265,7 @@ This will also check if the file already exists and restore values from it so yo
 To just restore the values just use:
 
 ````javascript
-> $ch("mychannel").storeRestore("mychannel.channel", ["date", "person"]) 
+> $ch("mychannel").storeRestore("mychannel.channel", ["date", "person"])
 ````
 
 Do be aware that there is no locking mechanism preventing access to the file and that current implementation (e.g. memory, database, remote, etc…) contents will always override the filesystem values except, of course, on the initial data restore. So changing the file while a channel is “live” won't change it and on the next set/unset/setall all data on the file will be overwritten. For these reasons it's suitable to be used for small/medium size channels depending on the values size and keeping channel data always preserved. If you are looking for a solution to store large sized channels you can either use getAll or forEach to save them when needed or build a more sophisticated subscribe function (for example: keeping each value as a separate file on a folder structured indexed by keys).
@@ -434,11 +434,11 @@ Examples:
 $ch("myfile").create(1, "mvs", { file: "myfile.db", map: "mymap" });
 
 // Creates a mvs file 'myfile.db' with distributing values using the field date from the key to map names like "logs-yyyy.MM.dd"
-var func = (key) => { 
-    key = _$(key).isMap().default({}); 
-    var d = _$(key.date).isDate().default(new Date); 
-    
-    return "logs-" + ow.format.fromDate(d, "yyyy.MM.dd"); 
+var func = (key) => {
+    key = _$(key).isMap().default({});
+    var d = _$(key.date).isDate().default(new Date);
+
+    return "logs-" + ow.format.fromDate(d, "yyyy.MM.dd");
 };
 $ch("myfile").create(1, "mvs", { file: "myfile.db", map: func });
 ````
@@ -520,13 +520,13 @@ To create a proxy just:
 ````javascript
 > $ch("proxy").create(1, "proxy", {
     chTarget  : "targetCh".
-    proxyFunc : function(aMap) { 
+    proxyFunc : function(aMap) {
         // Function that receives a map (by reference that can be changed)
-        // with: op (operation), name (target channel), function (where 
+        // with: op (operation), name (target channel), function (where
         // applicable), full (where applicable), match (the match of getSet),
-        // k (the key(s)), v (the value(s)) and timestamp. If this function 
-        // returns something no operation will be executed on the chTarget 
-        // and the value returned by the function will be the value returned 
+        // k (the key(s)), v (the value(s)) and timestamp. If this function
+        // returns something no operation will be executed on the chTarget
+        // and the value returned by the function will be the value returned
         // by this channel.
     }
 });
@@ -783,4 +783,11 @@ The next table describes the REST API in more detail to communicate with an expo
 | set | PUT | [base uri]/o/e/k/[key]/t/[timestamp] |
 | setAll | PUT | [base uri]/o/a/k/[key]/t/[timestamp] |
 | get | GET | [base uri]/o/e/k/[key] |
-| unset | DELETE | [base uri]/o/e/k/[key]/t/[timestamp] | 
+| unset | DELETE | [base uri]/o/e/k/[key]/t/[timestamp] |
+
+
+## Graphs, time series and channel tools
+
+The built-in [graph channel](../guides/advanced/channel-graph.md) stores nodes and edges and provides traversal helpers. The [time-series channel](../guides/advanced/channel-timeseries.md) stores labelled numeric points with retention, rollups and OpenMetrics integration. Both support backing channels for persistent storage.
+
+Use [CHManager](../guides/opacks/chmanager.md) to inspect and operate channels. See the [oPack catalog](../guides/opacks/catalog.md) for external channel implementations and the [current API reference](../reference/ow_ch.md) for exact signatures.

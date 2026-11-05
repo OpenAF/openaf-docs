@@ -5,6 +5,9 @@ parent: oJob
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/llm-guide.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # OpenAF Guide for LLM Code Generation
 
 **Version: 1.0**
@@ -97,37 +100,12 @@ $$(obj).getI("USER.NAME")
 
 #### 2. `_$` - Parameter Validation
 
+Use one complete predicate when all constraints must hold. Finish with `.$_()` to require a value or `.default(...)` for an optional value. See the [validation guide](https://docs.openaf.io/docs/guides/medium/parameter-validation) for snapshot-specific helper limitations.
+
 ```javascript
-// Basic validation with error throwing
-_$(username, "username").isString().$_();
-_$(age, "age").isNumber().default(18);
-_$(email, "email").isString().notEquals("");
-
-// Type conversion
-_$(value, "value").toNumber();
-_$(value, "value").toString();
-_$(value, "value").toBoolean();
-
-// String validations
-_$(email, "email").isEmail();
-_$(id, "id").isUUID();
-_$(text, "text").minLength(5).maxLength(100);
-
-// Number validations
-_$(age, "age").isNumber().between(0, 150);
-_$(score, "score").isNumber().multipleOf(0.5);
-
-// Array validations
-_$(items, "items").isArray().minLength(1);
-_$(emails, "emails").isArray().eachIsString();
-
-// Object validations
-_$(config, "config").isMap().hasKeys(['host', 'port']);
-_$(data, "data").isSchema(schema);
-
-// Conditional validation
-_$(value, "value").check(v => v > 0, "Value must be positive");
-_$(user, "user").expr("v.age >= 18", "User must be an adult");
+var username = _$("Ana", "username").check(v => isString(v) && v.length > 0).$_();
+var port = _$("8080", "port").toNumber().check(v => isNumber(v) && v >= 1 && v <= 65535).$_();
+var title = _$(undefined, "title").isString().default("Untitled");
 ```
 
 #### 3. `$from` - nLinq Query Processing
@@ -316,10 +294,10 @@ $tb(taskFn)
 ```javascript
 // Basic template
 var name = "World";
-var out = templify("Hello {% raw %}{{name}}{% endraw %}!");  // "Hello World!"
+var out = templify("Hello {{name}}!");  // "Hello World!"
 
 // With data object
-var template = "User: {% raw %}{{user.name}}{% endraw %}, Age: {% raw %}{{user.age}}{% endraw %}";
+var template = "User: {{user.name}}, Age: {{user.age}}";
 var data = { user: { name: "John", age: 30 } };
 var result = templify(template, data);
 ```
@@ -402,7 +380,13 @@ ow.ch.new("myChannel", "mem");          // In-memory
 ow.ch.new("persistent", "mvs", {        // Persistent
   file: "data.db"
 });
+ow.ch.new("sharded", "mvs", {           // Persistent, keys hashed across 4 files
+  multifile: true, path: "data", files: 4
+});
 ow.ch.new("distributed", "big");        // Peer-to-peer
+ow.ch.new("metrics", "timeseries", {     // Labelled numeric series (see docs/channel-timeseries.md)
+  file: "metrics.ndjson", retention: "7d"
+});
 
 // Operations
 ow.ch.set("myChannel", "key1", {data: "value"});
@@ -410,6 +394,8 @@ var value = ow.ch.get("myChannel", "key1");
 var all = ow.ch.getAll("myChannel");
 ow.ch.destroy("myChannel");
 ```
+
+Time series: `$ch("m").set({ metric: "cpu", labels: { host: "a" }, ts: 1000 }, { v: 0.4 })` records a point (the key is metric + labels + `ts`, the value a number `v`), and `ow.ch.utils.timeseries.range("m", { metric: "cpu" }, { step: "5m", fn: "avg" })` returns flat rows `{ ts, metric, ...labels, v }`. `unset` without `ts` drops the series; `shift`/`pop` remove points. See [channel-timeseries.md](../advanced/channel-timeseries.md).
 
 #### ow.ai - Artificial Intelligence
 
@@ -554,7 +540,7 @@ var openMetrics = ow.metrics.fromObj2OpenMetrics(
 ow.loadTemplate();
 
 // Execute template
-var template = "Hello {% raw %}{{name}}{% endraw %}!";
+var template = "Hello {{name}}!";
 var result = ow.template.execTemplate(template, {name: "World"});
 
 // Register custom helpers
@@ -564,7 +550,7 @@ ow.template.addHelpers("my", {
 });
 
 // Use custom helpers
-var tmpl = "Welcome {% raw %}{{my_upper name}}{% endraw %}";
+var tmpl = "Welcome {{my_upper name}}";
 var result = ow.template.execTemplate(tmpl, {name: "john"});
 ```
 
@@ -625,7 +611,7 @@ logErr("Error message");
 
 // Templated logging
 var user = {name: "John", age: 30};
-tlog("User {% raw %}{{name}}{% endraw %} is {% raw %}{{age}}{% endraw %} years old", user);
+tlog("User {{name}} is {{age}} years old", user);
 ```
 
 ### HTTP Operations
@@ -766,7 +752,7 @@ ojob:
   - Format
 
   # Templates and arguments
-  templateArgs: true           # Process {% raw %}{{}}{% endraw %} in args
+  templateArgs: true           # Process {{}} in args
   argsFromEnvs: true           # Load env vars as args
 
   # Channels
@@ -1075,7 +1061,7 @@ todo:
   ((format)): "json"
 
 # Template processing
-- (template): "Hello {% raw %}{{name}}{% endraw %}!"
+- (template): "Hello {{name}}!"
   ((data)): {name: "World"}
 
 # Logging
@@ -2059,25 +2045,20 @@ todo:
 ### Common Validation Patterns
 
 ```javascript
-// JavaScript
 _$(arg, "name").isString().$_();
-_$(arg, "name").isNumber().between(0, 100).default(50);
-_$(arg, "name").isBoolean().default(false);
-_$(arg, "name").isArray().minLength(1);
-_$(arg, "name").isMap().hasKeys(['a', 'b']);
-_$(arg, "name").isString().oneOf(['a', 'b', 'c']);
+_$(arg, "name").check(v => isArray(v) && v.length > 0).$_();
+_$(arg, "name").check(v => isMap(v) && isDef(v.a) && isDef(v.b)).$_();
 ```
 
 ```yaml
-# oJob
 check:
   in:
-    arg: isString
-    arg: toNumber.isNumber.between(0,100).default(50)
-    arg: toBoolean.default(false)
-    arg: isArray.minLength(1)
-    arg: isMap.hasKeys(['a','b'])
-    arg: isString.oneOf(['a','b','c'])
+    name: isString
+    port: 'toNumber.check(v => isNumber(v) && v >= 1 && v <= 65535).default(8080)'
+    enabled: toBoolean.default(false)
+    items: 'check(v => isArray(v) && v.length > 0)'
+    config: 'check(v => isMap(v) && isDef(v.a) && isDef(v.b))'
+    mode: 'check(v => isString(v) && ["a","b","c"].indexOf(v) >= 0)'
 ```
 
 ### Common oJob Shortcuts
@@ -2206,7 +2187,7 @@ $doFirst([task1, task2, task3])
 log("message");           // Info
 logWarn("message");       // Warning
 logErr("message");        // Error
-tlog("{% raw %}{{msg}}{% endraw %}", {msg: "Hello"});  // Templated
+tlog("{{msg}}", {msg: "Hello"});  // Templated
 ```
 
 ---
@@ -2252,3 +2233,4 @@ When generating OpenAF code:
 ---
 
 **Document End**
+{% endraw %}

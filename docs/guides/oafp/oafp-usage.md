@@ -6,8 +6,10 @@ grand_parent: Guides
 ---
 
 {% raw %}
+> Source: [oafp `35a922f9`](https://github.com/OpenAF/oafp/blob/35a922f9cc218a31f032e6c95e1c743a24a7fd68/src/docs/USAGE.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # OpenAF processor
-    
+
 **Usage**: _oafp [file] [options]_
 
 Takes an input, usually a data structure such as json, and transforms it to an equivalent data structure in another format or visualization. The output data can be filtered through JMESPath, SQL or OpenAF's nLinq and provided transformers can also be applied to it.
@@ -18,7 +20,7 @@ Takes an input, usually a data structure such as json, and transforms it to an e
 
 ## Main options:
 
-| Option | Description | 
+| Option | Description |
 |--------|-------------|
 | -h     | Show this document |
 | help   | Alternative way to show this document or others (e.g. filters, template) |
@@ -34,28 +36,31 @@ Takes an input, usually a data structure such as json, and transforms it to an e
 | isql | A SQL expression to filter input data |
 | from   | An OpenAF nLinq path expression to filter output |
 | sql    | A SQL expression to filter output |
+| ijq | A jq expression to filter input after path and before transforms; requires OpenAF $jq |
+| jq | Alias for ijq; do not combine with ijq |
+| ojq | A jq expression to filter output after opath |
 | opath | A JMESPath expression to filter output data |
 | sqlfilter | Enables the forcing of the sql filter parser (values: auto, simple, advanced) |
 | sqlfiltertables | A JSON/SLON array composed of 'table' name and 'path' to each table's data to be used with the sqlfilter |
-| path   | A JMESPath expression to filter output |
-| csv    | If type=csv, the CSV options to use | 
+| path   | A JMESPath expression to filter input before transforms |
+| csv    | If type=csv, the CSV options to use |
 | outkey | If defined the map/list output will be prefixed with the provided key |
 | outfile | If defined all output will be written to the provided file |
 | outfileappend | If 'true' and outfile=true the output will be appended on the provided file |
 | parallel | `auto` (default), `true`, or `false`. Auto measures eligible pure work before using bounded workers. Record output stays ordered; explicit `true` also enables supported specialized parallel operations. `false` overrides `OAFP_PARALLEL`. |
 | progress | `auto` (default) or `off`. Shows a delayed wait animation on interactive stderr only. |
 | stream | With `in=json`, processes a top-level array one element at a time using record-level filters and output. Default `false`. |
-| pause  | If 'true' (or `-p`) will try to pause contents in alternative to _less -r_ |
+| pause  | If 'true' (or `-p`) will try to pause contents in alternative to _less -r_. PgUp/Left and PgDown/Right move by a page; Up/Down move by a line. Shift+Left/Home goes to the top; Shift+Right/End goes to the bottom. Shift+PgUp/PgDown are also supported as top/bottom aliases. At the bottom, navigation remains available; forward paging or an ordinary key exits. Use `q` to quit. These controls require an updated OpenAF runtime. |
 | color  | If 'true' will force colored output if available |
 | url    | Retrieves data from the provided URL |
-| urlmethod | If 'url' is provided defines the http method to use if different from GET | 
+| urlmethod | If 'url' is provided defines the http method to use if different from GET |
 | urlparams | If 'url' is provided extra parameters (equivalent to OpenAF's $rest) can be provided in JSON/SLON |
-| urldata | If 'url' is provided a JSON/SLON/text data can be provided | 
+| urldata | If 'url' is provided a JSON/SLON/text data can be provided |
 | insecure | If true will ignore SSL/TLS certificate validation |
 | chs | A JSON/SLON map or array composed of an OpenAF channel 'name', 'type' and optional 'options' |
 | loop   | If defined will loop the processing by the number of seconds provided |
 | loopcls | If 'true' and loop is defined it will clear the screen (or file) on each loop cycle |
-| libs | Comma delimited list of installed OpenAF's oPacks to consider to extend oafp's inputs, transformations and outputs | 
+| libs | Comma delimited list of installed OpenAF's oPacks to consider to extend oafp's inputs, transformations and outputs |
 | pipe | A JSON/SLON/YAML map for recursive call of oafp similar to using unix pipes (useful with -f) |
 | -f | Enables to provide a JSON/SLON/YAML file with all the oafp parameters as a map |
 | -examples | Will access an internet based list of oafp examples and list them |
@@ -64,7 +69,7 @@ Takes an input, usually a data structure such as json, and transforms it to an e
 | -v | Changes the input to a map with the tool's version info |
 | debug | If true prints debugging messages |
 
-> Filter options apply in the following order: _path_, _from_ and _sql_.
+> Filter order: _ifrom_, _isql_, _path_, _ijq_ (alias _jq_), transforms, _from_, _sql_, _opath_, _ojq_. See _help=filters_ for syntax, examples, and jq result/record handling.
 
 > For _path_ syntax check https://jmespath.org/tutorial.html
 
@@ -100,8 +105,10 @@ List of data input types that can be auto-detected (through the file extension o
 | ch | An OpenAF channel format |
 | csv | A CSV format (auto-detected) |
 | db | A JDBC query to a database |
+| dsv | A DSV (Delimiter Separated Values) format |
 | gb64json | Equivalent to in=base64 and base64gzip=true |
 | hsperf | A Java hsperfdata* file (requires file=hsperfdata_user/123) |
+| httpd | Receives the input from an HTTP request sent to a temporary local HTTP server (e.g. a webhook) |
 | ini | INI/Properties format |
 | javas | Tries to list java processes running locally (javasinception=true to include itself). Adds the hsperf file path when the process id matches ow.java.getLocalJavaPIDs() |
 | javagc | The Java GC log lines text format |
@@ -155,6 +162,7 @@ These options will change the parsed input data included any filters provided.
 | correcttypes | Boolean | If true will try to convert alpha-numeric field values with just numbers to number fields, string date fields to dates and boolean fields |
 | denormalize | String | Reverses 'normalize' given a JSON/SLON map with a normalize schema (see OpenAF's ow.ai.normalize.withSchema) |
 | diff | String | A JSON/SLON map with a 'a' path and a 'b' path to compare and provide diff data |
+| mapdiff | String/Map | A JSON/SLON map with 'a' and 'b' paths selecting maps to compare structurally. Returns onlyA, onlyB and changed maps. See [Map diff](#map-diff). |
 | field2byte | String | A comma delimited list of fields whose value should be converted to a byte abbreviation |
 | field2date | String | A comma delimited list of fields whose value should be converted to date values |
 | field2si | String | A comma delimited list of fields whose value should be converted to a SI abbreviation |
@@ -224,6 +232,8 @@ List of available formats to use with the _output_ option:
 | gb64json | Equivalent to out=base64 and base64gzip=true |
 | grid | A multiple output ascii grid (useful together with 'loop') |
 | html | An HTML format |
+| http | Sends the output as the body of an HTTP request (POST, PUT, PATCH or DELETE) |
+| httpd | Serves the output over a local HTTP server (e.g. a live JSON endpoint or an OpenMetrics exporter with loop) |
 | idesc | Interactive full-screen tree browser for maps, arrays and scalar values; expand/collapse, zoom, filter, queries, previews, bookmarks, comparison and export |
 | ini | A INI/Properties format (arrays are not supported) |
 | json | A JSON format without spacing |
@@ -249,7 +259,7 @@ List of available formats to use with the _output_ option:
 | pxml | Tries to output the input data into pretty xml |
 | raw | Tries to output the internal representation (string or json) of the input transformed data |
 | rawascii | Outputs text data line by line with visual representation of non-visual characters |
-| res | Outputs data to an OpenAF global 'res' (used in oJobs) | 
+| res | Outputs data to an OpenAF global 'res' (used in oJobs) |
 | schart | A static line-chart like chart (for a fixed list/array of values) |
 | slon | A SLON format |
 | sql | Outputs a series of SQL statements for an input list/array data |
@@ -306,13 +316,13 @@ List of options to use when _in=db_ (SQL query):
 | indbtimeout | String | The JDBC access timeout |
 | indblib | String | Use a JDBC driver oPack generated by ojob.io/db/getDriver |
 | indbstream | Boolean | If true the output will be processed record by record |
-| indbexec | Boolean | If true the input SQL is not a query but a DML statement | 
+| indbexec | Boolean | If true the input SQL is not a query but a DML statement |
 | indbautocommit | Boolean | If true the input SQL will be executed with autocommit enabled |
 | indbdesc | Boolean | If true the output will be a list of column names and types (use 'LIMIT 1' for faster results) |
 
 > JDBC oracle: jdbc:oracle:thin:@[host]:[port]:[database]
 > JDBC postgreSQL: jdbc:postgresql://[host]:[port]/[database]
-> JDBC H2: jdbc:h2:[file]   
+> JDBC H2: jdbc:h2:[file]
 
 ---
 
@@ -350,7 +360,9 @@ List of options to use when _in=javagc_:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| javagcjoin | Boolean | If true it will return an array with each processed line. |
+| javagcjoin | Boolean | If true returns one array of parsed GC events; otherwise emits events incrementally. |
+
+File, data, command and stdin input share the same parser. Multiline events are completed at the next event or EOF. Heap and metaspace metrics are reported in bytes; duration and timing fields are in seconds and omitted when absent.
 
 ---
 
@@ -379,6 +391,39 @@ List of options to use when _in=hsperf_:
 Use _file=_ or _cmd=_ with _hsperfmetadata=true_. Select _path=header_ or _path=entries_ for metadata and _path=values.java_ for Java counters; without metadata, use _path=java_. Counter longs are exact decimal strings. Missing counter groups are omitted, timers require the reported frequency, and nonzero header overflow indicates counters the JVM could not store.
 
 ---
+
+### 🧾 HTTPd input options
+
+List of options to use when _in=httpd_ (no other input should be provided):
+
+| Option | Type | Description |
+|--------|------|-------------|
+| inhttpdport | Number | The port to listen on (if not provided a free port is chosen and reported on stderr) |
+| inhttpdhost | String | The address to bind to (defaults to 127.0.0.1; use 0.0.0.0 to accept remote connections) |
+| inhttpdpath | String | If provided only requests to this path (or below) are accepted; others get a 404 |
+| inhttpdtimeout | Number | Milliseconds to wait for a request (defaults to 60000; 0 waits forever) |
+| inhttpdcount | Number | Number of requests to process before stopping (defaults to 1; 0 for no limit until a timeout occurs) |
+| inhttpdtype | String | The input type to parse the request body with (otherwise detected from the Content-Type and the body) |
+| inhttpdmax | Number | Maximum request body size in bytes (defaults to 10485760); larger requests get a 413 |
+| inhttpdstatus | Number | The HTTP status code returned to the sender (defaults to 200) |
+| inhttpdreply | String | The text returned to the sender (defaults to empty) |
+| inhttpdenvelope | Boolean | If true the input is a map with method, uri, headers, params and body instead of just the parsed body |
+| inhttpduser | String | If provided requests need HTTP basic authentication with this user |
+| inhttpdpass | String | The password for _inhttpduser_ |
+| inhttpdcors | Boolean | If true adds CORS headers and answers OPTIONS preflight requests |
+| inhttpdkeystore | String | A Java keystore path to serve HTTPS |
+| inhttpdkeypass | String | The password of _inhttpdkeystore_ |
+
+> Any HTTP method is accepted. Without a body, the query string/form parameters are used as the input.
+> The server only listens on the loopback address by default and stops after the requests are processed. Example: _oafp in=httpd inhttpdport=8080 out=yaml_
+
+---
+
+### 🧾 Javas input options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| javasinception | Boolean | If true includes oafp itself in the local Java process list |
 
 ### 🧾 JFR input options
 
@@ -448,7 +493,7 @@ List of options to use when _in=lines_:
 |--------|------|-------------|
 | linesjoin | Boolean | If true it will return an array with each processed line |
 | linesvisual | Boolean | If true it will try to determine header and column position from spaces and tabs |
-| linesvisualsepre | String | Regular expression representing the separator between columns when linesvisual=true (defaults to ' \\s+') | 
+| linesvisualsepre | String | Regular expression representing the separator between columns when linesvisual=true (defaults to ' \\s+') |
 | linesvisualheadsep | Boolean | If true will try to process the second line as header separator aiding on column position determination (if linesvisualsepre is not defined it will default to '\\s+') |
 
 > Lines and visual-header processing stay sequential.
@@ -482,7 +527,7 @@ List of options to use when _in=llmdecide_:
 |--------|------|-------------|
 | llmenv | String | Environment variable containing the model configuration (defaults to OAFP_MODEL, falling back to OAF_DECIDE_MODEL and then OAF_MODEL when absent). |
 | llmoptions | String/Map | Model configuration as a JSON/SLON string or map; overrides llmenv. Supports the shared sBucket options below. |
-| llmdecidesample | String | Emit a gemini or ollama request sample without input, credentials or inference. Use out=yaml or out=json. |
+| llmdecidesample | String | Emit a gemini, ollama or openai request sample without input, credentials or inference. Use out=yaml or out=json. |
 | llmimage | String | Local PNG/JPEG/WebP image file to encode as options.images for Ollama native decisions. Cannot be combined with options.images. |
 | llmdecidestats | Boolean | Return {response, stats} from one decideWithStats() execution (defaults to false). |
 
@@ -505,6 +550,7 @@ Generate a request, edit its state and questions, then run it with _file=_ and y
 ```sh
 oafp in=llmdecide llmdecidesample=gemini out=yaml > gemini-request.yaml
 oafp in=llmdecide llmdecidesample=ollama out=json > ollama-request.json
+oafp in=llmdecide llmdecidesample=openai out=yaml > openai-request.yaml
 ```
 
 > See _help=examples_ for complete request files and provider requirements. Samples use common OpenAF question definitions with provider-specific strategy options.
@@ -602,13 +648,21 @@ List of options to use when _in=ndslon_:
 
 ---
 
+### 🧾 OAFP input options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| inoafpseq | Boolean | If true processes an input array of oafp parameter maps sequentially |
+
+A child failure fails the parent after all started workers settle, without emitting a successful aggregate. Errors identify the child array index. Completed child side effects are not rolled back.
+
 ### 🧾 RAWHEX input options
 
 List of options to use when _in=rawhex_:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| inrawhexline | Number | Number of hexadecimal characters per returned array line | 
+| inrawhexline | Number | Number of hexadecimal characters per returned array line |
 
 ---
 
@@ -669,7 +723,7 @@ List of options to use when _in=sql_:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| sqlparse | Boolean | If true instead of returning a SQL AST representation it will beautify the SQL statement(s) | 
+| sqlparse | Boolean | If true instead of returning a SQL AST representation it will beautify the SQL statement(s) |
 | sqloptions | String | A JSON/SLON map with options for sqlparse=true |
 
 SQL options available:
@@ -717,9 +771,19 @@ List of options to use when _in=base64_ or _out=base64_:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| base64gzip | Boolean | If true the contents will thet gzip/gunzip respectively to reduce the size of the base64 output |
+| base64gzip | Boolean | If true, gzip before Base64 encoding or gunzip after Base64 decoding |
 
 ---
+
+Base64 conversions use bounded conversion buffers for files, stdin, commands, URLs, and `data`.
+Direct `in=raw out=base64` output streams automatically when no filtering, transformation,
+paging, or `pipe` requires a complete value. Text encodings and stdin line normalization
+are preserved. JSON parsing, object serialization, paging, and `pipe` can still require
+complete strings or objects; streaming removes intermediate byte arrays rather than
+making those operations constant-memory. GZIP and Base64 are composed without an
+intermediate compressed array. Direct raw conversions stage file output before
+replacement or append, preserving data when the source reads the same destination.
+Archive-entry paths retain the existing buffered reader.
 
 ### 🧾 CSV input/output options
 
@@ -727,6 +791,14 @@ List of options to use with the _inputcsv_ input option (when input type=csv) an
 
 | Option | Type | Description |
 |--------|------|-------------|
+| inputcsv | String/Map | CSV input configuration as JSON/SLON |
+| incsv | String/Map | Alias for inputcsv |
+| csv | String/Map | CSV output configuration as JSON/SLON |
+
+The configuration map supports these fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
 | format | String | You can choose between DEFAULT, EXCEL, INFORMIX_UNLOAD, INFORMIX_UNLOAD_CSV, MYSQL, RFC4180, ORACLE, POSTGRESQL_CSV, POSTGRESQL_TEXT and TDF |
 | withHeader | Boolean | If true tries to automatically use the available header |
 | withHeaders | Array | A list of headers to use with the corresponding order |
@@ -765,7 +837,7 @@ List of options to use when _diff=..._:
 |--------|------|-------------|
 | difftheme | String | A JSON/SLON map with the colors to use if color = true |
 | diffnlines | Boolean | If true will append each line with a line number of the final result of the differences between 'a' and 'b' (just for rough reference) |
-| diffwords | Boolean | If true and the input is text based will perform the diff at the word level | 
+| diffwords | Boolean | If true and the input is text based will perform the diff at the word level |
 | diffwordswithspace | Boolean | If true and the input is text based will perform the diff at the word + spaces level |
 | difflines | Boolean | If true and the input is text based will perform the diff at the lines level |
 | diffsentences | Boolean | If true and the input is text based will perform the diff at the sentence level |
@@ -778,6 +850,34 @@ List of options to use when _diff=..._:
 > If both inputs are array based and color=false (or not provided) the comparison will be performed at the array elements level
 
 > The contents of 'difftheme' can also be provided through the 'OAFP_DIFFTHEME' environment variable
+
+---
+
+### Map diff
+
+Use `mapdiff="(a: old, b: new)"` to compare two maps selected by `$path` expressions from the input:
+
+```sh
+oafp 'data={"old":{"name":"old","config":{"port":80},"legacy":true},"new":{"name":"new","config":{"port":443},"enabled":true}}' \
+  'mapdiff=(a: old, b: new)' out=json
+```
+
+```json
+{
+  "onlyA": {"legacy": true},
+  "onlyB": {"enabled": true},
+  "changed": {
+    "/config/port": {"a": 80, "b": 443},
+    "/name": {"a": "old", "b": "new"}
+  }
+}
+```
+
+`onlyA` and `onlyB` preserve the nested structure of keys missing from the other map. A missing key includes its complete value, including empty maps and arrays. `changed` uses JSON Pointer paths (`~` becomes `~0`, `/` becomes `~1`) and includes both values. Type changes are reported at the changed key's path. Equal values are omitted; equal maps return `{"onlyA":{},"onlyB":{},"changed":{}}`.
+
+Map key order is ignored during comparison and result keys are sorted consistently, subject to JavaScript's usual integer-key ordering. Arrays are compared as complete values: order and duplicates matter, while map key order within them does not. Nested arrays retain their shape. Missing keys differ from explicit `null`, and values have strict types (`1` differs from `"1"`). Inputs are preserved.
+
+Both paths must select maps; missing paths, non-map selections and invalid configurations produce errors. This transform targets JSON-compatible data and produces structured output independently of `color` and the existing `diff` display options.
 
 ---
 
@@ -868,7 +968,7 @@ List of options to use when _set=..._:
 | setop | String | Allows to choose a different set operation between 'union', 'diffa', 'diffb', 'diffab' (symmetric difference), 'diff' and 'intersect' (default) |
 
 > Example: ```set="(a: old, b: new)" setop=diffb```
-> 'setop=diff' will add an extra column '*' to identify if a line only exists in 'a' or in 'b'
+> 'setop=diff' adds the reserved column '*' to identify if a line only exists in 'a' or 'b'. Membership is computed from the original values (or `setkeys`); on returned differing rows, the marker replaces any existing '*' value. Input rows are unchanged.
 
 ---
 
@@ -992,21 +1092,94 @@ List of options to use when _out=ch_:
 
 ### 🧾 Chart output options
 
-List of options to use when _out=chart_:
+Use `out=chart` to plot numeric samples as a terminal line chart. Each output update adds one sample per series to a rolling history. With `loop=<seconds>`, oafp reads the input again at that interval; without repeated updates, the chart only has one sample. The horizontal axis represents sample order, not timestamps.
+
+To plot a fixed array of existing values instead, use `out=schart` (see **SChart output options**).
+
+#### Quick start
+
+This self-contained example generates a changing value between 10 and 90, samples it every second, and redraws the chart in place:
+
+```sh
+oafp in=oaf 'data=data=50+40*Math.sin(Date.now()/1000)' \
+  out=chart 'chart=int @:green:value -min:0 -max:100 -hsize:40 -vsize:10' \
+  loop=1 chartcls=true
+```
+
+Let it run for several updates to see the line develop. Press **Ctrl+C** to stop. Here `in=oaf` evaluates JavaScript on each update, and the inner `data=` assigns its result. `@` selects that numeric result. `int` formats the Y-axis labels as integers; it does not round the input samples.
+
+#### Options and chart syntax
 
 | Option | Type | Description |
 |--------|------|-------------|
-| chart  | String | Chart definition in the format `"<unit> <path:color:legend>... [-min:<n>] [-max:<n>] [-hsize:<n>] [-vsize:<n>]"`. The 'unit' must be one of: `int`, `dec1`, `dec2`, `dec3`, `dec4`, `dec`, `bytes` or `si`. The 'path' is a JMESPath expression equivalent to the `path=` filter (use quotes for non-basic expressions; use `@` for the current root value). The 'color' should be one of the basic ANSI color names. The 'legend' is the series label (quote it if it contains spaces). The `-min` and `-max` flags set the Y-axis range; `-hsize` and `-vsize` override the default chart width and height in terminal columns/rows. |
-| chartcls | Boolean | If true the screen will be cleared before rendering each update (alternative to `loopcls=true`) |
+| chart | String | Required. Unit, one or more series, and optional axis/size flags, as described below. |
+| chartcls | Boolean | Clear the screen before printing each chart update. Use this or the general `loopcls=true` option to redraw in place. Otherwise updates are printed one after another. |
+| loop | Number | General oafp option: repeat the input and output, waiting this many seconds between runs. Use a changing source such as `cmd=`, `url=`, or `in=oaf` for live data. |
 
-Examples:
-```oafp cmd="curl -s http://api.open-notify.org/iss-now.json" out=chart loopcls=true chart="dec3 iss_position.latitude:blue:lat iss_position.longitude:red:long" loop=5```
+```text
+chart="<unit> <path[:color][:legend]> ... [-min:<n>] [-max:<n>] [-hsize:<n>] [-vsize:<n>]"
+```
 
-```oafp cmd="uptime" in=raw path="replace(trim(@), '.+ ([\d\.]+),? ([\d\.]+),? ([\d\.]+)$', '', '$1|$2|$3').split(@,'|')" out=chart chart="dec2 [0]:green:load1m [1]:yellow:load5m [2]:red:load15m -min:0" loop=1 loopcls=true```
+- **Unit:** `int` uses integer labels; `dec1`, `dec2`, `dec3`, and `dec4` use the specified decimal places; `dec` uses the number's string representation; `bytes` and `si` use abbreviated byte and SI-style labels. These format the Y-axis; they do not convert the input values.
+- **Path:** a JMESPath expression selecting one numeric value per series. Paths apply to the processed input, after filters such as `path=`. Use `@` for a numeric root, `metrics.cpu` for a nested field, or `[0]` for an array element. Convert numeric strings with `to_number(...)` when necessary.
+- **Color:** optional ANSI color specification, such as `green`, `yellow`, `red`, or `blue`. If you specify a color for one series, supply one for every series.
+- **Legend:** optional label after the color, for example `cpu:green:CPU`. Use a single token without spaces or colons, such as `load_1m`. Quoting does not make multiword legends work in the renderer. To show a complete legend, label every series.
+- **Range:** `-min:<n>` and `-max:<n>` set the Y-axis bounds. Omit them for automatic scaling; set both when comparing updates on a fixed scale.
+- **Size:** `-hsize:<n>` sets the horizontal history limit in samples and the chart width budget; `-vsize:<n>` sets the height budget in terminal rows, including space reserved for legends. Defaults are based on terminal dimensions when available. Explicit sizes make examples more predictable.
 
-```oafp cmd="ps -p 12345 -o %cpu,%mem" in=lines linesvisual=true linesvisualsepre="\\s+" out=chart chart="int '\"%CPU\"':red:cpu '\"%MEM\"':blue:mem -min:0 -max:100" loop=1 loopcls=true```
+The examples below use POSIX shell quoting (sh/bash/zsh). Quote the whole `chart=...` argument so the shell passes it as one value. Inside the chart definition, quote complex paths that contain spaces or colons. Property names containing punctuation need JMESPath double quotes; the quoted-property example below shows how to preserve them through the shell.
 
-```HOST=1.1.1.1 && PORT=53 && oafp in=oaf data="data=ow.loadNet().testPortLatency('$HOST',$PORT)" out=chart chart="int @:red:latencyMS -min:0" loop=1 loopcls=true```
+#### Examples
+
+**Two series from nested fields.** Both paths select numbers from the same input on each update:
+
+```sh
+oafp in=oaf 'data=data={metrics:{cpu:50+40*Math.sin(Date.now()/1000),memory:60+20*Math.cos(Date.now()/1000)}}' \
+  out=chart 'chart=dec1 metrics.cpu:green:CPU metrics.memory:blue:Memory -min:0 -max:100 -hsize:40 -vsize:10' \
+  loop=1 chartcls=true
+```
+
+**Select a numeric root first.** After `path=metrics.cpu`, the chart receives the number rather than the original object:
+
+```sh
+oafp in=oaf 'data=data={metrics:{cpu:50+40*Math.sin(Date.now()/1000)}}' \
+  path=metrics.cpu out=chart 'chart=dec1 @:green:CPU -min:0 -max:100 -hsize:40 -vsize:10' \
+  loop=1 chartcls=true
+```
+
+**A property name containing punctuation.** This fixed input demonstrates quoting and renders one sample. The shell passes `chart=int '"%CPU"':red:CPU ...`; the inner double quotes identify the literal JMESPath property name:
+
+```sh
+oafp in=json 'data={"%CPU":42}' out=chart \
+  chart="int '\"%CPU\"':red:CPU -min:0 -max:100 -hsize:40 -vsize:10"
+```
+
+**Monitor a process on macOS/Linux.** Replace `12345` with a running PID. This uses `ps` without headers and converts its CPU percentage to a number, avoiding column-name and table-parsing differences:
+
+```sh
+oafp cmd="ps -p 12345 -o pcpu=" in=raw 'path=to_number(trim(@))' \
+  out=chart 'chart=dec1 @:red:CPU -min:0 -hsize:40 -vsize:10' \
+  loop=1 chartcls=true
+```
+
+CPU usage can exceed 100% on some systems, so this example leaves the upper bound automatic. Stop the chart if the process exits and `ps` no longer returns a value.
+
+**Measure TCP connection latency.** This requires network access to the target host and port; it measures a TCP connection, not ICMP ping:
+
+```sh
+oafp in=oaf 'data=data=ow.loadNet().testPortLatency("1.1.1.1",53,1000)' \
+  out=chart 'chart=dec2 @:red:latency_ms -hsize:40 -vsize:10' \
+  loop=1 chartcls=true
+```
+
+The timeout is 1000 ms. A value of `-1` means the connection failed or timed out; it is not a latency measurement. The example leaves the Y-axis range automatic so failures remain visible.
+
+#### Common pitfalls
+
+- A single input produces a single sample; adding `loop` to unchanged `data=` simply repeats the same value. For an existing array, use `out=schart`.
+- Each series must resolve to a number. Check the same input with `out=json` and your intended `path=` first if a chart is empty or fails. Missing fields and nonnumeric values are not substitutes for zero.
+- Use an interactive terminal for live redraws. Explicit dimensions help in small terminals; omit screen clearing when capturing output to a file.
+- If oafp reports that chart output is unsupported by your OpenAF version, update the OpenAF runtime.
 
 ---
 
@@ -1038,16 +1211,16 @@ List of options to use when _out=db_:
 | dbpass | String | The JDBC access password |
 | dbtimeout | String | The JDBC access timeout |
 | dblib | String | Use a JDBC driver oPack generated by ojob.io/db/getDriver |
-| dbtable | String | The db table in which should be inserted ('data' by default) | 
+| dbtable | String | The db table in which should be inserted ('data' by default) |
 | dbnocreate | Boolean | If true no table creation command will be executed (if the table already exists set this to true) |
 | dbicase | Boolean | If true table and field names will try to ignore case |
-| dbbatchsize | Number | If defined it will changed the default batch data insert process | 
+| dbbatchsize | Number | If defined it will changed the default batch data insert process |
 
 > You can use _out=sql_ to get a preview of the SQL statements the _db_ output type will use
 
 > JDBC oracle: jdbc:oracle:thin:@[host]:[port]:[database]
 > JDBC postgreSQL: jdbc:postgresql://[host]:[port]/[database]
-> JDBC H2: jdbc:h2:[file]   
+> JDBC H2: jdbc:h2:[file]
 
 ---
 
@@ -1079,10 +1252,11 @@ List of options to use when _out=envs_:
 | Option | Type | Description |
 |--------|------|-------------|
 | envscmd | String | If defined will output the provided command to set each environment variable (defaults to 'export' or 'set' in Windows) |
+| envsnocmd | Boolean | If true omits the command before each environment variable assignment, including a custom envscmd (defaults to false) |
 | envsprefix | String | If defined uses the provided prefix for each environment variable key (defaults to '_OAFP_') |
 | envsnoprefix | Boolean | Boolean flag to indicate that no envsprefix should be used (defaults to false) |
 
-Example of a shell script using 'out=envs': 
+Example of a shell script using 'out=envs':
 
 ```
 #!/bin/sh
@@ -1157,6 +1331,52 @@ Examples:
 
 ---
 
+### 🌐 HTTPd output options
+
+List of options to use when _out=httpd_:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| httpdport | Number | The port to listen on (if not provided a free port is chosen and reported on stderr) |
+| httpdhost | String | The address to bind to (defaults to 127.0.0.1; use 0.0.0.0 to accept remote connections) |
+| httpdpath | String | If provided only requests to this path (or below) are accepted; others get a 404 |
+| httpdformat | String | The output format served (defaults to json). A request can override it with _?format=_ |
+| httpdmime | String | Forces the Content-Type of the replies |
+| httpdstatus | Number | The HTTP status code of the replies (defaults to 200) |
+| httpdcount | Number | Stop after this many requests were answered (defaults to 0: serve until interrupted) |
+| httpdtimeout | Number | Stop after this many milliseconds without requests (defaults to 0: no limit) |
+| httpduser | String | If provided requests need HTTP basic authentication with this user |
+| httpdpass | String | The password for _httpduser_ |
+| httpdcors | Boolean | If true adds CORS headers and answers OPTIONS preflight requests |
+| httpdkeystore | String | A Java keystore path to serve HTTPS |
+| httpdkeypass | String | The password of _httpdkeystore_ |
+
+Formats that can be served: json, pjson, ndjson, ndslon, yaml, toon, slon, csv, dsv, md, mdtable, mdyaml, xml, pxml, html, openmetrics, toml, ini, lines, text, raw, template and tree. Only GET and HEAD are accepted.
+
+> The result is served as a snapshot. With _loop_ the same server keeps running and each pass replaces the snapshot. For inputs that emit records one by one (e.g. ndjson) the snapshot is published when the pass ends.
+> Example: _oafp cmd="kubectl top pod" in=lines linesvisual=true out=httpd httpdformat=openmetrics httpdport=9100 loop=15_
+> Basic authentication only supports passwords without a ':' character.
+
+---
+
+### 🧾 HTTP output options
+
+List of options to use when _out=http_:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| httpurl | String | The URL to send the output to (required) |
+| httpmethod | String | The HTTP method: post (default), put, patch or delete |
+| httpformat | String | The body format: json (default), yaml, ndjson or text. Strings are sent as-is |
+| httpparams | String/Map | A JSON/SLON map of OpenAF $rest options (e.g. requestHeaders, login, pass, timeout, retry) |
+| httpeach | Boolean | If true and the input is an array, one request is made per entry |
+| httpquiet | Boolean | If true the server response is not printed |
+
+> Example: oafp in=yaml file=data.yaml out=http httpurl=https://host/api httpparams="(requestHeaders: (Authorization: 'Bearer x'))"
+> The server response is printed (so it can be piped into another oafp) and a failed request exits with an error. You can use sBuckets variables (e.g. secKey, secRepo, secBucket, secPass, secMainPass, secFile) on 'httpparams' to fill it.
+
+---
+
 ### 🧾 HTML output options
 
 List of options to use when _out=html_:
@@ -1166,7 +1386,7 @@ List of options to use when _out=html_:
 | htmlcompact | Boolean | Boolean flag that if true and the input data is a string or markdown the generated html will have a visual compact width format |
 | htmlpart | Boolean | Boolean flag that if true and the input data is a string or markdown the generated html will be partial and not the complete file |
 | htmlopen | Boolean | Boolean that if false won't try to open the output contents in a browser (defaults to true). To use outfile= you need to set htmlopen=false. |
-| htmlwait | Number | Amount of ms, when htmlopen=true, to wait for the system browser to open an render the html output | 
+| htmlwait | Number | Amount of ms, when htmlopen=true, to wait for the system browser to open an render the html output |
 | htmldark | Boolean | If supported and true the output html will use a dark theme. |
 
 ---
@@ -1191,6 +1411,12 @@ List of options to use when _out=md_:
 | mdformat | String | For map or array values: `structured` (default) renders headings, scalar tables, and lists; `json` or `yaml` emits the value in a fenced code block. |
 
 ---
+
+### 🧾 OAF output options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| outoaf | String | OpenAF code or a script file to execute with the transformed input as data |
 
 ### 🧾 PXML output options
 
@@ -1371,7 +1597,8 @@ pipe:
 
 | Help | Description |
 |------|-------------|
-| help=filters | Provides more details regarding the use of "path=", "from=" and "sql=" |
+| help=filters | Filter order, JMESPath functions, jq, nLinq and SQL |
+| `help="filter=keys"` | Return the exact JMESPath function row, including signature, availability, description and example |
 | help=template | Provides more details regarding the use of "output=template" |
 | help=examples | Provide several examples |
 | help=jsonschema | JSON Schema validation, options, drafts and sample generation |
@@ -1400,7 +1627,3 @@ Automatic workers only parse framed JSON records or sort independent map keys. O
 
 The wait animation starts after 250 ms, refreshes every 150 ms, and clears before output. Use `progress=off` to disable it. Redirected stderr, nested processing and full-screen outputs do not animate.
 {% endraw %}
-
-## October source additions
-
-See [decisions and interactive JSON exploration](october-features.md) for worked examples. This option reference was synchronized with the bundled `20261014 nightly` processor.

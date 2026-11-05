@@ -7,7 +7,7 @@ grand_parent: OpenAF docs
 
 # Java support
 
-## Creating an object instance 
+## Creating an object instance
 
 Java is supported directly on the OpenAF javascript language. Simply:
 
@@ -42,7 +42,7 @@ Object.keys(f)
 //   "parent",
 //   "renameTo",
 //   "getName",
-// ...    
+// ...
 ````
 
 > Note: You can even use it with ````for(i in f) { ... }```` for example.
@@ -52,7 +52,7 @@ Object.keys(f)
 In some cases a Java instance might have more than on method with the same name but different signature (e.g. different methods). In those cases it's possible to indicate one of them by calling the method like this:
 
 ```javascript
-f.['list(java.lang.String,com.some.options.Options$ListOption[])'](arg1, arg2)
+f['list(java.lang.String,com.some.options.Options$ListOption[])'](arg1, arg2)
 ```
 
 ## Implementing Java interfaces
@@ -184,7 +184,7 @@ isJavaObject(o);
 Given a javascript exception if it derives from a Java exception it will convert it to a javascript array:
 
 ````javascript
-try { 
+try {
     java.lang.Integer.parseInt(22.2)
 } catch(e) {
     sprint( getJavaStackTrace(e) )

@@ -9,7 +9,7 @@ grand_parent: Guides
 
 Starting on oJob-common oPack version 20250415 it's possible to use the common browse functionality to list the contents of a directory or a file. This functionality is generic enough to be applied to different scenarios like: browsing a local filesystem; browsing an object storage bucket; browsing an AWS ECR; browsing a Maven repository; etc.
 
-> To install oJob-common either refer to it on an oJob (ojob > opacks > oJob-common) or install it directly by executing ``opack install ojob-common````
+> To install oJob-common either refer to it on an oJob (ojob > opacks > oJob-common) or install it directly by executing `opack install oJob-common`
 
 There are different implementations and more can be built following similar options. Here are some examples.
 
@@ -17,11 +17,11 @@ There are different implementations and more can be built following similar opti
 
 The easiest way to try this one is to just execute:
 
-```yaml
+```sh
 ojob ojob.io/httpServers/EasyHTTPd port=8888 path=.
 ```
 
-The if you open your browser on port 8888 (e.g. http://localhost:8888) you will get an interface similar to this one:
+Then, if you open your browser on port 8888 (e.g. http://localhost:8888) you will get an interface similar to this one:
 
 ![common browsing a folder](common-browse-dir1.png)
 
@@ -37,8 +37,8 @@ Let's see an example and the available options. Start by creating a file called 
 
 ```yaml
 ojob:
-  daemon: true   # we want to run it as a daemon 
-  opacks: 
+  daemon: true   # we want to run it as a daemon
+  opacks:
   - oJob-common  # we want to install/include oJob-common
 
 include:
@@ -57,10 +57,10 @@ todo:
 # Third, we want to include the common browse functionality in /browse
 - (httpdBrowse): 8888
   ((uri      )): /browse
-  ((path     )): ..
+  ((path     )): .
 ```
 
-That's it. Now execute: 
+That's it. Now execute:
 
 ```bash
 ojob myFileBrowser.yaml
@@ -69,7 +69,7 @@ ojob myFileBrowser.yaml
 and browse to http://localhost:8888/browse. You will see the contents of the folder where you executed the command.
 You can also use the `path` argument to point to a specific folder.
 
-**Arguments available generically for (httpdBrose)**
+**Arguments available generically for (httpdBrowse)**
 
 | Argument | Type | Description |
 |--------|----|-------------|
@@ -96,7 +96,7 @@ You can also use the `path` argument to point to a specific folder.
 
 ## Implementing a custom browse functionality
 
-If you want to implement a custom browse functionality, you can do it by implementing `fns` functions. Currently there are 6 functions that you might need to rewrite (you don't define them the default ones will be used). The default login to call them is:
+If you want to implement a custom browse functionality, you can do it by implementing `fns` functions. Currently there are 6 functions that you might need to rewrite (you don't define them the default ones will be used). The default logic to call them is:
 
 ```js
 var output
@@ -132,7 +132,7 @@ The *getList* function receives a map with the browser request (e.g. request.uri
 If the request.uri should be interpreted as a file:
 
 ```json
-{ 
+{
     "isFile": true
 }
 ```
@@ -171,7 +171,7 @@ Description of the fields:
 
 **"getObj" function**
 
-```js
+```text
 getObj(request, options) : Map
 ```
 
@@ -193,7 +193,7 @@ or
 }
 ```
 
-or 
+or
 
 ```json
 {
@@ -206,11 +206,11 @@ The *type* value is the type of the file to be shown on the interface. The avail
 
 **"renderList" function**
 
-```js
+```text
 renderList(aList, server, request, options) : Map
 ```
 
-The *renderList* function receives *aList* returned by the *getList* function and is responsible to render the list on the interface. The *server* value is the OpenAF http server variable. The *request* parameter contains the original request data, and the *options* parameter allows for additional configuration during rendering. 
+The *renderList* function receives *aList* returned by the *getList* function and is responsible to render the list on the interface. The *server* value is the OpenAF http server variable. The *request* parameter contains the original request data, and the *options* parameter allows for additional configuration during rendering.
 
 Of course, the data returned by *getList* can be customized to be shown in a different way. For example, you can use the *renderList* function to show the list in a different format (e.g. as a table, as a list, etc.). You can also use it to add additional functionality (e.g. sorting, filtering, etc.).
 
@@ -234,8 +234,14 @@ The function should return a suitable OpenAF httpd server response using the ser
 
 **"renderEmpty" function**
 
-```js
+```text
 renderEmpty(request, options) : String
 ```
 
 The *renderEmpty* function receives a map with the browser request (e.g. request.uri, request.params, etc...). It should return a string with the content to be shown on the interface no object or list can be shown.
+
+## Filesystem boundary and current behavior
+
+The current local-filesystem implementation resolves requested paths under the configured canonical root. Parent traversal and symbolic links that resolve outside that root are rejected; directory listings omit entries that fail the same check. Choose `path` deliberately: its default is the process working directory. These path checks do not provide user authentication.
+
+Custom storage callbacks in `fns` must enforce the equivalent boundary for their own backend. File names and URL components are escaped by the shared browser implementation. See the [oJob-common reference](ojob-common-reference.md) for the pinned contract and the [module index](ojob-common-modules.md) for related upload, static-file and REST jobs.

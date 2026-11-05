@@ -1,0 +1,1595 @@
+---
+layout: default
+title: oJob-common job reference
+parent: oJob
+grand_parent: Guides
+---
+
+{% raw %}
+> Source: [ojob-common `130addf4`](https://github.com/OpenAF/oJob-common/blob/130addf46fb52ca733da6a66bf7b990430006caf/README.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
+# oJob-common
+
+![version](https://raw.githubusercontent.com/OpenAF/oJob-common/130addf46fb52ca733da6a66bf7b990430006caf/.github/version.svg)
+
+A set of base oJobs as common building blocks for custom oJobs.
+
+Check the documentation for some of them:
+
+| oJob-common | Description |
+| ----------- | ----------- |
+| [oJobBasics](#ojobbasics) | Basic init/done logging, sh command execution, etc. |
+| [oJobEmail](#ojobemail) | Send emails. |
+| [oJobSSH](#ojobssh) | SSH to execute commands and upload/download files. |
+| [oJobSQL](#ojobsql) | Query or execute SQL to a JDBC database. |
+| [oJobES](#ojobes) | Logging to ElasticSearch |
+| [oJobNet](#ojobnet) | Testing network connectivity |
+| [oJobHTTPd](#ojobhttpd) | Building a simple HTTP(s) server |
+| [oJobRest](#ojobrest) | Building a simple REST server |
+| [oJobBrowse](#ojobbrowse) | HTTP file browsing with customizable templates |
+| [oJobMCP](#ojobmcp) | MCP (Model Context Protocol) server functionality |
+| [oJobOPack](#ojobopack) | Simplified OPack creation |
+| [oJobRAID](#ojobraid) | Simplified RAID AF operation execution. |
+| [oJobWatchDog](#ojobwatchdog) | Helps build a cron-based process "watchdog". |
+| [oJobCh](#ojobch) | Channel operations (buffering, waiting) |
+| [oJobIO](#ojobio) | File I/O operations (copy, move, append, etc.) |
+| [oJobTest](#ojobtest) | Testing functionality with assertions and reports |
+| [oJobXLS](#ojobxls) | Excel file operations |
+| [oJobGIT](#ojobgit) | GIT repository operations |
+| [oJobDebug](#ojobdebug) | Debug utilities |
+
+## oJobBasics
+
+| oJobBasics jobs |
+|-----------------|
+| [oJob Start and Stop helpers](#ojob-start-and-stop-helpers) |
+| [oJob Sleep utilities](#ojob-sleep-utilities) |
+| [oJob sh](#ojob-sh) |
+| [oJob Stringify](#ojob-stringify) |
+| [oJob Set](#ojob-set) |
+| [oJob Path Set](#ojob-path-set) |
+| [oJob YAML](#ojob-yaml) |
+| [oJob Sort Array](#ojob-sort-array) |
+| [oJob Map Array](#ojob-map-array) |
+| [oJob Map](#ojob-map) |
+| [oJob Split into items](#ojob-split-into-items) |
+| [oJob Print list](#ojob-print-list) |
+| [oJob Print args](#ojob-print-args) |
+| [oJob Get kept result](#ojob-get-kept-result) |
+| [oJob Keep result](#ojob-keep-result) |
+| [oJob Switch](#ojob-switch) |
+| [oJob Sec Get](#ojob-sec-get) |
+| [oJob background processes](#ojob-background-processes) |
+| [oJob From global](#ojob-from-global) |
+| [oJob Args from JSON](#ojob-args-from-json) |
+| [oJob Args from YAML](#ojob-args-from-yaml) |
+| [oJob Jobs Report](#ojob-jobs-report) |
+
+### oJob Start and Stop helpers
+
+These utility jobs provide a consistent start/stop lifecycle:
+
+* **oJob Start** – emits an `init` log entry when processing begins.
+* **oJob Stop** – emits a `done` log entry when processing is complete.
+* **oJob Shutdown** – equivalent to `oJob Stop` but runs on shutdown so it can perform cleanup.
+* **oJob Exit** – terminates the current script immediately with exit code `0`.
+
+### oJob Sleep utilities
+
+Two convenience jobs delay execution by a fixed interval:
+
+* **oJob Sleep 1s** – sleeps for 1 second (1000 ms).
+* **oJob Sleep 5s** – sleeps for 5 seconds (5000 ms).
+
+### oJob sh
+
+This job runs a local shell command and accepts the following arguments:
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| cmd | String/Array | Yes | The command to execute (or an array of commands) |
+| quiet | Boolean | No | Determines if the stdout should be visible or not (default is false) |
+| directory | String | No | Sets the working directory for the command |
+| stdin | String | No | Provide any stdin needed |
+| exitcode | Number | No | Determines what exitcode should be consider success (default is 0) |
+| stdout | String | No | Captures the command stdout when `quiet` is true |
+| stderr | String | No | Captures the command stderr when `quiet` is true |
+| prefix | String | No | Prefix to prepend to each output line when `quiet` is false |
+| prefixLog | Boolean | No | Uses `log` instead of `print` when applying the prefix (default is false) |
+
+Example:
+
+````yaml
+include:
+  - oJobBasics.yaml
+
+jobs:
+  # Example to show 123
+  #
+  - name: Example Echo 123
+    to  : oJob sh
+    args:
+      cmd: echo 123
+
+  # Example to show how you can combine multiple commands
+  #
+  - name: Example with multiple commands
+    to  : oJob sh
+    args:
+      cmd:
+        - echo -- [You are in `pwd`] -------------
+
+        - >-
+          echo -- [Previous directory] ----------- &&
+          cd .. &&
+          ls -1
+
+        - >-
+          echo -- [Current directory] ------------ &&
+          cd . &&
+          ls -1
+
+  # Example to parse output
+  #
+  - name: Example to parse output
+    from: oJob sh
+    args:
+      quiet: true
+      cmd  : >-
+         curl -X GET "https://httpbin.org/json" -H "accept: application/json"
+
+    exec: |
+      print("STDOUT   = " + stringify(jsonParse(args.stdout)));
+      print("STDERR   = " + args.stderr);
+      print("EXITCODE = " + args.exitcode);
+
+  # Example to prepare cmd
+  #
+  - name: Example to prepare cmd
+    to  : oJob sh
+    exec: |
+      args.cmd = "echo " + new Date();
+
+todo:
+  - Example Echo 123
+  - Example with multiple commands
+  - Example to parse output
+  - Example to prepare cmd
+````
+
+### oJob Stringify
+
+Prints the result of a JavaScript expression as JSON.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| name | String | Yes | JavaScript expression or object to evaluate and stringify |
+| min | Boolean | No | If true, produces a minified JSON string |
+
+### oJob Set
+
+Assigns a value to a global variable.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| name | String | Yes | Global variable name to assign |
+| value | Any | No | Value to assign (defaults to `undefined`) |
+
+### oJob Path Set
+
+Assigns a value to a nested path of a global variable.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| name | String | Yes | Global variable name to assign |
+| path | String | No | Object path inside the global variable where the value should be stored |
+| value | Any | No | Value to assign (defaults to `undefined`) |
+
+### oJob YAML
+
+Prints the result of a JavaScript expression as YAML.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| name | String | Yes | JavaScript expression or object to evaluate and dump as YAML |
+
+### oJob Sort Array
+
+Sorts an array and stores the result in a global variable.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| name | String | Yes | Destination global variable name |
+| srcName | String | No | Source variable or expression to evaluate (defaults to `name`) |
+| reverse | Boolean | No | If true, reverses the sorted array |
+
+### oJob Map Array
+
+Maps an array of objects into a new array using selectors.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| name | String | Yes | Destination global variable name |
+| srcName | String | Yes | Source variable or expression that resolves to an array |
+| selectors | Array | No | Array of object path selectors to map (defaults to empty array) |
+| limit | Number | No | Optional limit for the number of entries to process |
+
+### oJob Map
+
+Applies a `$path`/JMESPath expression to derive a new value.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| name | String | Yes | Destination global variable name |
+| srcName | String | Yes | Source variable or expression to evaluate |
+| path | String | No | `$path`/JMESPath expression (defaults to empty string) |
+
+### oJob Split into items
+
+Splits a string from `args` into a list of maps stored in `args._list`.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| source | String | Yes | Object path to the string source within `args` |
+| separator | String | No | Separator used to split the string (defaults to newline) |
+
+### oJob Print list
+
+Prints the current list stored in `args._list` as YAML.
+
+### oJob Print args
+
+Prints the current `args` map or a specific sub-path as YAML.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| _path | String | No | Optional object path to print within `args` |
+
+### oJob Get kept result
+
+Retrieves a previously stored result created by **oJob Keep result**.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| ojobkeep.name | String | No | Name of the stored result (defaults to `default`) |
+| ojobkeep.keep | String | No | Optional object path to merge or assign from the kept result |
+
+Depending on the stored data type, the job will either merge maps into `args` or set `args._list` with the saved list.
+
+### oJob Keep result
+
+Stores the current job output so it can be reused later with **oJob Get kept result** or `oafGetResult`.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| ojobkeep.name | String | No | Name to associate with the stored result (defaults to `default`) |
+| ojobkeep.keep | String | No | Optional object path inside `args` to store instead of the whole result |
+
+If `args._list` exists it will be persisted; otherwise the whole `args` map (or the provided path) is kept.
+
+### oJob Switch
+
+Adds additional todo entries depending on the value of an argument.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| switchOn | String | Yes | Argument name whose value determines the todo list |
+| lowerCase | Boolean | No | If true, compares the value in lower case |
+| todos | Map | Yes | Map of todo arrays keyed by possible argument values |
+| default | Array | No | Todo array used when no matching key is found |
+
+### oJob Sec Get
+
+Retrieves secrets from an SBucket and maps them into `args`.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| secOut | String | No | Destination path within `args` for the loaded secret |
+| secKey | String | No | Key to retrieve from the SBucket (required unless `secIgnore` is true) |
+| secRepo | String | No | Repository containing the SBucket |
+| secBucket | String | No | SBucket name |
+| secPass | String | No | Password for the SBucket |
+| secMainPass | String | No | Repository password |
+| secFile | String | No | Specific SBucket file to load |
+| secDontAsk | Boolean | No | If true, avoids prompting for missing passwords |
+| secIgnore | Boolean | No | If true, ignore missing secret parameters |
+
+### oJob background processes
+
+These jobs will run a command in background and wait for all to finish if needed. oJob Process Launch expects:
+
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| cmd | String/Array | Yes | The command to execute (or an array of commands) in background. |
+| console | Boolean | No | Defines if stdout/stderr should be printed or not (defaults to true) |
+| success | String | No | Code to execute as a function in case of success. Receives a "res" map from executing a sh function. |
+| error | String | No | Code to execute as a function in case of error. Receives a "e" exception and a "cmd" with the original cmd argument. |
+
+Example:
+
+````yaml
+include:
+  - oJobBasics.yaml
+
+todo:
+  - Launch proc 1
+  - Launch proc 2
+  - oJob Process Wait
+
+jobs:
+  - name: Launch proc 1
+    to  :
+      - oJob Process Launch
+    args:
+      cmd    : "myProc1.sh"
+      success: "log(stringify(res, void 0, ''));"
+
+  - name: Launch proc 2
+    to  :
+      - oJob Process Launch
+    args:
+      cmd : "myProc2.sh"
+````
+
+### oJob From global
+
+This job will reset or merge a global variable map. Expects:
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| global | String | Yes | Load arguments from the global variable specified. |
+
+### oJob Args from JSON
+
+This job will load the args map from a JSON file. Expects:
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| file | String | Yes | The filepath to read the JSON file from. |
+| global | String | No | Alternatively load to the global variable specified. |
+
+### oJob Args from YAML
+
+This job will load the args map from a YAML file. Expects:
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| file | String | Yes | The filepath to read the YAML file from. |
+| global | String | No | Alternatively load to the global variable specified. |
+
+### oJob Jobs Report
+
+This job prints a job execution report on shutdown.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| format | String | No | Output in json, yaml or table format (defaults to table) |
+
+**Note:** you can also use the job "oJob Jobs Final Report" to output the report on shutdown.
+
+````yaml
+include:
+  - oJobBasics.yaml
+
+jobs:
+  # some jobs
+
+todo:
+  - oJob Jobs Final Report
+  # some todos
+````
+
+## oJobEmail
+
+| oJobEmail jobs |
+|-----------------|
+| [oJob Send email](#ojob-send-email) |
+
+### oJob Send email
+
+This job tries to send an email. Expects:
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| server | String | Yes | The email server to use. |
+| port | Number | No | The email server port to use. |
+| from | String | Yes | The email from address. |
+| to | Array | Yes | The email to addresses. |
+| cc | Array | No | The email cc addresses. |
+| bcc | Array | No | The email bcc addresses. |
+| isHTML | Boolean | No | Specifies if the email is in HTML format. |
+| subject | String | Yes | The email subject (a hbs template using args as data). |
+| output | String | Yes | The email body message (a hbs template using args as data). |
+| altOutput | String | No | The email body alternative message (defaults to message). |
+| credentials | Map | No | The email server credentials (user and pass). |
+| useSSL | Boolean | No | If the email server uses SSL. |
+| useTLS | Boolean | No | If the email server uses TLS. |
+| embedFiles | Array | No | Array of maps (with file and name) to embeded on the email. |
+| addAttachments | Array | No | Array of maps (with file, isInLine, name) to attach on the email. |
+| addImages | Array | No | Array of urls to images (only available if isHTML = true)- |
+| embedURLs | Array | No | Array of maps (with url and name) to embeded on the email. |
+| debug | Boolean | No | Determines if it should debug the process. |
+
+Example:
+
+smtp-config.yaml
+````yaml
+from       : my.email@some.domain
+server     : my.smtp.server
+credentials:
+  user: user1
+  pass: pass1
+useSSL     : true
+````
+
+sendEmail.yaml
+````yaml
+include:
+  - oJobEmail.yaml
+
+jobs:
+  - name: Send email test
+    from: oJob Args from YAML
+    to  : oJob Send email
+    args:
+      file   : smtp-config.yaml
+      to     :
+        - email1@some.domain
+      subject: Test email
+      output : My test email
+
+todo:
+  - Send email test
+````
+
+## oJobSSH
+
+### SSH Exec
+
+Executes commands on a SSH connection. The expected arguments are:
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| cmd | String/Array | Yes | A SSH command-line to execute or and array of it (keep in mind that this isn't bash) |
+| stdin | String | No | An optional SSH stdin for the command-line to execute |
+| chHosts | String | No | A channel with hosts configurations to use instead of individual config |
+| host | String | No | The SSH host |
+| port | Number | No | The SSH port (defaults to 22) |
+| login | String | No | The SSH login |
+| pass | String | No | The SSH pass |
+| key | String | No | The path to a SSH key file (optional) |
+| exitcode | Number | No | Determines what exitcode should be consider success (default is 0) |
+| sudo | String | No | Sudo's to the corresponding user to executing the command-line |
+| quiet | Boolean | No | Determines if no output of the command(s) execution should be provided (default to false) |
+
+Example:
+
+#### hosts.yaml
+
+````yaml
+- name : my host 1
+  host : host1.local
+  login: user1
+  pass : pass1234
+  key  : key.rsa
+
+- name : my host 2
+  host : host2.local
+  login: user1
+  pass : pass1234
+  key  : key.rsa
+````
+
+#### example.yaml
+
+````yaml
+include:
+  - oJobSSH.yaml
+
+ojob:
+  sequential: true
+
+jobs:
+  # Example to show 123
+  #
+  - name: Example Echo 123
+    deps:
+      - SSH Load hosts
+    to  : SSH Exec
+    args:
+      cmd: echo 123
+
+  # Example to show how you can combine multiple commands
+  #
+  - name: Example with multiple commands
+    deps:
+      - SSH Load hosts
+    to  : SSH Exec
+    args:
+      cmd:
+        - echo -- [You are in `pwd`] -------------
+
+        - >-
+          echo -- [Previous directory] ----------- &&
+          cd .. &&
+          ls -1
+
+        - >-
+          echo -- [Current directory] ------------ &&
+          cd . &&
+          ls -1
+
+  # Example to parse output
+  #
+  - name: Example to parse output
+    deps:
+      - SSH Load hosts
+    from: SSH Exec
+    args:
+      quiet: true
+      cmd  : >-
+         curl -X GET "https://httpbin.org/json" -H "accept: application/json"
+
+    exec: |
+      print("STDOUT   = " + stringify(jsonParse(args.stdout)));
+      print("STDERR   = " + args.stderr);
+      print("EXITCODE = " + args.exitcode);
+
+todo:
+  - name: SSH Load hosts
+    args:
+      chHosts: myhosts
+      file   : hosts.yaml
+
+  - name: Example Echo 123
+    args:
+      chHosts: myhosts
+
+  - name: Example with multiple commands
+    args:
+      chHosts: myhosts
+
+  - name: Example to parse output
+    args:
+      chHosts: myhosts
+
+````
+
+## oJobSQL
+
+Allows for easy SQL query or executiong in any JDBC database.
+
+Basic example:
+````yaml
+consts:
+  dbJDBC: &jdbcurl  jdbc:oracle:thin:@1.2.3.4:1521:ORCL
+  dbUser: &jdbcuser scott
+  dbPass: &jdbcpass tiger
+
+include:
+  - ojobSQL.yaml
+
+jobs:
+  ########################
+  - name: Get current date
+    from: SQL
+    args:
+      DBURL : *jdbcurl
+      DBUser: *jdbcuser
+      DBPass: *jdbcpass
+      sql   : select current_date cd, sysdate sd from dual
+    exec: |
+      tprint("Current date = {{CD}}", args.output[0]);
+      tprint("System date  = {{SD}}", args.output[0]);
+
+  ##########################
+  - name: Get generated data
+    from: SQL RAID
+    args:
+      DBURL : *jdbcurl
+      DBUser: *jdbcuser
+      DBPass: *jdbcpass
+      format : table
+      sql    : |
+        SELECT level, current_date, sysdate
+        FROM   dual
+        CONNECT BY level <= 10
+
+todo:
+  - Get current date
+  - Get generated data
+````
+
+Example using RAID:
+
+````yaml
+consts:
+  raidURL: &raidurl http://user:pass@1.2.3.4:1234/xdt
+  raidDB : &raiddb  Dat
+
+include:
+  - ojobSQL.yaml
+
+jobs:
+  ########################
+  - name: Get current date
+    from: SQL RAID
+    args:
+      raidURL: *raidurl
+      raidDB : *raiddb
+      sql    : select current_date cd, sysdate sd from dual
+    exec: |
+      tprint("Current date = {{CD}}", args.output[0]);
+      tprint("System date  = {{SD}}", args.output[0]);
+
+  ##########################
+  - name: Get generated data
+    from: SQL RAID
+    args:
+      raidURL: *raidurl
+      raidDB : *raiddb
+      format : table
+      sql    : |
+        SELECT level, current_date, sysdate
+        FROM   dual
+        CONNECT BY level <= 10
+
+todo:
+  - Get current date
+  - Get generated data
+````
+
+## oJobES
+
+### Start Log to ES
+
+Starts logging to ElasticSearch. Expects:
+
+| Argument | Type | Description |
+|----------|------|-------------|
+| url | String | The ElasticSearch cluster URL |
+| index | String | An ElasticSearch index name (it will be suffixed automatically with the current date) |
+| format | String | The format of the date if different from day |
+| host | String | A LogStash like host to identify in each entry |
+| user | String | A user name |
+| pass | String | A password (encrypted or not) |
+
+Example:
+
+````yaml
+include:
+  - oJobES.yaml
+
+# [...]
+
+# Log to ElasticSearch
+todo:
+  - name: Start Log to ES
+    args:
+      url  : http://my.es.cluster
+      index: mylogs
+      host : myjob
+````
+
+Example by week:
+
+````yaml
+include:
+  - oJobES.yaml
+
+# [...]
+
+# Log to ElasticSearch
+todo:
+  - name: Start Log to ES
+    args:
+      url   : http://my.es.cluster
+      index : mylogs
+      format: yyyy.ww
+      host  : myjob
+````
+
+### Stop ES Logging
+
+Stops logging to ElasticSearch.
+
+Example:
+````yaml
+# Stop logging to ElasticSearch
+todo:
+  - Stop ES logging
+````
+
+## oJobNet
+
+_tbc_
+
+## oJobHTTPd
+
+Simplifies the creation of one or more HTTP(s) server where you just provide which functions to run for each URI on a http(s) server. The function will receive all the requests parameters and return the content for the browser. If you wish to return JSON please check [oJobRest](#ojobrest).
+
+It's composed of 3 jobs:
+* HTTP Start Server
+* HTTP Stop Server
+* HTTP Service
+* HTTP File Browse
+
+The job "HTTP Start Server" expects:
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| port | Number | No | The port number where to assign the HTTP(s) server (defaults to 8091) |
+| keystore | String | No | The keystore for the SSL certificates to create a HTTPS server |
+| pass | String | No | The password for the keystore to create a HTTPS server |
+| host | String | No | The ip address of the local network interface to which to bind this HTTP server (defaults to 0.0.0.0) |
+| uriPrefix | String | No | Optionally a URI prefix to be applied to all routes |
+| cp | String | No | Provide a folder where the keystore file is to include it on the current classpath (Java requires for keystores to be on the execution classpath) |
+| hs | HTTPServer object | No | An already created HTTPServer to which to bind the HTTP services |
+| mapLibs | Boolean | No | Map internal OpenAF libs like JQuery, highlight css, etc. |
+
+The job "HTTP Stop Server" expects:
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| port | Number | No | The port number where to assign the HTTP(s) server (defaults to 8091) |
+
+The job "HTTP service" expects:
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| port | Number | No | The port number where to assign the HTTP(s) server (defaults to 8091) |
+| uri | String | No | The URI where the HTTP(s) service will be available. |
+| execURI | String | Yes | The code to execute whenever the uri is requested. The code is included into a function that receives the arguments: request and server. "request" is a map containing all the request properties. "server" is the HTTPServer object for which you should use replyOKText, replyOKJSON, etc. |
+
+The job "HTTP File Browse" expects:
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| port | Number | No | The port number where to assign the HTTP(s) server (defaults to 8091) |
+| uri | String | No | The URI where the HTTP(s) service will be available. |
+| path | String | Yes | The canonical path to the file path that will be made available for browsing. |
+| browse | String | No | If "false" no browsing interface will be included. |
+
+Example:
+````yaml
+include:
+  - oJobHTTPd.yaml
+
+ojob:
+  daemon: true
+
+jobs:
+  - name: Hello world
+    to  : HTTP Service
+    args:
+      port   : 8080
+      uri    : /
+      execURI: return server.replyOKText("Hello world!");
+
+  - name: Echo
+    to  : HTTP Service
+    args:
+      port   : 8080
+      uri    : /echo
+      execURI: return server.replyOKJSON(stringify(request));
+
+  - name: Browser
+    to  : HTTP File Browse
+    args:
+      port: 8080
+      uri : /browser
+      path: .
+
+  - name: README
+    to  : HTTP Service
+    args:
+      port   : 8080
+      uri    : /README
+      execURI: return ow.server.httpd.replyFileMD(server, ".", "/README", request.uri, void 0, [ "README.md" ]);
+
+todo:
+
+  # Starts the server
+  - name: HTTP Start Server
+    args:
+      port   : 8080
+      mapLibs: true
+
+  # Sets a shutdown job once the everything is stopped.
+  - name: HTTP Stop Server
+    args:
+      port: 8080
+
+  # Sets for every URI to return Hello world
+  - Hello world
+
+  # Sets that /echo will return the actual request map
+  - Echo
+
+  # Sets that /README shows this README.md file
+  - README
+
+  # Sets that /browser shows a simple browse interface for the current directory.
+  - Browser
+````
+
+## oJobREST
+
+In the same line as oJobHTTPd simplifies the specific creation of REST HTTP(s) servers.
+
+It's composed of 3 jobs:
+* REST Start Server
+* REST Stop Server
+* REST Service
+
+The job "REST Start Server" expects:
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| port | Number | No | The port number where to assign the HTTP(s) server (defaults to 8091) |
+| keystore | String | No | The keystore for the SSL certificates to create a HTTPS server |
+| pass | String | No | The password for the keystore to create a HTTPS server |
+| host | String | No | The ip address of the local network interface to which to bind this HTTP server (defaults to 0.0.0.0) |
+| cp | String | No | Provide a folder where the keystore file is to include it on the current classpath (Java requires for keystores to be on the execution classpath) |
+| hs | HTTPServer object | No | An already created HTTPServer to which to bind the HTTP services |
+| mapLibs | Boolean | No | Map internal OpenAF libs like JQuery, highlight css, etc. |
+
+The job "REST Stop Server" expects:
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| port | Number | No | The port number where to assign the HTTP(s) server (defaults to 8091) |
+
+The job "REST service" expects:
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| port | Number | No | The port number where to assign the HTTP(s) server (defaults to 8091) |
+| uri | String | No | The URI where the HTTP(s) service will be available. |
+| execGET | String | Yes | The code to execute whenever the uri is requested with a GET verb. The code is included into a function that receives the argument: idxs. "idxs" is a map containing all the parameters from the URL. |
+| execPOST | String | Yes | The code to execute whenever the uri is requested with a POST verb. The code is included into a function that receives the arguments: idxs and data. "idxs" is a map containing all the parameters from the URL. "data" is a map containing all the parameters passed on the request body. |
+| execPUT | String | Yes | The code to execute whenever the uri is requested with a PUT verb. The code is included into a function that receives the arguments: idxs and data. "idxs" is a map containing all the parameters from the URL. "data" is a map containing all the parameters passed on the request body. |
+| execDELETE | String | Yes | The code to execute whenever the uri is requested with a DELETE verb. The code is included into a function that receives the argument: idxs. "idxs" is a map containing all the parameters from the URL. |
+| returnWithParams | Boolean | No | Changes the behaviour of the return of each exec* function to use a map to force mimetype, http code, etc. (see help ow.server.rest.reply for more details) |
+| error | Boolean | No | If true and an error occurs in execGET, execPOST, execPUT or execDELETE will return a map with the exception in a map with a key __error (defaults to true) |
+
+## oJobOPack
+
+Simplifies the creation of oPack files based on an url or oPack name.
+
+The job "oPack Pack external" expects:
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| name | String | Yes | The name or URL to an oPack |
+| tmpDir | String | No | The temporary folder to use during the process (defaults to ./tmp) |
+| outputDir | String | No | Output folder where the oPack will be placed (defaults to .) |
+
+With `filePath`, the existing source directory is preserved. Package file entries
+must remain inside that directory, including symlink targets. Package names and
+versions must be single path components. `withSymLink` creates
+`<pack.name>.opack` using the filesystem API, without invoking a shell.
+
+Example:
+
+````yaml
+include:
+  - oJobOPack.yaml
+
+todo:
+  - name: oPack Pack external
+    args:
+      - name  : https://raw.githubusercontent.com/OpenAF/nAttrMon/master
+        tmpDir: nAttrMon
+
+      - name  : APIs
+        tmpDir: APIs
+
+      - name  : GoogleCompiler
+        tmpDir: GoogleCompiler
+
+      - name  : GooglePhoneNumber
+        tmpDir: GooglePhoneNumber
+````
+
+## oJobRAID
+
+Simplified RAID AF operation execution.
+
+Expects:
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| raidURL | String | Yes | A RAID AF connection URL. |
+| operation | String | Yes | The RAID AF operation to execute. |
+| input | Map | No | The RAID AF operation input map. |
+| format | String | No | If not quiet it displays the result on a format you can choose between "prettyprint" (default), "pmap", "parametermap", "yaml" or "json" |
+| quiet | Boolean | No | If true no output will be displayed. |
+
+````yaml
+include:
+  - oJobRAID.yaml
+
+todo:
+  - name: RAID AF
+    args:
+      raidURL  : http://user:pass@127.0.0.1:8090/#/web/guest/home
+      operation: Ping
+      input    :
+        test: 123
+      format   : prettyprint
+````
+
+## oJobWatchDog
+
+Helps build a cron-based process "watchdog" for checking if a daemon process isn't running, has a "fatal" error on the log or any custom way to check the responsive of the daemon process.
+
+Expects:
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| checks | Map | No | Map of checks to determine if the daemon process should be restarted or not. |
+| checks.pid.file | String | No | If a pid file location is provided it will check if the corresponding pid is running. If not it sets to trigger a stop and start operation. |
+| checks.log.folder | String | No | Folder where the log files to check are located. |
+| checks.log.fileRE | String | No | Checks for files matching fileRE choosing the latest by modified date. |
+| checks.log.stringRE | String/Array | No | Regular expression or array of expressions to look for. A match triggers recovery independently of `olderMin`. |
+| checks.log.histFile | String | For pattern checks | Stores the history of findings to avoid duplicate findings. Not needed for age-only checks. |
+| checks.log.olderMin | Number | No | Triggers recovery if the latest matching log file is older than this many minutes. Does not require `stringRE` or `histFile`. |
+| checks.custom.exec | String | No | Executes the corresponding code in a function and passes if returns true or fails assuming a restart is needed if returns false. |
+| quiet | Boolean | No | If true will only produce logging if something is not right (default is true) |
+| cmdToStop | String | No | If defined will execute the command on the stop event. |
+| execToStop | String | No | If defined will execute the code on the stop event. |
+| jobToStop | String | No | If defined will execute the job on the stop event. |
+| waitAfterStop | Number | No | Number of ms to wait after stopping. |
+| workDirStop | String | No | The working directory to use for the stop command. |
+| timeoutStop | Number | No | Timeout waiting for cmdToStop to exit. |
+| exitCodeStop | Number | No | If defined the cmdToStop exitcode must be this value. |
+| cmdToStart | String | No | Command to startup on the start event (make sure it exits after starting). |
+| execToStart | String | No | If defined will execute the code on the start event. |
+| jobToStart | String | No | If defined will execute the job on the start event. |
+| waitAfterStart | Number | No | Number of ms to wait after starting. |
+| workDirStart | String | No | The working directory to use for startup command. |
+| timeoutStart | Number | No | Timeout waiting for cmdToStart to exit. |
+| exitCodeStart | Number | No |  If defined the cmdToStart exitcode must be this value. |
+
+Example:
+
+````yaml
+include:
+  - oJobWatchDog.yaml
+
+ojob:
+  logToFile   :
+    logToFolder          : /some/path/watchdog.logs
+    HKhowLongAgoInMinutes: 11152
+    setLogOff            : false
+  logToConsole: false
+  logJobs     : false
+  unique      :
+    pidFile     : /some/path/watchdog.pid
+    killPrevious: false
+  checkStall  :
+    everySeconds    : 1
+    killAfterSeconds: 60
+
+jobs:
+  - name: Watch my logya daemon
+    to  : oJob WatchDog
+    args:
+      checks  :
+        pid:
+          file: /some/path/a.pid
+        log   :
+          folder  : /some/path/logya
+          fileRE  : log-\d+-\d+-\d+.log
+          histFile: /some/path/logya/logya.json
+          stringRE: OutOfMemory
+        custom:
+          exec: |
+            print(123);
+            return false;
+
+      cmdToStart    : start ojob /some/path/a.yaml
+      workDirStart  : /some/path/
+      waitAfterStart: 5000
+
+      execToStop    : |
+        pidKill(io.readFileString("/some/path/a.pid"), true);
+
+      quiet         : false
+
+todo:
+  - nAttrMon watchdog
+````
+
+---
+
+## oJobMCP
+
+Provides MCP (Model Context Protocol) server functionality for handling requests and executing jobs via HTTP or STDIO transport.
+
+### HTTP MCP Server
+
+Starts a MCP server that listens for HTTP requests and executes jobs based on the requests.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| port | Number | Yes | The port to listen on |
+| uri | String | No | The URI to handle requests (defaults to "/mcp") |
+| usestream | Boolean | No | If true, returns MCP responses as HTTP SSE stream events (defaults to false) |
+| debug | Boolean | No | If true, debug messages will be logged (defaults to false) |
+| description | Map | No | Metadata for the MCP server (protocol version, server info, capabilities) |
+| toolPrefix | String | No | Prefix for exposed wire tool names; does not change the source `fns` keys (defaults to empty) |
+| fnsMeta | Map | No | Metadata for the functions available in the MCP server (defaults to {}) |
+| fns | Map | Yes | Functions/jobs to be executed when called from the MCP server |
+| authtoken | String | No | If defined (or env `OJOB_MCP_AUTH_TOKEN`), requires this bearer token on every request. If not defined, no authentication is enforced |
+| authheader | String | No | The request header to read the credential from (default `"authorization"`, or env `OJOB_MCP_AUTH_HEADER`) |
+| authscheme | String | No | The authorization scheme prefix expected before the token (default `"Bearer"`, or env `OJOB_MCP_AUTH_SCHEME`) |
+| authrealm | String | No | The realm reported in the `WWW-Authenticate` challenge (default is the MCP server's name, or env `OJOB_MCP_AUTH_REALM`) |
+| authchallenge | Boolean | No | If true (default), unauthenticated/unauthorized requests receive a `WWW-Authenticate` header (or env `OJOB_MCP_AUTH_CHALLENGE`) |
+| authapiurl | String | No | If defined (or env `OJOB_MCP_AUTH_API_URL`), validates the bearer credential by calling this URL instead of comparing it against `authtoken`. The incoming auth header is forwarded verbatim, along with the MCP context headers `X-OJob-MCP-URI`, `X-OJob-MCP-Port`, `X-OJob-MCP-Name`, `X-OJob-MCP-Title`, `X-OJob-MCP-Version`, `X-OJob-MCP-Protocol-Version`, `X-OJob-MCP-Tool-Prefix`, and `X-OJob-MCP-Stream`. A 2xx response means valid; any other response, or a request error/timeout, means invalid (fails closed). Mutually exclusive with `authtoken` — `authapiurl` takes precedence if both are set |
+| authapimethod | String | No | HTTP method used for the `authapiurl` validation call (default `"GET"`, or env `OJOB_MCP_AUTH_API_METHOD`) |
+| authapitimeout | Number | No | Timeout in milliseconds for the `authapiurl` validation call (default `5000`, or env `OJOB_MCP_AUTH_API_TIMEOUT`) |
+| authapicachettl | Number | No | If greater than 0, caches a token's `authapiurl` validation result in memory for this many milliseconds (default `0`, disabled; or env `OJOB_MCP_AUTH_API_CACHE_TTL`) |
+| authapicachemax | Number | No | Maximum number of entries kept in the `authapiurl` validation cache (default `1000`, or env `OJOB_MCP_AUTH_API_CACHE_MAX`). Expired entries are evicted first, then the entry closest to expiring, so distinct credentials cannot grow the cache without limit |
+| audit | Boolean | No | If true (or env `OJOB_MCP_AUDIT`), logs every tool call (tool name, arguments, User-Agent and, when available, client IP) via OpenAF's `log()` function (defaults to false). The IP is best-effort, read from the `X-Forwarded-For`/`X-Real-IP` request headers, since OpenAF's HTTP server does not expose the raw socket address — it is only populated behind a reverse proxy that sets one of those headers. Logged values are attacker-controlled, so the tool name, argument keys and string values are stripped of CR/LF and capped at 256 characters before being written, keeping one audit record on one line; the tool job and any audit webhooks still receive the untouched values. The client IP is taken from request headers a caller can set, so treat it as a hint rather than as proof of origin |
+
+With `modern: true` (or `OJOB_MCP_MODERN=true`), both HTTP response modes acknowledge client notifications `notifications/initialized`, `notifications/cancelled`, and `notifications/roots/list_changed` with HTTP 202 and an empty body, including for clients using the legacy initialize handshake. This avoids older OpenAF dispatchers returning “Method not found” for roots-change notifications (for example, from Google Antigravity). These notifications are accepted as no-ops; the job does not cache client roots or implement cancellation. Authentication still applies. This compatibility handling does not change STDIO or `modern: false` behavior.
+
+HTTP dispatch accepts only own entries in `fns`. HTTP and STDIO reject nested
+tool argument keys `__proto__`, `constructor` and `prototype` before job execution.
+HTTP `_httprequest` metadata is server-owned: client arguments cannot replace it,
+and credential headers are removed before it reaches the job.
+
+**Error Handling:** Jobs can signal errors by returning a map with an `_err` property. When `_err` is present in the job result, the MCP server will treat it as an error response with `isError: true` and return the error message to the client.
+
+Example:
+
+```yaml
+include:
+  - oJobMCP.yaml
+
+ojob:
+  daemon: true
+
+jobs:
+  - name: ping
+    exec: |
+      args.text = "PONG!"
+
+  - name: echo
+    exec: |
+      args.text = args.text
+
+todo:
+  - (httpdStart): 17878
+  - (httpdMCP): 17878
+    ((debug)): true
+    ((uri)): "/mcp"
+    ((usestream)): false
+    ((fnsMeta)):
+      ping:
+        name: ping
+        description: Pings the server
+        inputSchema:
+          type: object
+          properties:
+            text:
+              type: string
+              description: Text to return
+          required: ["text"]
+      echo:
+        name: echo
+        description: Echoes the input
+        inputSchema:
+          type: object
+          properties:
+            text:
+              type: string
+              description: Text to echo
+          required: ["text"]
+    ((fns)):
+      ping: ping
+      echo: echo
+```
+
+### STDIO MCP Server
+
+Starts a MCP stdio server to handle requests with execution of jobs.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| debug | String | No | If defined, creates an ndjson file with the provided name for debugging |
+| description | Map | No | Metadata for the MCP server (protocol version, server info, capabilities) |
+| toolPrefix | String | No | Prefix for exposed wire tool names; does not change the source `fns` keys (defaults to empty) |
+| fnsMeta | Map | No | Metadata for the functions available in the MCP server (defaults to {}) |
+| fns | Map | Yes | Functions/jobs to be executed when called from the MCP server |
+
+**Error Handling:** Jobs can signal errors by returning a map with an `_err` property. When `_err` is present in the job result, the STDIO MCP server will throw the error message as an exception, which will be returned to the client as an error response.
+
+For both transports, `OJOB_MCP_TOOLS_INCLUDE` and `OJOB_MCP_TOOLS_EXCLUDE` are optional environment variables parsed as JSON/SLON arrays of exact, unprefixed `fns` keys. An unset or empty include list allows all tools; exclusions take precedence. For example, `OJOB_MCP_TOOLS_INCLUDE='["ping", "echo"]' OJOB_MCP_TOOLS_EXCLUDE='["echo"]' ojob my-mcp.yaml` exposes only `ping`. Tool prefixes affect only the MCP wire name, not filtering.
+
+### Asynchronous tool audit webhooks
+
+HTTP (including streaming) and STDIO MCP support optional JSON HTTP POST notifications:
+
+| Environment variable | Description |
+|----------------------|-------------|
+| `OJOB_MCP_PREHOOK_URL` | Receives an event scheduled before the tool job executes. Unset or blank disables it. |
+| `OJOB_MCP_POSTHOOK_URL` | Receives an event scheduled after the tool completes or fails. Unset or blank disables it. |
+| `OJOB_MCP_HOOK_TIMEOUT` | Positive timeout in milliseconds for each HTTP request, including a whole-call timeout. Defaults to `5000`; invalid values use the default. |
+| `OJOB_MCP_HOOK_INCLUDE_ARGS` | Boolean. Set to `true` to include input `arguments` in both pre/post POST bodies. Defaults to `false`; omitted arguments are not copied or serialized. |
+| `OJOB_MCP_HOOK_INCLUDE_RESULT` | Boolean. Set to `true` to include the output `result` or `error` text in the posthook POST body. Defaults to `false`; omitted outputs are not serialized for hooks. |
+| `OJOB_MCP_HOOK_INCLUDE_HEADERS` | Boolean. Set to `true` to include the incoming HTTP request `headers` in both pre/post POST bodies (HTTP transports only). Defaults to `false`. The MCP auth credential is always removed first -- both the `authorization` header and whatever `authheader`/`OJOB_MCP_AUTH_HEADER` names -- matched case-insensitively. |
+| `OJOB_MCP_HOOK_MAX_INFLIGHT` | Positive maximum number of deliveries in flight at once. Defaults to `64`; invalid values use the default. Events above the cap are dropped immediately (never queued) and logged as `MCP audit webhook dropped (in-flight cap reached)`. |
+| `OJOB_MCP_HOOK_MAX_BODY` | Positive maximum size, in characters, of a single event body. Defaults to `65536`; invalid values use the default. An oversized event is re-sent with `arguments`, `result`, `error` and `headers` removed and `truncated: true` set, so metadata still arrives. |
+| `OJOB_MCP_HOOK_AUTH_TOKEN` | If set, sent as a credential on every hook request so the receiver can authenticate the events. Unset (default) means the events are sent unauthenticated. |
+| `OJOB_MCP_HOOK_AUTH_HEADER` | Header carrying `OJOB_MCP_HOOK_AUTH_TOKEN` (default `authorization`). |
+| `OJOB_MCP_HOOK_AUTH_SCHEME` | Scheme prefixed to the token (default `Bearer`); a blank value falls back to the default. |
+
+Either hook can be enabled independently; they do not require `audit=true`. Settings are read when the MCP server job starts.
+
+Payload flags are independent and enable sending only when their value is `true` (case-insensitive, ignoring surrounding whitespace). Unset, blank, `false`, and other values disable sending. By default, events contain metadata only, including `isError` on post events. To include full payloads, set `OJOB_MCP_HOOK_INCLUDE_ARGS=true` and/or `OJOB_MCP_HOOK_INCLUDE_RESULT=true`.
+
+Lightweight metrics remain available with both payload flags disabled:
+
+| Field | Meaning |
+|-------|---------|
+| `argumentCount` | Number of supplied top-level argument keys before the job executes (both events). Empty or non-map arguments count as zero; nested values are not traversed or serialized. |
+| `isError` | Whether the tool call failed (post events), independent of whether error text is included. |
+| `durationMs` | Elapsed milliseconds from prehook context creation through tool execution and response preparation (post events). Includes local audit/hook preparation overhead, but does not wait for webhook delivery. |
+| `startedAt`, `timestamp` | Call start and event timestamps in Unix milliseconds. |
+
+Counting arguments does not read their values. No payload byte-size calculation or deep inspection is performed.
+
+```sh
+OJOB_MCP_PREHOOK_URL=https://audit.example.com/mcp/events \
+OJOB_MCP_POSTHOOK_URL=https://audit.example.com/mcp/events \
+OJOB_MCP_HOOK_TIMEOUT=3000 \
+ojob my-mcp.yaml
+```
+
+Both events contain `phase` (`pre` or `post`), `callId` (a generated UUID shared by the pair), `startedAt` and `timestamp` (Unix milliseconds), `server` (serverInfo metadata), `transport` (`http` or `stdio`), `tool` (unprefixed name), and `wireTool` (exposed name). When `OJOB_MCP_HOOK_INCLUDE_ARGS=true`, they also contain `arguments` (a snapshot before job execution). HTTP events also include `client` with the same best-effort `ip`, `hip`, and `ua` metadata used by auditing.
+
+Post events always add `durationMs` and `isError`. When `OJOB_MCP_HOOK_INCLUDE_RESULT=true`, they also include `result` when defined. HTTP results are captured after oJobMCP response conversion, before protocol wrapping. STDIO results are the cleaned job return value before the OpenAF STDIO MCP layer formats it; thrown exceptions and `_err` failures instead set `error` to the error text when output inclusion is enabled. Only calls that resolve to a known, enabled tool fire hooks: an unknown or disabled tool name is attacker-controlled and unbounded, so it is answered with an error but never turned into a POST on the receiver. STDIO calls rejected by OpenAF before reaching a registered tool are likewise not reported.
+
+Delivery uses OpenAF `$doV` and does not wait for the receiver. The prehook cannot approve or block execution, and pre/post events may arrive out of order; correlate them with `callId`. Each event gets one delivery attempt, with no retry, persistence, or shutdown drain. Deliveries are capped at `OJOB_MCP_HOOK_MAX_INFLIGHT` at a time and anything above that is dropped rather than queued, so a slow or hanging receiver cannot make tool traffic pile up outstanding deliveries and sockets. A non-2xx response or delivery failure logs a generic error without changing the tool outcome. Pending events can be lost when the process exits.
+
+When enabled, payload fields include full tool arguments and results, which may contain sensitive data. Incoming HTTP request headers are not attached unless `OJOB_MCP_HOOK_INCLUDE_HEADERS=true`, and the MCP auth credential is stripped from them even then -- but headers still carry cookies and API keys, so enable it only against a trusted receiver. Set `OJOB_MCP_HOOK_AUTH_TOKEN` so the receiver can tell genuine events from forged ones, and prefer an `https://` URL: hook URLs are used as given and a cleartext `http://` receiver exposes everything the events carry. Account for any secrets returned by your tools or supplied in their arguments.
+
+## oJobBrowse
+
+Provides HTTP file browsing functionality with customizable templates and multiple rendering options.
+
+### HTTP Browse generic
+
+Generic HTTP browse service with customizable templates and functions.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| port | Number | No | The port where the server was made available (defaults to 8091) |
+| uri | String | No | The URI where the HTTP Browse will be available (defaults to "/") |
+| path | String | No | The base path for browsing (defaults to "") |
+| templates | Map | No | Map with templates to be used |
+| fns | Map | No | Map with functions for template rendering (getList, getObj, renderList, renderObj, renderEmpty, init) |
+| options | Map | No | Map with options to be passed (browse, default, logo, showURI, sortTab, sortTabAsc, footer) |
+
+Pagination:
+- `renderList` will render pager controls when the list metadata includes `pageInfo` with `page`, `pageSize`, and `total`.
+- If `pageInfo` is not present, it falls back to query parameters `page` and `pageSize`.
+
+Sorting:
+- `sortTab` (Boolean, defaults to false) includes a client-side table sorting script, adding sort controls to each column header.
+- `sortTabAsc` (Boolean, defaults to false) requires `sortTab` to also be true, and pre-selects an ascending sort on the first file/folder field column when the page loads.
+
+### HTTP Browser API
+
+HTTP API to access `getList`/`getObj` for any `HTTP Browse generic` instance.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| port | Number | No | The port where the server was made available (defaults to 8091) |
+| uri | String | No | The URI where the HTTP Browser API will be available (defaults to "/api/browse") |
+| browseUri | String | No | The HTTP Browse generic URI to target (can be overridden by request param `browseUri`) |
+
+Query parameters:
+- `action`: `list` (default) or `obj`.
+- `path`: Optional relative path appended to the target browse URI.
+- `raw`: When `true`, streams the object response if possible.
+
+### HTTP Browser
+
+HTTP browser service based on existing types (e.g., ow.server.httpd.browse.files).
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| port | Number | No | The port where the server was made available (defaults to 8091) |
+| uri | String | No | The URI where the HTTP Browser will be available (defaults to "/") |
+| type | String | No | The type of HTTP Browser services (defaults to "files") |
+| options | Map | No | Map with options to be passed to the browser type |
+
+## oJobCh
+
+Channel operations for buffering and managing data flow between channels.
+
+### oJob Ch Start Buffering
+
+Creates a buffering channel between a source and a target channel.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| source | String | Yes | The source channel name |
+| target | String | Yes | The target channel name |
+| id | String/Array | Yes | A string or array of fields that uniquely identify records |
+| byNumber | Number | No | Limit number of records to buffer |
+| byTimeInMs | Number | No | Limit time in ms to hold records in buffer |
+| filterFunc | String | No | Function to filter what gets buffered |
+| bufferFunc | String | No | Function to determine when to flush the buffer |
+
+Note: Use oJob Ch Stop Buffering to flush pending records and release the buffer's resources. It removes all subscriptions registered by Start Buffering for the source and keeps the source and destination channels available.
+
+### oJob Ch Stop Buffering
+
+Stops buffering between a source and a target channel.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| source | String | Yes | The source channel name |
+| target | String | Yes | The target channel name |
+
+### oJob Ch Wait For Jobs
+
+Waits for the jobs associated with a channel.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| name | String | Yes | The channel name |
+| timeout | Number | No | Optionally provide a timeout for the wait in ms |
+
+## oJobIO
+
+File I/O operations for manipulating files and directories.
+
+### IO Append File
+
+Appends a line or lines to a file.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| target | String | Yes | The text file to which the line will be appended |
+| line | String/Array | Yes | The line(s) to be appended |
+| separator | String | No | Separator (defaults to '\n') |
+
+### IO Find & Replace
+
+Finds and replaces text in a file using regular expressions.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| target | String | Yes | The text file to be changed |
+| search | String | Yes | The regular expression used for replacing |
+| flags | String | No | Optional regular expression flags for search |
+| replace | String | Yes | The replace text |
+| separator | String | No | Separator (defaults to '\n') |
+| byline | Boolean | No | Replace line by line when true; load the whole file when false (defaults to true) |
+
+Line-by-line replacement applies `flags` to each line and writes to a temporary file beside the resolved target, preserving its file attributes. Symbolic links remain links and their targets are updated. The target is replaced only after processing and stream closure succeed; failures remove the temporary file and leave the original intact.
+
+### IO MV File
+
+Moves a source to a target.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| source | String | Yes | Source to move from |
+| target | String | Yes | Target to move to |
+
+### IO RM File
+
+Removes a file or directory recursively.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| filepath | String | Yes | The filepath (file or directory) to remove |
+
+### IO CP File
+
+Copies a source to a target.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| source | String | Yes | Source to copy from |
+| target | String | Yes | Target to copy to |
+
+### IO List files
+
+List files from a local filepath to args.files array.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| path | String | Yes | The filepath to list files from |
+| recursive | Boolean | No | Recursive file list (defaults to false) |
+
+### IO List filenames
+
+List filenames from a local filepath to args.files array.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| path | String | Yes | The filepath to list files from |
+| fullpath | Boolean | No | Include the fullpath with each file (defaults to true) |
+
+### IO Modify text file
+
+Replaces the first exact occurrence of `find` in a configuration file, preserving surrounding text and line endings. Both `find` and `replace` are literal strings and may span multiple lines; no trailing newline is required. If no match exists, appends `replace`; if the file is missing, creates it. Replacement is staged in a temporary file with the original's file attributes. Symbolic links remain links and their targets are updated.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| file | String | Yes | The file for find/replace |
+| find | String | Yes | The string to find |
+| replace | String | Yes | The string to replace |
+
+## oJobTest
+
+Testing functionality with assertions, test execution, and result reporting.
+
+### oJob Assert
+
+Asserts that two values are equal.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| a | Any | Yes | The 'a' value |
+| b | Any | Yes | The 'b' value |
+| msg | String | Yes | The message to display if the assert fails |
+
+### oJob Test
+
+Tests a function or job with optional asserts.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| name | String | No | Test name (defaults to job name) |
+| func | Function/String | No | The function to execute and test |
+| job | String | No | The ojob to execute and test |
+| count | Number | No | Number of test repeats (defaults to 1) |
+| asserts | Array | No | Array of assert maps with 'path', 'value', and 'msg' |
+| debug | Boolean | No | If true, outputs debug information |
+
+### oJob Test sh
+
+Tests a shell command.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| name | String | No | Test name (defaults to job name) |
+| cmd | String | Yes | The shell command to test |
+
+### oJob Test Results
+
+Prints or outputs test results with profile information.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| quiet | Boolean | No | If true, won't output results to stdout (defaults to false) |
+| noprofile | Boolean | No | If true, won't include profile results (defaults to false) |
+| key | String | No | If defined, outputs results to the provided key |
+
+### oJob Generate Markdown
+
+Generates a Markdown document with test results.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| key | String | No | If 'file' not defined, output to key and path |
+| path | String | No | Path within key to store markdown output |
+| file | String | No | If defined, outputs markdown to the provided file |
+| includeLogs | Boolean | No | If true, includes logs in markdown (defaults to false) |
+
+### oJob Generate JSON results
+
+Generates JSON output with test results.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| file | String | No | If defined, outputs JSON to file; "-" outputs to stdout |
+| noprofile | Boolean | No | If true, won't include profile results (defaults to false) |
+| includeLogs | Boolean | No | If true, includes logs (defaults to false) |
+
+### oJob Generate JUnit XML
+
+Generates JUnit XML format test results.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| suitesId | String | Yes | The JUnit suites id |
+| suitesName | String | Yes | The JUnit suites name |
+| resultsFile | String | Yes | The filename and path where to store the JUnit results |
+
+## oJobXLS
+
+Excel file operations for creating and manipulating XLS/XLSX files.
+
+### oJob XLS Open File
+
+Opens an XLSx file for use with other oJob XLS jobs.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| file | String | Yes | The XLSx file to write to |
+| template | String | No | The XLSx file to use as a template |
+
+### oJob XLS Table
+
+Adds an array of objects as a table on an XLS file sheet.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| file | String | Yes | The XLSx file to write to |
+| sheet | String | No | The sheet name or number (defaults to "table") |
+| data | Array | Yes | The array of objects to add |
+| position | Map | No | XLSx position with column and row (defaults to A1) |
+| headerStyle | Object | No | Map of table header style options |
+| lineStyle | Object | No | Map of table line style options |
+| autoResize | Boolean | No | Auto-size columns (defaults to true) |
+| autoFilter | Boolean | No | Enable auto filter (defaults to true) |
+
+### oJob XLS Close File
+
+Closes an XLSx file, writing it to the filesystem.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| file | String | Yes | The XLSx file to write to |
+
+## oJobGIT
+
+GIT repository operations.
+
+### GIT Copy Repository
+
+Copies a GIT repository files to a local folder.
+
+| Argument | Type | Mandatory | Description |
+|----------|------|-----------|-------------|
+| gittarget | String | Yes | The target folder for repository files |
+| giturl | String | Yes | The GIT repository URL |
+| gittemp | String | No | Temporary folder to clone repository (defaults to gittarget + ".tmp") |
+| gitbranch | String | No | Specific branch to checkout (defaults to master) |
+| gituser | String | No | GIT remote repository user (can be encrypted) |
+| gitpass | String | No | GIT remote repository pass (can be encrypted) |
+
+## oJobDebug
+
+Debug utilities for troubleshooting oJob execution.
+
+### oJob Debug Args
+
+Logs the current args map for debugging purposes.
+
+---
+
+## Shortcuts examples:
+
+### oJobTest.yaml
+
+```yaml
+include:
+- oJobTest.yaml
+
+todo:
+- (test      ): oJob::a
+  ((job     )): a
+- (test      ): oJob::b
+  ((job     )): b
+- (test      ): Script::Test
+  ((func    )): |
+    sleep(1500, true)
+    ow.test.assert(1, 1, "Problem with assert in script test")
+- (testAssert): Problem with a and b
+  ((a       )): 123
+  ((b       )): 124
+- (testGenMD ): __
+  ((file    )): results.md
+
+jobs:
+- name: a
+  exec: |
+    sleep(1500, true)
+
+- name: b
+  exec: |
+    throw "MY error!"
+```
+
+### oJobHTTPd.yaml
+
+`HTTP Service` and `HTTP SSE Service` preserve an explicit `execPre`; when omitted,
+they use `HTTP Default Auth`. An explicit empty string overrides that default.
+Browse jobs confine their built-in filesystem callbacks to the configured root,
+including symlink targets. `HTTP File Browse` applies `restrict` patterns to
+listing, direct reads, downloads and default documents. Supply patterns as an
+array or comma-separated string. Upload filenames must be plain basenames;
+absolute paths, directory separators and destinations outside the upload root
+are rejected. Custom browse callbacks remain responsible for their own access
+policy. These services still require an appropriate authentication policy when
+exposed to untrusted clients.
+
+`HTTP Metrics` and `REST Metrics` default to strict OpenMetrics 1.0 text with
+`application/openmetrics-text; version=1.0.0; charset=utf-8`, grouped metadata,
+and a final `# EOF` line. Scrape timestamps are omitted. `HTTP Healthz` and
+`REST Healthz` use the same strict format when `openmetrics: true`.
+
+Strict mode requires an OpenAF runtime providing the sixth `aStrict` argument of
+`ow.metrics.fromObj2OpenMetrics`. It supports scalar unknown, gauge and counter
+families; structured types are rejected by the formatter. Set
+`openMetricsStrict: false` on these jobs (or `((openMetricsStrict)): false` on
+the HTTP shortcuts) for legacy output, including compatibility with older OpenAF
+runtimes. Custom `metrics` and `healthz` handler code keeps control of its response.
+The JSON health response remains the default when `openmetrics` is omitted.
+The upstream README names `tests/openmetrics.js`, but that fixture is absent from this pinned checkout. Validate these endpoints in your own local service fixture; the referenced command cannot be reproduced from this snapshot alone.
+
+
+```yaml
+todo:
+# Starts the server
+- (httpdStart  ): &PORT 12345
+
+# Setups the default answer, /healthz, /livez and /metrics
+- (httpdDefault): *PORT
+  ((uri       )): /
+- (httpdHealthz): *PORT
+- (httpdMetrics): *PORT
+  ((prefix    )): mytest
+
+# Allows browsing of files
+- (httpdFileBrowse): *PORT
+  ((uri          )): /browse
+  ((path         )): .
+
+# Allows for the upload of files
+- (httpdUpload): *PORT
+  ((uri      )): /upload
+  ((path     )): .
+
+# Adds a custom metric
+- (httpdAddMetric): global-counter
+  ((fn          )): |
+    // Sets an atomic counter if one does not exist and returns a counter increment
+    if (isUnDef(global.counter)) global.counter = $atomic()
+    return global.counter.inc()
+
+# /test calls the 'test' job
+- (httpdService): *PORT
+  ((uri       )): /test
+  ((execURI   )): |
+    // Shows all request components for debug
+    cprint(request)
+    // Returns the result of calling the job 'test' passing the request and expecting an ANSWER to be returned
+    return ow.server.httpd.reply($job("test", request).ANSWER)
+
+jobs:
+# ---------------------------------
+# Job test is written in shell code
+- name: test
+  lang: shell
+  typeArgs:
+    noTemplate: true
+  exec: |
+    # Request values arrive as environment data, never as shell source.
+    ANSWER="Echo from the shell (a: $params_a)"
+
+    # return ANSWER
+
+# Includes the http server functionality
+include:
+- oJobHTTPd.yaml
+
+# Makes sures it runs forever and oJob-common is included
+ojob:
+  daemon: true
+  opacks:
+    oJob-common
+```
+{% endraw %}

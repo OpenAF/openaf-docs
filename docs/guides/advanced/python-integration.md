@@ -5,6 +5,9 @@ parent: Advanced
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/python.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # Python & OpenAF
 
 OpenAF can drive a Python interpreter as a subprocess and exchange data/code with it in several
@@ -352,3 +355,4 @@ preserve sessions, forward exception flags or support the fourth standalone argv
 Check `getVersion()` and the installed API help, or rebuild/install the matching revision before
 relying on these contracts. Python 2 syntax compatibility is retained; Python 2 and Windows
 require separate platform validation.
+{% endraw %}

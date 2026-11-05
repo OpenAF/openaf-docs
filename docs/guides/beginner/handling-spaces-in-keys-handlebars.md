@@ -9,7 +9,7 @@ grand_parent: Guides
 
 If you ever came across a similar JSON map to this:
 
-````javascript
+````json
 {
    "Update"      : "2019-08-24T12:34:56.789Z",
    "Stats"       : {
@@ -43,7 +43,7 @@ Free mem: {{Stats.[Memory stats].[Free memory]}}MB{% endraw %}
 
 So the final code would be, for example:
 
-````javascript
+````json
 {% raw %}
 tprint("Update: {{Update}}", myMap);
 tprint("Free mem: {{Stats.[Memory stats].[Free memory]}}MB", myMap);

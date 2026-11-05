@@ -1,0 +1,1604 @@
+[
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 1,
+    "line": 99,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 2,
+    "line": 106,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 3,
+    "line": 112,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 4,
+    "line": 119,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 5,
+    "line": 126,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 6,
+    "line": 132,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 7,
+    "line": 138,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 8,
+    "line": 144,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 9,
+    "line": 151,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 10,
+    "line": 158,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 11,
+    "line": 165,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 12,
+    "line": 171,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 13,
+    "line": 177,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 14,
+    "line": 183,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 15,
+    "line": 193,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 16,
+    "line": 199,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 17,
+    "line": 205,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 18,
+    "line": 213,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 19,
+    "line": 223,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 20,
+    "line": 239,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 21,
+    "line": 245,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 22,
+    "line": 251,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 23,
+    "line": 259,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 24,
+    "line": 267,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 27,
+    "line": 351,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 28,
+    "line": 404,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 29,
+    "line": 427,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 31,
+    "line": 460,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 32,
+    "line": 491,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 33,
+    "line": 520,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 34,
+    "line": 541,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 35,
+    "line": 694,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 36,
+    "line": 700,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 37,
+    "line": 708,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 38,
+    "line": 737,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 39,
+    "line": 743,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 40,
+    "line": 751,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 41,
+    "line": 757,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-Channels.md",
+    "block": 42,
+    "line": 763,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/OpenAF-oPromise.md",
+    "block": 2,
+    "line": 50,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/concepts/OpenAF-oPromise.md",
+    "block": 3,
+    "line": 75,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/concepts/java.md",
+    "block": 2,
+    "line": 38,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/concepts/java.md",
+    "block": 14,
+    "line": 186,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/concepts/javascript2oaf.md",
+    "block": 0,
+    "line": 68,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/concepts/javascript2oaf.md",
+    "block": 1,
+    "line": 80,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/concepts/javascript2oaf.md",
+    "block": 2,
+    "line": 235,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/concepts/llm.md",
+    "block": 1,
+    "line": 37,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/concepts/llm.md",
+    "block": 2,
+    "line": 45,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/concepts/llm.md",
+    "block": 3,
+    "line": 95,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/concepts/sBuckets.md",
+    "block": 5,
+    "line": 69,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/sBuckets.md",
+    "block": 6,
+    "line": 80,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/concepts/sBuckets.md",
+    "block": 7,
+    "line": 89,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/advanced/channel-graph.md",
+    "block": 3,
+    "line": 128,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/channel-graph.md",
+    "block": 4,
+    "line": 143,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/channel-timeseries.md",
+    "block": 2,
+    "line": 106,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/channel-timeseries.md",
+    "block": 5,
+    "line": 189,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/connecting-directly-to-local-jvm-jmx.md",
+    "block": 0,
+    "line": 16,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/advanced/connecting-directly-to-local-jvm-jmx.md",
+    "block": 1,
+    "line": 31,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/advanced/connecting-directly-to-local-jvm-jmx.md",
+    "block": 2,
+    "line": 37,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/advanced/db-fields.md",
+    "block": 4,
+    "line": 54,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/advanced/dynamically-adding-a-custom-jdbc.md",
+    "block": 0,
+    "line": 23,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/advanced/executing-code-asynchronously.md",
+    "block": 1,
+    "line": 22,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/executing-code-asynchronously.md",
+    "block": 2,
+    "line": 38,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/executing-code-asynchronously.md",
+    "block": 3,
+    "line": 61,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/how-to-copy-clobs-between-databases.md",
+    "block": 0,
+    "line": 16,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/mcp-oauth.md",
+    "block": 1,
+    "line": 109,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/openaf-advanced-guide.md",
+    "block": 23,
+    "line": 565,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/openaf-advanced-guide.md",
+    "block": 24,
+    "line": 591,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/openaf-advanced-guide.md",
+    "block": 25,
+    "line": 630,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/openaf-advanced-guide.md",
+    "block": 26,
+    "line": 666,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/openai-schema-hooks.md",
+    "block": 0,
+    "line": 17,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/ow-ai-gpttypes.md",
+    "block": 0,
+    "line": 65,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/ow-ai-gpttypes.md",
+    "block": 2,
+    "line": 207,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/ow-ai-gpttypes.md",
+    "block": 11,
+    "line": 408,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/advanced/thread-box.md",
+    "block": 0,
+    "line": 18,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/advanced/thread-box.md",
+    "block": 1,
+    "line": 36,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/advanced/thread-box.md",
+    "block": 2,
+    "line": 56,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/advanced/using-elasticsearch.md",
+    "block": 1,
+    "line": 29,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/advanced/using-elasticsearch.md",
+    "block": 2,
+    "line": 37,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/accessing-environment-variables.md",
+    "block": 0,
+    "line": 12,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/accessing-environment-variables.md",
+    "block": 1,
+    "line": 23,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/accessing-environment-variables.md",
+    "block": 2,
+    "line": 30,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/appending-to-files.md",
+    "block": 2,
+    "line": 33,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/check-ssl-certificates.md",
+    "block": 1,
+    "line": 33,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/comparing-maps-arrays.md",
+    "block": 1,
+    "line": 44,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/comparing-maps-arrays.md",
+    "block": 2,
+    "line": 55,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/comparing-maps-arrays.md",
+    "block": 3,
+    "line": 68,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/comparing-maps-arrays.md",
+    "block": 4,
+    "line": 80,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/converting-array-to-csv-and-viceversa.md",
+    "block": 1,
+    "line": 39,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/converting-array-to-csv-and-viceversa.md",
+    "block": 4,
+    "line": 89,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/converting-arrays-to-map-and-viceversa.md",
+    "block": 0,
+    "line": 20,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/beginner/converting-arrays-to-map-and-viceversa.md",
+    "block": 1,
+    "line": 42,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/converting-arrays-to-map-and-viceversa.md",
+    "block": 2,
+    "line": 77,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/converting-numbers.md",
+    "block": 0,
+    "line": 13,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/converting-numbers.md",
+    "block": 1,
+    "line": 19,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/converting-numbers.md",
+    "block": 2,
+    "line": 26,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/converting-numbers.md",
+    "block": 3,
+    "line": 33,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/converting-numbers.md",
+    "block": 4,
+    "line": 40,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/converting-numbers.md",
+    "block": 5,
+    "line": 47,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/converting-numbers.md",
+    "block": 6,
+    "line": 54,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/creating-a-zip-file.md",
+    "block": 1,
+    "line": 33,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/encode-decode-base64.md",
+    "block": 0,
+    "line": 14,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/encode-decode-base64.md",
+    "block": 1,
+    "line": 26,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/format-bytes-abbreviation.md",
+    "block": 1,
+    "line": 27,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/gzip-in-openaf.md",
+    "block": 2,
+    "line": 41,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/gzip-in-openaf.md",
+    "block": 3,
+    "line": 53,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/how-to-use-the-smb-plugin.md",
+    "block": 2,
+    "line": 40,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/how-to-use-the-smb-plugin.md",
+    "block": 3,
+    "line": 69,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/how-to-use-the-smb-plugin.md",
+    "block": 4,
+    "line": 82,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/is-defined-or-undefined.md",
+    "block": 0,
+    "line": 12,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/is-defined-or-undefined.md",
+    "block": 1,
+    "line": 24,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/making-rest-calls.md",
+    "block": 0,
+    "line": 18,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/making-rest-calls.md",
+    "block": 1,
+    "line": 40,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/making-rest-calls.md",
+    "block": 2,
+    "line": 53,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/making-rest-calls.md",
+    "block": 3,
+    "line": 66,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/making-rest-calls.md",
+    "block": 4,
+    "line": 79,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/making-rest-calls.md",
+    "block": 7,
+    "line": 126,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/protecting-system-exit.md",
+    "block": 1,
+    "line": 22,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/protecting-system-exit.md",
+    "block": 2,
+    "line": 34,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/receiving-keyboard-input.md",
+    "block": 0,
+    "line": 12,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/beginner/relaxed-json-parser.md",
+    "block": 0,
+    "line": 14,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/relaxed-json-parser.md",
+    "block": 1,
+    "line": 27,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/relaxed-json-parser.md",
+    "block": 2,
+    "line": 40,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/beginner/using-wildcards.md",
+    "block": 3,
+    "line": 51,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/cheat-sheet/openaf-programming.md",
+    "block": 2,
+    "line": 84,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/cheat-sheet/openaf-programming.md",
+    "block": 3,
+    "line": 100,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/cheat-sheet/openaf-programming.md",
+    "block": 4,
+    "line": 131,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/accessing-mongodb.md",
+    "block": 3,
+    "line": 71,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/accessing-mongodb.md",
+    "block": 4,
+    "line": 83,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/accessing-remote-jmx-data.md",
+    "block": 0,
+    "line": 24,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/accessing-remote-jmx-data.md",
+    "block": 1,
+    "line": 35,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/accessing-remote-jmx-data.md",
+    "block": 2,
+    "line": 68,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/accessing-remote-jmx-data.md",
+    "block": 3,
+    "line": 79,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/accessing-remote-jmx-data.md",
+    "block": 4,
+    "line": 91,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/accessing-xml-using-e4x.md",
+    "block": 2,
+    "line": 59,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/accessing-xml-using-e4x.md",
+    "block": 3,
+    "line": 69,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/accessing-xml-using-e4x.md",
+    "block": 4,
+    "line": 80,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/accessing-xml-using-e4x.md",
+    "block": 5,
+    "line": 87,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/accessing-xml-using-e4x.md",
+    "block": 6,
+    "line": 96,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/accessing-xml-using-e4x.md",
+    "block": 7,
+    "line": 103,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/accessing-xml-using-e4x.md",
+    "block": 8,
+    "line": 110,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/adding-color-to-openaf-scripts.md",
+    "block": 0,
+    "line": 22,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/applying-selectors-array.md",
+    "block": 0,
+    "line": 14,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/applying-selectors-array.md",
+    "block": 1,
+    "line": 51,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/applying-selectors-array.md",
+    "block": 2,
+    "line": 72,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/applying-selectors-array.md",
+    "block": 3,
+    "line": 85,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/aws-sending-sqs.md",
+    "block": 4,
+    "line": 72,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/casting-values-in-postgresql-and-h2-for-openaf.md",
+    "block": 0,
+    "line": 16,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/casting-values-in-postgresql-and-h2-for-openaf.md",
+    "block": 1,
+    "line": 30,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/casting-values-in-postgresql-and-h2-for-openaf.md",
+    "block": 2,
+    "line": 44,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/casting-values-in-postgresql-and-h2-for-openaf.md",
+    "block": 3,
+    "line": 54,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/casting-values-in-postgresql-and-h2-for-openaf.md",
+    "block": 4,
+    "line": 68,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/casting-values-in-postgresql-and-h2-for-openaf.md",
+    "block": 5,
+    "line": 81,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/check-current-java-memory.md",
+    "block": 1,
+    "line": 22,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/check-current-java-memory.md",
+    "block": 2,
+    "line": 34,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/check-current-java-memory.md",
+    "block": 3,
+    "line": 48,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/checking-digests.md",
+    "block": 1,
+    "line": 29,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/elasticsearch-deleting-indexes.md",
+    "block": 0,
+    "line": 33,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/elasticsearch-deleting-indexes.md",
+    "block": 1,
+    "line": 39,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/elasticsearch-deleting-indexes.md",
+    "block": 2,
+    "line": 79,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/elasticsearch-deleting-indexes.md",
+    "block": 3,
+    "line": 95,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/elasticsearch-listing-indexes.md",
+    "block": 0,
+    "line": 33,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/elasticsearch-listing-indexes.md",
+    "block": 1,
+    "line": 39,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/elasticsearch-listing-indexes.md",
+    "block": 2,
+    "line": 47,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/executing-code-when-an-openaf-script-execution-is-terminated.md",
+    "block": 0,
+    "line": 14,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/executing-code-when-an-openaf-script-execution-is-terminated.md",
+    "block": 1,
+    "line": 23,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/executing-commands-remotely-via-ssh.md",
+    "block": 2,
+    "line": 69,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/increasing-the-history-size-for-openaf-console.md",
+    "block": 0,
+    "line": 14,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/logging-to-log-files.md",
+    "block": 0,
+    "line": 14,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/logging-to-log-files.md",
+    "block": 1,
+    "line": 41,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/logging-to-log-files.md",
+    "block": 2,
+    "line": 65,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/logging-to-log-files.md",
+    "block": 4,
+    "line": 139,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/modifying-xml-using-e4x.md",
+    "block": 0,
+    "line": 45,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/modifying-xml-using-e4x.md",
+    "block": 1,
+    "line": 55,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/modifying-xml-using-e4x.md",
+    "block": 2,
+    "line": 66,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/modifying-xml-using-e4x.md",
+    "block": 3,
+    "line": 79,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/modifying-xml-using-e4x.md",
+    "block": 4,
+    "line": 96,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/modifying-xml-using-e4x.md",
+    "block": 5,
+    "line": 104,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/openaf-console-color-formatting.md",
+    "block": 0,
+    "line": 20,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/openaf-console-color-formatting.md",
+    "block": 1,
+    "line": 35,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/quick-xml-to-from-json.md",
+    "block": 0,
+    "line": 34,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/quick-xml-to-from-json.md",
+    "block": 1,
+    "line": 60,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/quick-xml-to-from-json.md",
+    "block": 2,
+    "line": 92,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/quick-xml-to-from-json.md",
+    "block": 3,
+    "line": 104,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/reading-listing-writing-tar-files.md",
+    "block": 1,
+    "line": 83,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/search-keys-and-values.md",
+    "block": 0,
+    "line": 14,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/search-keys-and-values.md",
+    "block": 1,
+    "line": 24,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/search-keys-and-values.md",
+    "block": 2,
+    "line": 34,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/search-keys-and-values.md",
+    "block": 3,
+    "line": 52,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/search-keys-and-values.md",
+    "block": 4,
+    "line": 61,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/sending-emails.md",
+    "block": 8,
+    "line": 77,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/sending-emails.md",
+    "block": 9,
+    "line": 84,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/sending-emails.md",
+    "block": 10,
+    "line": 91,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/setting-db-auto-commit.md",
+    "block": 0,
+    "line": 16,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/setting-db-auto-commit.md",
+    "block": 1,
+    "line": 28,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/simple-nattrmon-debugging.md",
+    "block": 0,
+    "line": 26,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/simple-nattrmon-debugging.md",
+    "block": 1,
+    "line": 38,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/timing-executions-on-openaf-console.md",
+    "block": 0,
+    "line": 12,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/timing-executions-on-openaf-console.md",
+    "block": 1,
+    "line": 23,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/timing-executions-on-openaf-console.md",
+    "block": 2,
+    "line": 49,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/timing-executions-on-openaf-console.md",
+    "block": 3,
+    "line": 58,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/timing-executions-on-openaf-console.md",
+    "block": 4,
+    "line": 74,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/use-do-a2b.md",
+    "block": 0,
+    "line": 16,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/medium/using-channel-peers.md",
+    "block": 6,
+    "line": 82,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/using-channel-peers.md",
+    "block": 7,
+    "line": 89,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/using-channel-peers.md",
+    "block": 8,
+    "line": 99,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/using-console-inside-kubernetes.md",
+    "block": 0,
+    "line": 26,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/using-console-inside-kubernetes.md",
+    "block": 1,
+    "line": 38,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/using-console-inside-kubernetes.md",
+    "block": 2,
+    "line": 50,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/using-console-inside-kubernetes.md",
+    "block": 3,
+    "line": 62,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/using-console-inside-kubernetes.md",
+    "block": 4,
+    "line": 70,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/using-console-inside-kubernetes.md",
+    "block": 5,
+    "line": 84,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/using-in-mem-db.md",
+    "block": 0,
+    "line": 18,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/using-in-mem-db.md",
+    "block": 1,
+    "line": 26,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/using-in-mem-db.md",
+    "block": 2,
+    "line": 37,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/using-in-mem-db.md",
+    "block": 3,
+    "line": 53,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/using-in-mem-db.md",
+    "block": 4,
+    "line": 74,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/using-in-mem-db.md",
+    "block": 5,
+    "line": 80,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/medium/using-the-openafs-svn-plugin.md",
+    "block": 4,
+    "line": 52,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/ojob/build-mcp-server.md",
+    "block": 0,
+    "line": 157,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/ojob/build-mcp-server.md",
+    "block": 8,
+    "line": 279,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/ojob/llm-tui-guide.md",
+    "block": 5,
+    "line": 222,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/oneliner/starting-a-http-file-browser.md",
+    "block": 0,
+    "line": 51,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/oneliner/starting-a-http-file-browser.md",
+    "block": 1,
+    "line": 61,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/oneliner/test-latency.md",
+    "block": 1,
+    "line": 53,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/oneliner/test-latency.md",
+    "block": 2,
+    "line": 60,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/oneliner/test-latency.md",
+    "block": 3,
+    "line": 72,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/guides/opacks/d3svg.md",
+    "block": 1,
+    "line": 63,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/opacks/d3svg.md",
+    "block": 6,
+    "line": 167,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/opacks/d3svg.md",
+    "block": 9,
+    "line": 225,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/opacks/d3svg.md",
+    "block": 11,
+    "line": 276,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/opacks/grpc.md",
+    "block": 3,
+    "line": 101,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/opacks/maven.md",
+    "block": 1,
+    "line": 33,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/opacks/openapi.md",
+    "block": 1,
+    "line": 64,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/guides/opacks/tika.md",
+    "block": 1,
+    "line": 39,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/howto/Use-ask.md",
+    "block": 0,
+    "line": 25,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/howto/Use-ask.md",
+    "block": 1,
+    "line": 34,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/howto/Use-ask.md",
+    "block": 2,
+    "line": 45,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/howto/Use-ask.md",
+    "block": 3,
+    "line": 58,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/howto/Use-ask.md",
+    "block": 4,
+    "line": 69,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/howto/Use-ask.md",
+    "block": 5,
+    "line": 88,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/howto/Use-ask.md",
+    "block": 6,
+    "line": 101,
+    "reason": "console transcript"
+  },
+  {
+    "path": "docs/howto/Use-files.md",
+    "block": 13,
+    "line": 123,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/howto/Use-log.md",
+    "block": 0,
+    "line": 22,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/howto/Use-log.md",
+    "block": 5,
+    "line": 137,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_ai.md",
+    "block": 2,
+    "line": 448,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_ch.md",
+    "block": 15,
+    "line": 826,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_format.md",
+    "block": 1,
+    "line": 701,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_format.md",
+    "block": 2,
+    "line": 831,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_sec.md",
+    "block": 0,
+    "line": 37,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_server.md",
+    "block": 0,
+    "line": 56,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_server.md",
+    "block": 1,
+    "line": 218,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_server.md",
+    "block": 2,
+    "line": 239,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_server.md",
+    "block": 3,
+    "line": 259,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_server.md",
+    "block": 5,
+    "line": 466,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_server.md",
+    "block": 6,
+    "line": 634,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_server.md",
+    "block": 7,
+    "line": 648,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_server.md",
+    "block": 8,
+    "line": 674,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_server.md",
+    "block": 11,
+    "line": 756,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_server.md",
+    "block": 16,
+    "line": 1226,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_server.md",
+    "block": 19,
+    "line": 1430,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/ow_template.md",
+    "block": 0,
+    "line": 343,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/scope.md",
+    "block": 2,
+    "line": 104,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/scope.md",
+    "block": 3,
+    "line": 167,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/scope.md",
+    "block": 11,
+    "line": 454,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/scope.md",
+    "block": 20,
+    "line": 768,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  },
+  {
+    "path": "docs/reference/scope.md",
+    "block": 24,
+    "line": 897,
+    "reason": "abbreviated snippet or spread syntax; manual review"
+  }
+]

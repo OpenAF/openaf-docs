@@ -1,13 +1,16 @@
 ---
 layout: default
-title: "oPacks \u2014 OpenAF Packages"
+title: oPacks — OpenAF Packages
 parent: Advanced
 grand_parent: Guides
 ---
 
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/opacks.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
+
 # oPacks — OpenAF Packages
 
-[Index](../../../index.md) | [oJob Reference](../ojob/ojob-yaml-reference.md) | [OpenAF Reference](openaf-reference.md) | [Security](../ojob/ojob-security.md) | [Flags](openaf-flags.md) | [Advanced](openaf-advanced-guide.md)
+[Index](../index.md) | [oJob Reference](../ojob/ojob-yaml-reference.md) | [OpenAF Reference](openaf-reference.md) | [Security](../ojob/ojob-security.md) | [Flags](openaf-flags.md) | [Advanced](openaf-advanced-guide.md)
 
 An **oPack** ("OpenAF package", commonly written `opack`) is a self-contained, versioned bundle of OpenAF/JavaScript code — plus optional jars, native binaries, docs and assets — that can be installed into an OpenAF distribution, listed as a dependency, and loaded with `require()`/`loadLib()`/`plugin()` like any built-in library. The `opack` CLI (invoked as `openaf --opack ...`, usually aliased to an `opack` script/binary) is OpenAF's package manager: it installs, updates, removes, searches, packages and publishes opacks, in the same spirit as `npm`, `pip` or `apt` but file/HTTP based and dependency-free.
 
@@ -127,7 +130,7 @@ Invoke it as `openaf --opack <verb> [args...] [options]` (packaged distributions
 - `-force` — reinstall even if already at the same/newer version, and skip the dependency-satisfied check.
 - `-repo <url\|path>` — prepend an extra repository to search for this run only.
 - `-deps` — automatically install missing dependencies instead of prompting interactively.
-- `-useunzip` — stream-extract to save memory on very large opacks.
+- `-useunzip` — accepted for compatibility; extraction uses the same safe internal streaming path.
 - `-noverify` — skip the post-install file-hash verification pass.
 - `-cred <user:pass>` — HTTP basic-auth credentials for protected repositories/URLs.
 - `-arg <value>` — passed through to `preinstall`/`postinstall` scripts as `arg`.
@@ -336,3 +339,4 @@ The public [`openaf-opacks`](https://github.com/OpenAF/openaf-opacks) repo hosts
 - `oJob-common/oJobOPack.yaml` — CI-friendly packaging job.
 - `ojob.md` §"External Dependencies" — the `ojob.opacks:`/`owraps:` header.
 - [openaf-opacks](https://github.com/OpenAF/openaf-opacks) — the public opack monorepo and its `AGENTS.md`.
+{% endraw %}

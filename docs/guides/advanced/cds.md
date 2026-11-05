@@ -1,9 +1,12 @@
 ---
 layout: default
-title: "Shared archive coverage"
+title: Shared archive coverage
 parent: Advanced
 grand_parent: Guides
 ---
+
+{% raw %}
+> Source: [openaf `06414cd9`](https://github.com/OpenAF/openaf/blob/06414cd9204e918daa1e2971ce904783299db333/docs/cds.md). See [documentation baseline](../../source-snapshot.md) for availability and verification.
 
 # Shared archive coverage
 
@@ -53,3 +56,11 @@ To inspect actual sharing during an oJob execution:
 ```sh
 OAF_JARGS='-Xlog:class+load=info:file=cds-classes.log' ./ojob job.yaml
 ```
+
+On macOS/JDK 26.0.2.1, the initial generated-launcher comparison increased the
+archive from 1,543 to 2,003 classes. Six retained samples per variant measured
+median first-instruction times of 458.5 → 446.5 ms for OpenAF and 951 → 942 ms for
+a minimal oJob. These are small local gains, not the roughly 35% application-CDS
+result obtained with an experimental manifest modification. Other JDK/OS
+combinations need separate measurement.
+{% endraw %}

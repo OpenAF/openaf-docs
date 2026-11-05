@@ -48,7 +48,7 @@ So a more verbose type checking could be:
 
 ````javascript
 function sum(a, b, c) {
-    _$(a).isNumber("The argument 'a' needs to be a number.').$_('The argument 'a' is mandatory for the sum function.');
+    _$(a).isNumber("The argument 'a' needs to be a number.").$_("The argument 'a' is mandatory for the sum function.");
 
     b = _$(b).isNumber("The argument 'b', if defined, must be a number.").default(0);
     c = _$(c).isString("The argument 'c', if defined, must be a string.").default("the result is ");

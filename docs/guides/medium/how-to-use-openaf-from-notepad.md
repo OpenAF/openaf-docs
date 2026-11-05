@@ -11,7 +11,7 @@ It's possible to use Notepad++ to run and debug OpenAF scripts. To set it up jus
 
 1. Download and install (if don't have) the NPPExec plugin for Notepad++
 
-````javascript
+````text
 set hglt1 = ERROR [%ABSFILE%] -- *, line: %LINE%, column: %CHAR%
 c:\apps\openaf\openaf.bat -s -i script -f "$(FULL_CURRENT_PATH)"
 ````
